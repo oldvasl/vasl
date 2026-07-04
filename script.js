@@ -45,3 +45,33 @@ feed.prepend(post);
 
 document.getElementById("postText").value = "";
 }
+async function createPost(){
+const text = document.getElementById("postText").value;
+
+if(!text) return;
+
+await fetch(API + "/post", {
+method: "POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({
+text: text,
+user: currentUser
+})
+});
+
+const feed = document.getElementById("feed");
+
+const post = document.createElement("div");
+post.className = "post";
+
+post.innerHTML = `
+<strong>${currentUser}</strong>
+<p>${text}</p>
+`;
+
+feed.prepend(post);
+
+document.getElementById("postText").value = "";
+}
