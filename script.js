@@ -1,4 +1,4 @@
-let currentUser = null;
+let API = "https://vasl-api.YOUR-WORKER.workers.dev";
 
 // ورود
 function login(){
