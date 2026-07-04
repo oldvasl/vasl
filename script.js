@@ -44,3 +44,4 @@ feed.prepend(post);
 
 document.getElementById("postText").value = "";
 }
+}
