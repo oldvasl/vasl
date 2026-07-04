@@ -25,13 +25,14 @@ document.getElementById("homePage").classList.remove("active");
 document.getElementById("loginPage").classList.add("active");
 }
 
-// ساخت پست
+// ساخت پست (فقط یکی!)
 async function createPost(){
+
 const text = document.getElementById("postText").value;
 
 if(!text) return;
 
-// ارسال به تلگرام از طریق Worker
+// ارسال به Cloudflare → Telegram
 await fetch(API + "/post", {
 method: "POST",
 headers: {
