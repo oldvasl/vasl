@@ -3,56 +3,53 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Social</title>
+<title>Vasl</title>
 
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<header>
+<!-- LOGIN -->
+<section id="loginPage" class="page active">
 
-<div class="logo">
-SOCIAL
+<div class="centerBox">
+
+<h1 class="logo">Vasl</h1>
+
+<p class="sub">ورود به شبکه اجتماعی</p>
+
+<input type="text" id="username" placeholder="نام کاربری">
+<input type="password" id="password" placeholder="رمز عبور">
+
+<button onclick="login()">ورود</button>
+
+<p class="small">حساب نداری؟ ثبت‌نام موقت همینجا انجام میشه</p>
+
 </div>
 
-<nav>
+</section>
 
-<button>خانه</button>
+<!-- HOME -->
+<section id="homePage" class="page">
 
-<button>جستجو</button>
-
-<button>آپلود</button>
-
-<button>پروفایل</button>
-
-</nav>
-
+<header>
+<div class="logoSmall">Vasl</div>
+<button onclick="logout()">خروج</button>
 </header>
 
-<main>
+<div class="postBox">
 
-<div class="create-post">
+<textarea id="postText" placeholder="چه خبر؟"></textarea>
 
-<textarea
-id="postText"
-placeholder="چه خبر؟"></textarea>
-
-<button id="sendPost">
-
-ارسال پست
-
-</button>
+<button onclick="createPost()">ارسال پست</button>
 
 </div>
 
-<div id="feed">
+<div id="feed"></div>
 
-</div>
-
-</main>
+</section>
 
 <script src="script.js"></script>
-
 </body>
 </html>
