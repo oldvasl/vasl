@@ -27,7 +27,7 @@ document.getElementById("loginPage").classList.add("active");
 
 // ساخت پست (فقط یکی!)
 async function createPost(){
-alert("CLICKED");
+alert("BEFORE FETCH");
 const text = document.getElementById("postText").value;
 
 if(!text) return;
