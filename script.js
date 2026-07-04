@@ -46,11 +46,14 @@ document.getElementById("postText").value = "";
 }
 const tabs = document.querySelectorAll(".tab");
 
-tabs.forEach(tab => {
-tab.onclick = () => {
+tabs.forEach(t => {
+t.onclick = () => {
 
-tabs.forEach(t => t.classList.remove("active"));
-tab.classList.add("active");
+tabs.forEach(x => x.classList.remove("active"));
+t.classList.add("active");
+
+// اینجا بعداً صفحه‌ها سوییچ می‌کنیم
+console.log("Switch to:", t.innerText);
 
 };
 });
