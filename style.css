@@ -1,11 +1,107 @@
-body{
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;700&display=swap');
+
+*{
 margin:0;
+padding:0;
+box-sizing:border-box;
 font-family:Vazirmatn;
+}
+
+body{
 background:#1A0A31;
 color:white;
 }
 
-/* TOP BAR */
+/* صفحات */
+.page{
+display:none;
+min-height:100vh;
+}
+
+.page.active{
+display:block;
+}
+
+/* لاگین */
+.centerBox{
+max-width:350px;
+margin:120px auto;
+text-align:center;
+}
+
+.logo{
+font-size:50px;
+color:#8B5CF6;
+margin-bottom:10px;
+}
+
+.sub{
+color:#C9C4D8;
+margin-bottom:20px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin:8px 0;
+border:none;
+border-radius:10px;
+background:#2D1856;
+color:white;
+outline:none;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:10px;
+background:#8B5CF6;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+/* هوم */
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px;
+background:#241243;
+}
+
+.logoSmall{
+font-weight:bold;
+color:#8B5CF6;
+}
+
+.postBox{
+padding:15px;
+}
+
+textarea{
+width:100%;
+height:100px;
+padding:10px;
+border:none;
+border-radius:10px;
+background:#2D1856;
+color:white;
+resize:none;
+}
+
+#feed{
+padding:10px;
+}
+
+.post{
+background:#241243;
+padding:15px;
+margin-top:10px;
+border-radius:12px;
+}
 .topbar{
 display:flex;
 justify-content:space-around;
@@ -13,15 +109,15 @@ align-items:center;
 position:sticky;
 top:0;
 background:#1A0A31;
-padding:10px;
+padding:12px 5px;
 border-bottom:1px solid #2D1856;
 z-index:1000;
 }
 
 .tab{
-font-size:13px;
 color:#C9C4D8;
-padding:6px 10px;
+font-size:14px;
+padding:8px 10px;
 border-radius:10px;
 cursor:pointer;
 transition:0.2s;
@@ -30,71 +126,4 @@ transition:0.2s;
 .tab.active{
 background:#8B5CF6;
 color:white;
-}
-
-/* FEED */
-#feed{
-padding:10px;
-}
-
-/* POST CARD */
-.post{
-background:#241243;
-border-radius:16px;
-padding:12px;
-margin-bottom:12px;
-}
-
-/* HEADER */
-.postHeader{
-display:flex;
-align-items:center;
-gap:10px;
-margin-bottom:10px;
-}
-
-.avatar{
-width:40px;
-height:40px;
-border-radius:50%;
-object-fit:cover;
-}
-
-.userInfo b{
-display:block;
-font-size:14px;
-}
-
-.userInfo small{
-font-size:11px;
-color:#C9C4D8;
-}
-
-/* MEDIA */
-.media{
-width:100%;
-border-radius:12px;
-margin-bottom:10px;
-}
-
-/* CAPTION */
-.caption{
-font-size:13px;
-color:#FFFFFF;
-margin-bottom:10px;
-line-height:1.4;
-}
-
-/* ACTIONS */
-.actions{
-display:flex;
-justify-content:space-between;
-}
-
-.actions button{
-background:transparent;
-border:none;
-color:#C9C4D8;
-font-size:13px;
-cursor:pointer;
 }
