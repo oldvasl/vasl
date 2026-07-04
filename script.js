@@ -44,16 +44,3 @@ feed.prepend(post);
 
 document.getElementById("postText").value = "";
 }
-const tabs = document.querySelectorAll(".tab");
-
-tabs.forEach(t => {
-t.onclick = () => {
-
-tabs.forEach(x => x.classList.remove("active"));
-t.classList.add("active");
-
-// اینجا بعداً صفحه‌ها سوییچ می‌کنیم
-console.log("Switch to:", t.innerText);
-
-};
-});
