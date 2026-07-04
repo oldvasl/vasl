@@ -1,5 +1,5 @@
 let currentUser = null;
-
+let API = "https://vasling.alipviv8698.workers.dev";
 // ورود
 function login(){
 const u = document.getElementById("username").value;
