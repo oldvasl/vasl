@@ -1,37 +1,46 @@
-const API="";
+let currentUser = null;
 
-document
-.getElementById("sendPost")
-.onclick=async()=>{
+// ورود
+function login(){
+const u = document.getElementById("username").value;
+const p = document.getElementById("password").value;
 
-const text=document
-.getElementById("postText")
-.value;
+if(!u || !p){
+alert("پر کن");
+return;
+}
 
-if(text==="") return;
+currentUser = u;
 
-await fetch(API+"/post",{
+document.getElementById("loginPage").classList.remove("active");
+document.getElementById("homePage").classList.add("active");
+}
 
-method:"POST",
+// خروج
+function logout(){
+currentUser = null;
 
-headers:{
+document.getElementById("homePage").classList.remove("active");
+document.getElementById("loginPage").classList.add("active");
+}
 
-"Content-Type":"application/json"
+// ساخت پست
+function createPost(){
+const text = document.getElementById("postText").value;
 
-},
+if(!text) return;
 
-body:JSON.stringify({
+const feed = document.getElementById("feed");
 
-text
+const post = document.createElement("div");
+post.className = "post";
 
-})
+post.innerHTML = `
+<strong>${currentUser}</strong>
+<p>${text}</p>
+`;
 
-});
+feed.prepend(post);
 
-document
-.getElementById("postText")
-.value="";
-
-alert("ارسال شد");
-
-};
+document.getElementById("postText").value = "";
+}
