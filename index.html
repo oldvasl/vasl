@@ -10,45 +10,59 @@
 
 <body>
 
-<!-- LOGIN -->
-<section id="loginPage" class="page active">
+<!-- TOP BAR -->
+<div class="topbar">
 
-<div class="centerBox">
-
-<h1 class="logo">Vasl</h1>
-
-<p class="sub">ورود به شبکه اجتماعی</p>
-
-<input type="text" id="username" placeholder="نام کاربری">
-<input type="password" id="password" placeholder="رمز عبور">
-
-<button onclick="login()">ورود</button>
-
-<p class="small">حساب نداری؟ ثبت‌نام موقت همینجا انجام میشه</p>
+<div class="tab active">فید</div>
+<div class="tab">چت</div>
+<div class="tab">موزیک</div>
+<div class="tab">وصل‌ها</div>
+<div class="tab">ریلز</div>
 
 </div>
 
-</section>
+<!-- FEED -->
+<div id="feed">
 
-<!-- HOME -->
-<section id="homePage" class="page">
+<!-- POST CARD SAMPLE -->
+<div class="post">
 
-<header>
-<div class="logoSmall">Vasl</div>
-<button onclick="logout()">خروج</button>
-</header>
+<!-- header -->
+<div class="postHeader">
 
-<div class="postBox">
+<img class="avatar" src="https://i.pravatar.cc/100">
 
-<textarea id="postText" placeholder="چه خبر؟"></textarea>
-
-<button onclick="createPost()">ارسال پست</button>
+<div class="userInfo">
+<b>Johan</b>
+<small>2h ago</small>
+</div>
 
 </div>
 
-<div id="feed"></div>
+<!-- media -->
+<video class="media" controls>
+<source src="https://www.w3schools.com/html/mov_bbb.mp4">
+</video>
 
-</section>
+<!-- caption -->
+<div class="caption">
+They make edits faster than it takes me to think 😄
+#edit #meme
+</div>
+
+<!-- actions -->
+<div class="actions">
+
+<button>❤️ 287</button>
+<button>💬 6</button>
+<button>🔁</button>
+<button>📥</button>
+
+</div>
+
+</div>
+
+</div>
 
 <script src="script.js"></script>
 </body>
