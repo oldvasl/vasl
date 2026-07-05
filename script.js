@@ -1,62 +1,86 @@
-let API = "https://vasling.alipviv8698.workers.dev";
+const API = "https://vasling.alipviv8698.workers.dev";
 let currentUser = null;
 
 // ورود
-function login(){
-const u = document.getElementById("username").value;
-const p = document.getElementById("password").value;
+function login() {
+    const u = document.getElementById("username").value.trim();
+    const p = document.getElementById("password").value.trim();
 
-if(!u || !p){
-alert("پر کن");
-return;
-}
+    if (!u || !p) {
+        alert("نام کاربری و رمز عبور را وارد کنید.");
+        return;
+    }
 
-currentUser = u;
+    currentUser = u;
 
-document.getElementById("loginPage").classList.remove("active");
-document.getElementById("homePage").classList.add("active");
+    document.getElementById("loginPage").classList.remove("active");
+    document.getElementById("homePage").classList.add("active");
 }
 
 // خروج
-function logout(){
-currentUser = null;
+function logout() {
+    currentUser = null;
 
-document.getElementById("homePage").classList.remove("active");
-document.getElementById("loginPage").classList.add("active");
+    document.getElementById("homePage").classList.remove("active");
+    document.getElementById("loginPage").classList.add("active");
 }
 
-// ساخت پست (فقط یکی!)
-async function createPost(){
-alert("BEFORE FETCH");
-const text = document.getElementById("postText").value;
+// ساخت پست
+async function createPost() {
 
-if(!text) return;
+    const textarea = document.getElementById("postText");
+    const text = textarea.value.trim();
 
-// ارسال به Cloudflare → Telegram
-await fetch(API + "/post", {
-method: "POST",
-headers: {
-"Content-Type": "application/json"
-},
-body: JSON.stringify({
-text: text,
-user: currentUser
-})
-});
+    if (!text) {
+        alert("متن پست خالی است.");
+        return;
+    }
 
-// نمایش در UI
-const feed = document.getElementById("feed");
+    if (text.length > 2000) {
+        alert("متن پست بیش از حد طولانی است.");
+        return;
+    }
 
-const post = document.createElement("div");
-post.className = "post";
+    try {
 
-post.innerHTML = `
-<strong>${currentUser}</strong>
-<p>${text}</p>
-`;
+        const response = await fetch(API + "/post", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                text,
+                user: currentUser
+            })
+        });
 
-feed.prepend(post);
+        if (!response.ok) {
+            throw new Error("Server Error");
+        }
 
-document.getElementById("postText").value = "";
+        const result = await response.json();
+
+        if (!result.ok) {
+            throw new Error(result.error || "Unknown Error");
+        }
+
+        const feed = document.getElementById("feed");
+
+        const post = document.createElement("div");
+        post.className = "post";
+
+        post.innerHTML = `
+            <strong>${currentUser}</strong>
+            <p>${text}</p>
+        `;
+
+        feed.prepend(post);
+
+        textarea.value = "";
+
+    } catch (err) {
+        console.error(err);
+        alert("ارسال پست ناموفق بود.");
+    }
+
 }
- 
