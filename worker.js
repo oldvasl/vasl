@@ -1,48 +1,116 @@
+const cors = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS"
+};
+
 export default {
+
 async fetch(request, env) {
 
-const url = new URL(request.url);
+    if (request.method === "OPTIONS") {
+        return new Response(null, {
+            status: 204,
+            headers: cors
+        });
+    }
 
-// =========================
-// POST /post  (ساخت پست)
-// =========================
-if (url.pathname === "/post" && request.method === "POST") {
+    const url = new URL(request.url);
 
-const data = await request.json();
+    // سلامت API
+    if (url.pathname === "/health") {
+        return new Response("Vasl API is running", {
+            headers: cors
+        });
+    }
 
-const text = data.text || "";
-const user = data.user || "unknown";
+    // ارسال پست
+    if (url.pathname === "/post" && request.method === "POST") {
 
-const message =
+        try {
+
+            const data = await request.json();
+
+            const text = (data.text || "").trim();
+            const user = (data.user || "Unknown").trim();
+
+            if (!text) {
+                return Response.json({
+                    ok: false,
+                    error: "Empty text"
+                }, {
+                    status: 400,
+                    headers: cors
+                });
+            }
+
+            if (text.length > 2000) {
+                return Response.json({
+                    ok: false,
+                    error: "Text too long"
+                }, {
+                    status: 400,
+                    headers: cors
+                });
+            }
+
+            const tg = await fetch(
+                `https://api.telegram.org/bot${env.BOT_TOKEN}/sendMessage`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        chat_id: env.CHAT_ID,
+                        text:
 `📌 POST
+
 👤 ${user}
-📝 ${text}
-`;
 
-await fetch(`https://api.telegram.org/bot${env.BOT_TOKEN}/sendMessage`, {
-method: "POST",
-headers: {"Content-Type": "application/json"},
-body: JSON.stringify({
-chat_id: env.CHAT_ID,
-text: message
-})
-});
+📝 ${text}`
+                    })
+                }
+            );
 
-return new Response(JSON.stringify({
-ok: true,
-status: "posted"
-}), {
-headers: {"Content-Type": "application/json"}
-});
+            const telegram = await tg.json();
+
+            if (!telegram.ok) {
+                return Response.json({
+                    ok: false,
+                    error: telegram.description
+                }, {
+                    status: 500,
+                    headers: cors
+                });
+            }
+
+            return Response.json({
+                ok: true,
+                message_id: telegram.result.message_id
+            }, {
+                headers: cors
+            });
+
+        } catch (e) {
+
+            return Response.json({
+                ok: false,
+                error: e.message
+            }, {
+                status: 500,
+                headers: cors
+            });
+
+        }
+
+    }
+
+    return new Response("Not Found", {
+        status: 404,
+        headers: cors
+    });
+
 }
 
-// =========================
-// GET /health (تست)
-// =========================
-if (url.pathname === "/health") {
-return new Response("Vasl API is running");
-}
-
-return new Response("Not Found", {status: 404});
-}
 };
