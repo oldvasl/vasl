@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>شبکه اجتماعی من</title>
+<style>
+  :root { font-family: Tahoma, Arial, sans-serif; }
+  body { max-width: 640px; margin: 0 auto; padding: 16px; background: #f5f5f5; }
+  h1 { font-size: 20px; }
+  .card { background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  input, textarea, button { font-family: inherit; font-size: 15px; }
+  input, textarea { width: 100%; box-sizing: border-box; padding: 8px; margin: 6px 0; border: 1px solid #ccc; border-radius: 6px; }
+  button { padding: 8px 16px; border: none; border-radius: 6px; background: #2b7de9; color: #fff; cursor: pointer; }
+  button:hover { background: #1e63c4; }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .muted { color: #777; font-size: 13px; }
+  .error { color: #c0392b; font-size: 14px; }
+  .post { border-bottom: 1px solid #eee; padding: 10px 0; }
+  .post:last-child { border-bottom: none; }
+  .post b { color: #2b7de9; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<h1>شبکه اجتماعی من</h1>
+
+<div class="card" id="authCard">
+  <div id="loginForm">
+    <div class="row">
+      <input id="loginUsername" placeholder="نام کاربری" />
+      <input id="loginPassword" type="password" placeholder="رمز عبور" />
+    </div>
+    <button onclick="login()">ورود</button>
+    <button onclick="showRegister()" style="background:#888">ثبت‌نام</button>
+    <div class="error" id="loginError"></div>
+  </div>
+
+  <div id="registerForm" class="hidden">
+    <div class="row">
+      <input id="regUsername" placeholder="نام کاربری (حداقل ۳ کاراکتر)" />
+      <input id="regPassword" type="password" placeholder="رمز عبور (حداقل ۶ کاراکتر)" />
+    </div>
+    <button onclick="register()">ساخت حساب</button>
+    <button onclick="showLogin()" style="background:#888">بازگشت به ورود</button>
+    <div class="error" id="registerError"></div>
+  </div>
+
+  <div id="loggedInBar" class="hidden">
+    <span class="muted">وارد شدی به عنوان: <b id="whoami"></b></span>
+    <button onclick="logout()" style="background:#c0392b;float:left">خروج</button>
+  </div>
+</div>
+
+<div class="card hidden" id="postCard">
+  <textarea id="postText" rows="3" placeholder="چه خبر؟"></textarea>
+  <button onclick="submitPost()">ارسال پست</button>
+  <div class="error" id="postError"></div>
+</div>
+
+<div class="card">
+  <div class="row" style="justify-content: space-between">
+    <span>فید عمومی</span>
+    <button onclick="loadFeed()" style="background:#888">بروزرسانی</button>
+  </div>
+  <div id="feed" class="muted">در حال بارگذاری...</div>
+</div>
+
+<script>
+// آدرس ووکر خودت رو اینجا جایگزین کن (بعد از دیپلوی با wrangler deploy این آدرس رو می‌گیری)
+const WORKER_URL = "https://social-telegram-worker.YOUR-SUBDOMAIN.workers.dev";
+
+function getToken() { return localStorage.getItem("token"); }
+function getUsername() { return localStorage.getItem("username"); }
+
+function updateAuthUI() {
+  const token = getToken();
+  document.getElementById("loginForm").classList.toggle("hidden", !!token);
+  document.getElementById("registerForm").classList.add("hidden");
+  document.getElementById("loggedInBar").classList.toggle("hidden", !token);
+  document.getElementById("postCard").classList.toggle("hidden", !token);
+  if (token) document.getElementById("whoami").textContent = getUsername();
+}
+
+function showRegister() {
+  document.getElementById("loginForm").classList.add("hidden");
+  document.getElementById("registerForm").classList.remove("hidden");
+}
+function showLogin() {
+  document.getElementById("registerForm").classList.add("hidden");
+  document.getElementById("loginForm").classList.remove("hidden");
+}
+
+async function register() {
+  const username = document.getElementById("regUsername").value.trim();
+  const password = document.getElementById("regPassword").value;
+  const errEl = document.getElementById("registerError");
+  errEl.textContent = "";
+  try {
+    const res = await fetch(`${WORKER_URL}/api/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error; return; }
+    showLogin();
+  } catch (e) {
+    errEl.textContent = "خطا در اتصال به سرور";
+  }
+}
+
+async function login() {
+  const username = document.getElementById("loginUsername").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const errEl = document.getElementById("loginError");
+  errEl.textContent = "";
+  try {
+    const res = await fetch(`${WORKER_URL}/api/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error; return; }
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("username", data.username);
+    updateAuthUI();
+  } catch (e) {
+    errEl.textContent = "خطا در اتصال به سرور";
+  }
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("username");
+  updateAuthUI();
+}
+
+async function submitPost() {
+  const text = document.getElementById("postText").value;
+  const errEl = document.getElementById("postError");
+  errEl.textContent = "";
+  try {
+    const res = await fetch(`${WORKER_URL}/api/post`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+      body: JSON.stringify({ text }),
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error; return; }
+    document.getElementById("postText").value = "";
+    loadFeed();
+  } catch (e) {
+    errEl.textContent = "خطا در اتصال به سرور";
+  }
+}
+
+async function loadFeed() {
+  const feedEl = document.getElementById("feed");
+  try {
+    const res = await fetch(`${WORKER_URL}/api/feed`);
+    const data = await res.json();
+    if (!data.posts || data.posts.length === 0) {
+      feedEl.textContent = "هنوز پستی وجود نداره";
+      return;
+    }
+    feedEl.innerHTML = data.posts.map(p => `
+      <div class="post">
+        <b>${escapeHtml(p.username)}</b>
+        <div>${escapeHtml(p.text)}</div>
+        <div class="muted">${new Date(p.date).toLocaleString("fa-IR")}</div>
+      </div>
+    `).join("");
+  } catch (e) {
+    feedEl.textContent = "خطا در بارگذاری فید";
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+updateAuthUI();
+loadFeed();
+</script>
+
+</body>
+</html>
