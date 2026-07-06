@@ -29,14 +29,33 @@
     color: var(--text);
     line-height: 1.7;
   }
-  .wrap { max-width: 560px; margin: 0 auto; padding: 20px 16px 60px; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 16px 16px 60px; }
 
-  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .brand { display: flex; align-items: baseline; gap: 10px; }
   .brand h1 { font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
   .brand p { font-size: 13px; color: var(--subtext); margin: 0; }
   .who { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--subtext); }
   .logout-link { color: var(--subtext); background: none; border: none; text-decoration: underline; cursor: pointer; font-family: inherit; font-size: 13px; padding: 0; }
+
+  /* نوار سوییچ بخش‌ها (بالای صفحه) */
+  .top-nav {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    margin-bottom: 18px; overflow: hidden;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 10px 4px; background: none; border: none; color: var(--subtext);
+    font-family: inherit; font-size: 11px; cursor: pointer; border-inline-start: 1px solid var(--border);
+  }
+  .nav-item:first-child { border-inline-start: none; }
+  .nav-item svg { width: 19px; height: 19px; }
+  .nav-item.active { color: #fff; background: var(--accent); }
+  .nav-item.coming-soon { opacity: 0.6; }
+
+  .view.hidden { display: none !important; }
 
   .surface-card {
     background: var(--surface);
@@ -49,7 +68,7 @@
   textarea {
     width: 100%; font-family: inherit; font-size: 15px; color: var(--text);
     background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-    padding: 11px 14px; margin-bottom: 8px; resize: vertical; min-height: 70px;
+    padding: 11px 14px; margin-bottom: 8px; resize: vertical; min-height: 90px;
   }
   textarea::placeholder { color: var(--subtext); }
   textarea:focus { outline: none; border-color: var(--accent); }
@@ -57,7 +76,7 @@
   button.primary {
     padding: 10px 16px; border: none; border-radius: 10px;
     background: var(--accent); color: #fff; font-family: inherit; font-size: 15px; font-weight: 500;
-    cursor: pointer; transition: background 0.15s;
+    cursor: pointer; transition: background 0.15s; width: 100%;
   }
   button.primary:hover { background: var(--accent-hover); }
   button.primary:disabled { opacity: 0.5; cursor: default; }
@@ -65,15 +84,15 @@
   .composer-tools { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
   .attach-btn {
     display: flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--border);
-    border-radius: 8px; padding: 7px 11px; font-size: 13px; color: var(--subtext); cursor: pointer;
+    border-radius: 8px; padding: 9px 12px; font-size: 13px; color: var(--subtext); cursor: pointer; flex: 1;
   }
-  .attach-btn svg { width: 15px; height: 15px; }
+  .attach-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
   .file-chip {
     display: flex; align-items: center; gap: 6px; background: rgba(139,92,246,0.15); color: var(--accent-hover);
-    border: 1px solid var(--accent); border-radius: 8px; padding: 6px 11px; font-size: 13px; flex: 1;
+    border: 1px solid var(--accent); border-radius: 8px; padding: 8px 12px; font-size: 13px; flex: 1;
   }
-  .file-chip button { background: none; border: none; color: var(--accent-hover); cursor: pointer; font-size: 15px; line-height: 1; padding: 0 2px; font-family: inherit; }
-  .submit-row { margin-top: 12px; display: flex; justify-content: flex-end; }
+  .file-chip button { background: none; border: none; color: var(--accent-hover); cursor: pointer; font-size: 16px; line-height: 1; padding: 0 2px; font-family: inherit; }
+  .submit-row { margin-top: 14px; }
 
   .error { color: var(--error); font-size: 13px; margin-top: 8px; min-height: 16px; }
 
@@ -88,7 +107,7 @@
     margin-bottom: 18px;
   }
 
-  /* post card برای پست‌های مدیا (عکس/ویدیو/فایل) */
+  /* post card برای پست‌های مدیا (عکس/ویدیو/آهنگ/فایل) */
   .post-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -101,6 +120,8 @@
   .post-card .entry-text { padding: 6px 12px 0; font-size: 14px; }
   .post-card .entry-media { padding: 8px 0 0; }
   .post-card .entry-media img, .post-card .entry-media video { width: 100%; display: block; max-height: 320px; object-fit: cover; }
+  .post-card .entry-media audio { width: 100%; display: block; }
+  .post-card .entry-media.has-audio { padding: 8px 12px 0; }
   .post-card .entry-time { padding: 8px 12px 10px; }
   .post-card .entry-doc { margin: 8px 12px 0; }
 
@@ -169,37 +190,78 @@
     </div>
   </header>
 
-  <div class="surface-card">
-    <textarea id="postText" placeholder="چی می‌خوای توی دفتر ثبت کنی؟"></textarea>
-    <div class="composer-tools">
-      <label class="attach-btn" id="attachLabel">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.5V7a2 2 0 0 0-2-2H9L7 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/><circle cx="17" cy="17" r="4"/><path d="M17 15.5v3M15.5 17h3"/></svg>
-        عکس یا ویدیو
-        <input type="file" id="fileInput" accept="image/*,video/*" class="hidden" onchange="onFileChosen()" />
-      </label>
-      <div class="file-chip hidden" id="fileChip">
-        <span id="fileName"></span>
-        <button onclick="clearFile()">×</button>
-      </div>
+  <!-- نوار سوییچ بخش‌ها: رسانه / متن / پست جدید / چت -->
+  <nav class="top-nav">
+    <button class="nav-item active" id="navBtn-media" onclick="switchView('media')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      <span>رسانه</span>
+    </button>
+    <button class="nav-item" id="navBtn-text" onclick="switchView('text')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      <span>متن</span>
+    </button>
+    <button class="nav-item" id="navBtn-upload" onclick="switchView('upload')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+      <span>پست جدید</span>
+    </button>
+    <button class="nav-item coming-soon" id="navBtn-chat" onclick="switchView('chat')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>چت</span>
+    </button>
+  </nav>
+
+  <!-- بخش رسانه‌ها -->
+  <div id="view-media" class="view">
+    <div class="feed-header">
+      <span>رسانه‌ها</span>
+      <button class="refresh-btn" onclick="loadFeedView('media', true)">بروزرسانی</button>
     </div>
-    <div class="submit-row">
-      <button class="primary" id="submitBtn" onclick="submitPost()">ثبت در دفتر</button>
-    </div>
-    <div class="error" id="postError"></div>
+    <div id="mediaFeed"></div>
   </div>
 
-  <div class="feed-header">
-    <span>فید عمومی</span>
-    <button class="refresh-btn" onclick="loadFeed()">بروزرسانی</button>
+  <!-- بخش متن‌ها -->
+  <div id="view-text" class="view hidden">
+    <div class="feed-header">
+      <span>متن‌ها</span>
+      <button class="refresh-btn" onclick="loadFeedView('text', true)">بروزرسانی</button>
+    </div>
+    <div id="textFeed"></div>
   </div>
-  <div id="feed"></div>
+
+  <!-- بخش پست جدید -->
+  <div id="view-upload" class="view hidden">
+    <div class="surface-card">
+      <textarea id="postText" placeholder="چی می‌خوای توی دفتر ثبت کنی؟"></textarea>
+      <div class="composer-tools">
+        <label class="attach-btn" id="attachLabel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.5V7a2 2 0 0 0-2-2H9L7 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/><circle cx="17" cy="17" r="4"/><path d="M17 15.5v3M15.5 17h3"/></svg>
+          عکس، ویدیو یا آهنگ
+          <input type="file" id="fileInput" accept="image/*,video/*,audio/*" class="hidden" onchange="onFileChosen()" />
+        </label>
+        <div class="file-chip hidden" id="fileChip">
+          <span id="fileName"></span>
+          <button onclick="clearFile()">×</button>
+        </div>
+      </div>
+      <div class="submit-row">
+        <button class="primary" id="submitBtn" onclick="submitPost()">ثبت در دفتر</button>
+      </div>
+      <div class="error" id="postError"></div>
+    </div>
+  </div>
+
+  <!-- بخش چت خصوصی (به‌زودی) -->
+  <div id="view-chat" class="view hidden">
+    <div class="surface-card" style="text-align:center; padding:50px 20px;">
+      <p style="font-size:15px; color:var(--subtext); margin:0;">چت خصوصی به‌زودی راه‌اندازی می‌شه.</p>
+    </div>
+  </div>
 
 </div>
 
 <script>
 const WORKER_URL = "https://VLC.alipviv8698.workers.dev";
 
-// اگه لاگین نکرده، برو به صفحه ورود
 if (!localStorage.getItem("token")) {
   window.location.href = "login.html";
 }
@@ -214,6 +276,22 @@ function logout() {
 }
 
 document.getElementById("whoami").textContent = getUsername() || "";
+
+const feedState = {
+  media: { page: 1, loaded: false },
+  text: { page: 1, loaded: false },
+};
+
+function switchView(name, forceReload = false) {
+  document.querySelectorAll(".view").forEach((el) => el.classList.add("hidden"));
+  document.getElementById(`view-${name}`).classList.remove("hidden");
+  document.querySelectorAll(".nav-item").forEach((el) => el.classList.remove("active"));
+  document.getElementById(`navBtn-${name}`).classList.add("active");
+
+  if ((name === "media" || name === "text") && (forceReload || !feedState[name].loaded)) {
+    loadFeedView(name, true);
+  }
+}
 
 let selectedFile = null;
 function onFileChosen() {
@@ -241,6 +319,7 @@ async function submitPost() {
   const fd = new FormData();
   fd.append("text", text);
   if (selectedFile) fd.append("file", selectedFile);
+  const targetView = selectedFile ? "media" : "text";
 
   btn.disabled = true;
   btn.textContent = "در حال ارسال...";
@@ -258,7 +337,7 @@ async function submitPost() {
     }
     document.getElementById("postText").value = "";
     clearFile();
-    loadFeed();
+    switchView(targetView, true);
   } catch (e) {
     errEl.textContent = "اتصال به سرور برقرار نشد. دوباره امتحان کن.";
   } finally {
@@ -275,15 +354,15 @@ function avatarColor(name) {
 }
 
 const PAGE_SIZE = 10;
-let currentPage = 1;
 
 function renderPost(p, num) {
   const initial = p.username ? p.username[0].toUpperCase() : "?";
-  const hasMedia = (p.type === "photo" || p.type === "video" || p.type === "document") && p.file_id;
+  const hasMedia = (p.type === "photo" || p.type === "video" || p.type === "audio" || p.type === "document") && p.file_id;
   const isOwner = p.username === getUsername();
   const numStr = String(num).padStart(6, "0");
+  const safeId = p.id.replace(/[^a-zA-Z0-9_]/g, "");
 
-  const deleteBtn = isOwner ? `<button class="delete-btn" onclick="deletePost('${p.id}')">حذف</button>` : "";
+  const deleteBtn = isOwner ? `<button class="delete-btn" onclick="deletePost('${p.id}','${safeId}')">حذف</button>` : "";
   const header = `
     <div class="entry-top">
       <div class="avatar" style="background:${avatarColor(p.username || "")}">${initial}</div>
@@ -295,7 +374,6 @@ function renderPost(p, num) {
     </div>`;
   const textHtml = p.text ? `<div class="entry-text">${escapeHtml(p.text)}</div>` : "";
   const timeHtml = `<div class="entry-time">${new Date(p.date).toLocaleString("fa-IR")}</div>`;
-  const safeId = p.id.replace(/[^a-zA-Z0-9_]/g, "");
   const commentsBlock = `
     <button class="comments-toggle" onclick="toggleComments('${p.id}','${safeId}')">نمایش کامنت‌ها</button>
     <div class="comments-section hidden" id="comments-${safeId}">
@@ -316,6 +394,8 @@ function renderPost(p, num) {
     mediaHtml = `<div class="entry-media"><img src="${WORKER_URL}/api/media/${p.file_id}" loading="lazy" /></div>`;
   } else if (p.type === "video") {
     mediaHtml = `<div class="entry-media"><video src="${WORKER_URL}/api/media/${p.file_id}" controls></video></div>`;
+  } else if (p.type === "audio") {
+    mediaHtml = `<div class="entry-media has-audio"><audio src="${WORKER_URL}/api/media/${p.file_id}" controls></audio></div>`;
   } else if (p.type === "document") {
     mediaHtml = `<div class="entry-doc">فایل پیوست — <a href="${WORKER_URL}/api/media/${p.file_id}" target="_blank">دانلود</a></div>`;
   }
@@ -323,42 +403,45 @@ function renderPost(p, num) {
   return `<div class="post-card" id="post-${safeId}">${header}${textHtml}${mediaHtml}${timeHtml}<div class="comments-wrap">${commentsBlock}</div></div>`;
 }
 
-async function loadFeed(reset = true) {
-  const feedEl = document.getElementById("feed");
+async function loadFeedView(kind, reset = true) {
+  const containerId = kind === "media" ? "mediaFeed" : "textFeed";
+  const feedEl = document.getElementById(containerId);
   if (reset) {
-    currentPage = 1;
+    feedState[kind].page = 1;
     feedEl.innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
   }
   try {
-    const res = await fetch(`${WORKER_URL}/api/feed?page=${currentPage}&pageSize=${PAGE_SIZE}`);
+    const res = await fetch(`${WORKER_URL}/api/feed?filter=${kind}&page=${feedState[kind].page}&pageSize=${PAGE_SIZE}`);
     const data = await res.json();
+    feedState[kind].loaded = true;
 
     if (reset && (!data.posts || data.posts.length === 0)) {
-      feedEl.innerHTML = `<div class="empty-state">هنوز چیزی توی دفتر نیست — اولین نفر باش.</div>`;
+      const emptyMsg = kind === "media" ? "هنوز رسانه‌ای ثبت نشده" : "هنوز متنی ثبت نشده";
+      feedEl.innerHTML = `<div class="empty-state">${emptyMsg} — اولین نفر باش.</div>`;
       return;
     }
     if (reset) feedEl.innerHTML = "";
 
-    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    const startIndex = (feedState[kind].page - 1) * PAGE_SIZE;
     const html = data.posts.map((p, i) => renderPost(p, data.total - (startIndex + i))).join("");
     feedEl.insertAdjacentHTML("beforeend", html);
 
-    const oldBtn = document.getElementById("loadMoreBtn");
+    const oldBtn = document.getElementById(`loadMoreBtn-${kind}`);
     if (oldBtn) oldBtn.remove();
     if (data.hasMore) {
-      feedEl.insertAdjacentHTML("beforeend", `<button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">بارگذاری بیشتر</button>`);
+      feedEl.insertAdjacentHTML("beforeend", `<button class="load-more-btn" id="loadMoreBtn-${kind}" onclick="loadMoreFeed('${kind}')">بارگذاری بیشتر</button>`);
     }
   } catch (e) {
     if (reset) feedEl.innerHTML = `<div class="empty-state">فید بارگذاری نشد. اتصال اینترنتت رو چک کن.</div>`;
   }
 }
 
-function loadMore() {
-  currentPage++;
-  loadFeed(false);
+function loadMoreFeed(kind) {
+  feedState[kind].page++;
+  loadFeedView(kind, false);
 }
 
-async function deletePost(id) {
+async function deletePost(id, safeId) {
   if (!confirm("مطمئنی می‌خوای این پست رو حذف کنی؟ این کار برگشت‌پذیر نیست.")) return;
   try {
     const res = await fetch(`${WORKER_URL}/api/post?id=${encodeURIComponent(id)}`, {
@@ -371,13 +454,13 @@ async function deletePost(id) {
       alert(data.error);
       return;
     }
-    loadFeed(true);
+    const el = document.getElementById(`post-${safeId}`);
+    if (el) el.remove();
   } catch (e) {
     alert("اتصال به سرور برقرار نشد");
   }
 }
 
-// ---------- کامنت‌ها ----------
 const loadedComments = {};
 
 function toggleComments(postId, safeId) {
@@ -445,7 +528,7 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-loadFeed();
+switchView("media");
 </script>
 </body>
 </html>
