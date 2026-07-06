@@ -3,158 +3,240 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>شبکه اجتماعی من</title>
+<title>دفتر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root { font-family: Tahoma, Arial, sans-serif; }
-  body { max-width: 640px; margin: 0 auto; padding: 16px; background: #f5f5f5; }
-  h1 { font-size: 20px; }
-  .card { background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  input, textarea, button { font-family: inherit; font-size: 15px; }
-  input, textarea { width: 100%; box-sizing: border-box; padding: 8px; margin: 6px 0; border: 1px solid #ccc; border-radius: 6px; }
-  button { padding: 8px 16px; border: none; border-radius: 6px; background: #2b7de9; color: #fff; cursor: pointer; }
-  button:hover { background: #1e63c4; }
-  .row { display: flex; gap: 8px; align-items: center; }
-  .muted { color: #777; font-size: 13px; }
-  .error { color: #c0392b; font-size: 14px; }
-  .post { border-bottom: 1px solid #eee; padding: 10px 0; }
-  .post:last-child { border-bottom: none; }
-  .post b { color: #2b7de9; }
-  .hidden { display: none; }
+  :root {
+    --primary: #1A0A31;
+    --surface: #241243;
+    --card: #2D1856;
+    --accent: #8B5CF6;
+    --accent-hover: #A78BFA;
+    --text: #FFFFFF;
+    --subtext: #C9C4D8;
+    --border: #3D2A64;
+    --success: #22C55E;
+    --error: #EF4444;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    background: var(--primary);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 20px 16px 60px; }
+
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand h1 { font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
+  .brand p { font-size: 13px; color: var(--subtext); margin: 0; }
+  .who { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--subtext); }
+  .logout-link { color: var(--subtext); background: none; border: none; text-decoration: underline; cursor: pointer; font-family: inherit; font-size: 13px; padding: 0; }
+
+  .surface-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 20px;
+  }
+
+  textarea {
+    width: 100%; font-family: inherit; font-size: 15px; color: var(--text);
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 11px 14px; margin-bottom: 8px; resize: vertical; min-height: 70px;
+  }
+  textarea::placeholder { color: var(--subtext); }
+  textarea:focus { outline: none; border-color: var(--accent); }
+
+  button.primary {
+    padding: 10px 16px; border: none; border-radius: 10px;
+    background: var(--accent); color: #fff; font-family: inherit; font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: background 0.15s;
+  }
+  button.primary:hover { background: var(--accent-hover); }
+  button.primary:disabled { opacity: 0.5; cursor: default; }
+
+  .composer-tools { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+  .attach-btn {
+    display: flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 11px; font-size: 13px; color: var(--subtext); cursor: pointer;
+  }
+  .attach-btn svg { width: 15px; height: 15px; }
+  .file-chip {
+    display: flex; align-items: center; gap: 6px; background: rgba(139,92,246,0.15); color: var(--accent-hover);
+    border: 1px solid var(--accent); border-radius: 8px; padding: 6px 11px; font-size: 13px; flex: 1;
+  }
+  .file-chip button { background: none; border: none; color: var(--accent-hover); cursor: pointer; font-size: 15px; line-height: 1; padding: 0 2px; font-family: inherit; }
+  .submit-row { margin-top: 12px; display: flex; justify-content: flex-end; }
+
+  .error { color: var(--error); font-size: 13px; margin-top: 8px; min-height: 16px; }
+
+  .feed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .feed-header span { font-size: 13px; color: var(--subtext); }
+  .refresh-btn { background: none; border: none; color: var(--subtext); font-size: 13px; text-decoration: underline; cursor: pointer; font-family: inherit; padding: 0; }
+
+  /* ردیف متنی ساده برای پست‌های بدون رسانه */
+  .text-entry {
+    border-inline-start: 3px solid var(--border);
+    padding-inline-start: 14px;
+    margin-bottom: 18px;
+  }
+
+  /* post card برای پست‌های مدیا (عکس/ویدیو/فایل) */
+  .post-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  }
+  .post-card .entry-top { padding: 14px 14px 0; }
+  .post-card .entry-text { padding: 8px 14px 0; }
+  .post-card .entry-media { padding: 12px 0 0; }
+  .post-card .entry-media img, .post-card .entry-media video { width: 100%; display: block; max-height: 480px; object-fit: cover; }
+  .post-card .entry-time { padding: 10px 14px 14px; }
+  .post-card .entry-doc { margin: 12px 14px 0; }
+
+  .entry-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .avatar {
+    width: 28px; height: 28px; border-radius: 50%; color: #fff; font-size: 12px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .entry-name { font-weight: 500; font-size: 14px; }
+  .entry-num { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--subtext); margin-inline-start: auto; }
+  .entry-text { font-size: 15px; white-space: pre-wrap; }
+  .entry-doc { display: inline-flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; font-size: 13px; }
+  .entry-doc a { color: var(--accent-hover); }
+  .entry-time { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--subtext); margin-top: 6px; }
+
+  .empty-state { text-align: center; padding: 30px 10px; color: var(--subtext); font-size: 14px; }
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<h1>شبکه اجتماعی من</h1>
-
-<div class="card" id="authCard">
-  <div id="loginForm">
-    <div class="row">
-      <input id="loginUsername" placeholder="نام کاربری" />
-      <input id="loginPassword" type="password" placeholder="رمز عبور" />
+  <header>
+    <div class="brand">
+      <h1>دفتر</h1>
+      <p>فید عمومی</p>
     </div>
-    <button onclick="login()">ورود</button>
-    <button onclick="showRegister()" style="background:#888">ثبت‌نام</button>
-    <div class="error" id="loginError"></div>
-  </div>
-
-  <div id="registerForm" class="hidden">
-    <div class="row">
-      <input id="regUsername" placeholder="نام کاربری (حداقل ۳ کاراکتر)" />
-      <input id="regPassword" type="password" placeholder="رمز عبور (حداقل ۶ کاراکتر)" />
+    <div class="who">
+      <span id="whoami"></span>
+      <button class="logout-link" onclick="logout()">خروج</button>
     </div>
-    <button onclick="register()">ساخت حساب</button>
-    <button onclick="showLogin()" style="background:#888">بازگشت به ورود</button>
-    <div class="error" id="registerError"></div>
+  </header>
+
+  <div class="surface-card">
+    <textarea id="postText" placeholder="چی می‌خوای توی دفتر ثبت کنی؟"></textarea>
+    <div class="composer-tools">
+      <label class="attach-btn" id="attachLabel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.5V7a2 2 0 0 0-2-2H9L7 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/><circle cx="17" cy="17" r="4"/><path d="M17 15.5v3M15.5 17h3"/></svg>
+        عکس یا ویدیو
+        <input type="file" id="fileInput" accept="image/*,video/*" class="hidden" onchange="onFileChosen()" />
+      </label>
+      <div class="file-chip hidden" id="fileChip">
+        <span id="fileName"></span>
+        <button onclick="clearFile()">×</button>
+      </div>
+    </div>
+    <div class="submit-row">
+      <button class="primary" id="submitBtn" onclick="submitPost()">ثبت در دفتر</button>
+    </div>
+    <div class="error" id="postError"></div>
   </div>
 
-  <div id="loggedInBar" class="hidden">
-    <span class="muted">وارد شدی به عنوان: <b id="whoami"></b></span>
-    <button onclick="logout()" style="background:#c0392b;float:left">خروج</button>
-  </div>
-</div>
-
-<div class="card hidden" id="postCard">
-  <textarea id="postText" rows="3" placeholder="چه خبر؟"></textarea>
-  <button onclick="submitPost()">ارسال پست</button>
-  <div class="error" id="postError"></div>
-</div>
-
-<div class="card">
-  <div class="row" style="justify-content: space-between">
+  <div class="feed-header">
     <span>فید عمومی</span>
-    <button onclick="loadFeed()" style="background:#888">بروزرسانی</button>
+    <button class="refresh-btn" onclick="loadFeed()">بروزرسانی</button>
   </div>
-  <div id="feed" class="muted">در حال بارگذاری...</div>
+  <div id="feed"></div>
+
 </div>
 
 <script>
-// آدرس ووکر خودت رو اینجا جایگزین کن (بعد از دیپلوی با wrangler deploy این آدرس رو می‌گیری)
-const WORKER_URL = "https://vlc.alipviv8698.workers.dev";
+const WORKER_URL = "https://VLC.alipviv8698.workers.dev";
+
+// اگه لاگین نکرده، برو به صفحه ورود
+if (!localStorage.getItem("token")) {
+  window.location.href = "login.html";
+}
 
 function getToken() { return localStorage.getItem("token"); }
 function getUsername() { return localStorage.getItem("username"); }
 
-function updateAuthUI() {
-  const token = getToken();
-  document.getElementById("loginForm").classList.toggle("hidden", !!token);
-  document.getElementById("registerForm").classList.add("hidden");
-  document.getElementById("loggedInBar").classList.toggle("hidden", !token);
-  document.getElementById("postCard").classList.toggle("hidden", !token);
-  if (token) document.getElementById("whoami").textContent = getUsername();
-}
-
-function showRegister() {
-  document.getElementById("loginForm").classList.add("hidden");
-  document.getElementById("registerForm").classList.remove("hidden");
-}
-function showLogin() {
-  document.getElementById("registerForm").classList.add("hidden");
-  document.getElementById("loginForm").classList.remove("hidden");
-}
-
-async function register() {
-  const username = document.getElementById("regUsername").value.trim();
-  const password = document.getElementById("regPassword").value;
-  const errEl = document.getElementById("registerError");
-  errEl.textContent = "";
-  try {
-    const res = await fetch(`${WORKER_URL}/api/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-    const data = await res.json();
-    if (!res.ok) { errEl.textContent = data.error; return; }
-    showLogin();
-  } catch (e) {
-    errEl.textContent = "خطا در اتصال به سرور";
-  }
-}
-
-async function login() {
-  const username = document.getElementById("loginUsername").value.trim();
-  const password = document.getElementById("loginPassword").value;
-  const errEl = document.getElementById("loginError");
-  errEl.textContent = "";
-  try {
-    const res = await fetch(`${WORKER_URL}/api/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-    const data = await res.json();
-    if (!res.ok) { errEl.textContent = data.error; return; }
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("username", data.username);
-    updateAuthUI();
-  } catch (e) {
-    errEl.textContent = "خطا در اتصال به سرور";
-  }
-}
-
 function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("username");
-  updateAuthUI();
+  window.location.href = "login.html";
+}
+
+document.getElementById("whoami").textContent = getUsername() || "";
+
+let selectedFile = null;
+function onFileChosen() {
+  const input = document.getElementById("fileInput");
+  selectedFile = input.files[0] || null;
+  document.getElementById("fileChip").classList.toggle("hidden", !selectedFile);
+  document.getElementById("attachLabel").classList.toggle("hidden", !!selectedFile);
+  if (selectedFile) document.getElementById("fileName").textContent = selectedFile.name;
+}
+function clearFile() {
+  selectedFile = null;
+  document.getElementById("fileInput").value = "";
+  document.getElementById("fileChip").classList.add("hidden");
+  document.getElementById("attachLabel").classList.remove("hidden");
 }
 
 async function submitPost() {
-  const text = document.getElementById("postText").value;
+  const text = document.getElementById("postText").value.trim();
   const errEl = document.getElementById("postError");
+  const btn = document.getElementById("submitBtn");
   errEl.textContent = "";
+
+  if (!text && !selectedFile) { errEl.textContent = "چیزی برای ثبت وارد نکردی"; return; }
+
+  const fd = new FormData();
+  fd.append("text", text);
+  if (selectedFile) fd.append("file", selectedFile);
+
+  btn.disabled = true;
+  btn.textContent = "در حال ارسال...";
   try {
     const res = await fetch(`${WORKER_URL}/api/post`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
-      body: JSON.stringify({ text }),
+      headers: { "Authorization": `Bearer ${getToken()}` },
+      body: fd,
     });
     const data = await res.json();
-    if (!res.ok) { errEl.textContent = data.error; return; }
+    if (!res.ok) {
+      if (res.status === 401) { logout(); return; }
+      errEl.textContent = data.error;
+      return;
+    }
     document.getElementById("postText").value = "";
+    clearFile();
     loadFeed();
   } catch (e) {
-    errEl.textContent = "خطا در اتصال به سرور";
+    errEl.textContent = "اتصال به سرور برقرار نشد. دوباره امتحان کن.";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "ثبت در دفتر";
   }
+}
+
+function avatarColor(name) {
+  const palette = ["#8B5CF6", "#22C55E", "#3B82F6", "#F59E0B", "#EF4444", "#EC4899"];
+  let sum = 0;
+  for (const ch of name) sum += ch.charCodeAt(0);
+  return palette[sum % palette.length];
 }
 
 async function loadFeed() {
@@ -163,30 +245,51 @@ async function loadFeed() {
     const res = await fetch(`${WORKER_URL}/api/feed`);
     const data = await res.json();
     if (!data.posts || data.posts.length === 0) {
-      feedEl.textContent = "هنوز پستی وجود نداره";
+      feedEl.innerHTML = `<div class="empty-state">هنوز چیزی توی دفتر نیست — اولین نفر باش.</div>`;
       return;
     }
-    feedEl.innerHTML = data.posts.map(p => `
-      <div class="post">
-        <b>${escapeHtml(p.username)}</b>
-        <div>${escapeHtml(p.text)}</div>
-        <div class="muted">${new Date(p.date).toLocaleString("fa-IR")}</div>
-      </div>
-    `).join("");
+    const total = data.posts.length;
+    feedEl.innerHTML = data.posts.map((p, i) => {
+      const num = String(total - i).padStart(6, "0");
+      const initial = p.username ? p.username[0].toUpperCase() : "?";
+      const hasMedia = (p.type === "photo" || p.type === "video" || p.type === "document") && p.file_id;
+
+      const header = `
+        <div class="entry-top">
+          <div class="avatar" style="background:${avatarColor(p.username || "")}">${initial}</div>
+          <span class="entry-name">${escapeHtml(p.username)}</span>
+          <span class="entry-num">#${num}</span>
+        </div>`;
+      const textHtml = p.text ? `<div class="entry-text">${escapeHtml(p.text)}</div>` : "";
+      const timeHtml = `<div class="entry-time">${new Date(p.date).toLocaleString("fa-IR")}</div>`;
+
+      if (!hasMedia) {
+        return `<div class="text-entry">${header}${textHtml}${timeHtml}</div>`;
+      }
+
+      let mediaHtml = "";
+      if (p.type === "photo") {
+        mediaHtml = `<div class="entry-media"><img src="${WORKER_URL}/api/media/${p.file_id}" loading="lazy" /></div>`;
+      } else if (p.type === "video") {
+        mediaHtml = `<div class="entry-media"><video src="${WORKER_URL}/api/media/${p.file_id}" controls></video></div>`;
+      } else if (p.type === "document") {
+        mediaHtml = `<div class="entry-doc">فایل پیوست — <a href="${WORKER_URL}/api/media/${p.file_id}" target="_blank">دانلود</a></div>`;
+      }
+
+      return `<div class="post-card">${header}${textHtml}${mediaHtml}${timeHtml}</div>`;
+    }).join("");
   } catch (e) {
-    feedEl.textContent = "خطا در بارگذاری فید";
+    feedEl.innerHTML = `<div class="empty-state">فید بارگذاری نشد. اتصال اینترنتت رو چک کن.</div>`;
   }
 }
 
 function escapeHtml(str) {
   const div = document.createElement("div");
-  div.textContent = str;
+  div.textContent = str || "";
   return div.innerHTML;
 }
 
-updateAuthUI();
 loadFeed();
 </script>
-
 </body>
 </html>
