@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ورود — دفتر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1A0A31;
+    --surface: #241243;
+    --card: #2D1856;
+    --accent: #8B5CF6;
+    --accent-hover: #A78BFA;
+    --text: #FFFFFF;
+    --subtext: #C9C4D8;
+    --border: #3D2A64;
+    --success: #22C55E;
+    --error: #EF4444;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    background: var(--primary);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .box { width: 100%; max-width: 380px; }
+  .brand { text-align: center; margin-bottom: 24px; }
+  .brand h1 { font-size: 26px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.02em; }
+  .brand p { font-size: 13px; color: var(--subtext); margin: 0; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+  }
+
+  .tabs { display: flex; gap: 4px; background: var(--primary); border-radius: 10px; padding: 4px; margin-bottom: 18px; }
+  .tabs button {
+    flex: 1; padding: 9px; border: none; border-radius: 8px; background: transparent;
+    font-family: inherit; font-size: 14px; color: var(--subtext); cursor: pointer;
+  }
+  .tabs button.active { background: var(--card); color: var(--text); font-weight: 500; }
+
+  input {
+    width: 100%; font-family: inherit; font-size: 15px; color: var(--text);
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 11px 14px; margin-bottom: 10px;
+  }
+  input::placeholder { color: var(--subtext); }
+  input:focus { outline: none; border-color: var(--accent); }
+
+  button.primary {
+    width: 100%; padding: 11px; border: none; border-radius: 10px;
+    background: var(--accent); color: #fff; font-family: inherit; font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: background 0.15s;
+  }
+  button.primary:hover { background: var(--accent-hover); }
+  button.primary:disabled { opacity: 0.5; cursor: default; }
+
+  .error { color: var(--error); font-size: 13px; margin-top: 8px; min-height: 16px; }
+  .hint { color: var(--success); font-size: 13px; margin-top: 8px; min-height: 16px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="brand">
+    <h1>دفتر</h1>
+    <p>یه فید ساده و صادقانه</p>
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <button id="tabLogin" class="active" onclick="showLogin()">ورود</button>
+      <button id="tabRegister" onclick="showRegister()">ثبت‌نام</button>
+    </div>
+
+    <div id="loginForm">
+      <input id="loginUsername" placeholder="نام کاربری" />
+      <input id="loginPassword" type="password" placeholder="رمز عبور" />
+      <button class="primary" onclick="login()">ورود</button>
+      <div class="error" id="loginError"></div>
+    </div>
+
+    <div id="registerForm" class="hidden">
+      <input id="regUsername" placeholder="نام کاربری (حداقل ۳ کاراکتر)" />
+      <input id="regPassword" type="password" placeholder="رمز عبور (حداقل ۶ کاراکتر)" />
+      <button class="primary" onclick="register()">ساخت حساب</button>
+      <div class="error" id="registerError"></div>
+      <div class="hint" id="registerHint"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const WORKER_URL = "https://VLC.alipviv8698.workers.dev";
+
+// اگه از قبل لاگین کرده، مستقیم بره صفحه اصلی
+if (localStorage.getItem("token")) {
+  window.location.href = "index.html";
+}
+
+function showLogin() {
+  document.getElementById("tabLogin").classList.add("active");
+  document.getElementById("tabRegister").classList.remove("active");
+  document.getElementById("loginForm").classList.remove("hidden");
+  document.getElementById("registerForm").classList.add("hidden");
+}
+function showRegister() {
+  document.getElementById("tabRegister").classList.add("active");
+  document.getElementById("tabLogin").classList.remove("active");
+  document.getElementById("registerForm").classList.remove("hidden");
+  document.getElementById("loginForm").classList.add("hidden");
+}
+
+async function register() {
+  const username = document.getElementById("regUsername").value.trim();
+  const password = document.getElementById("regPassword").value;
+  const errEl = document.getElementById("registerError");
+  const hintEl = document.getElementById("registerHint");
+  errEl.textContent = "";
+  hintEl.textContent = "";
+  try {
+    const res = await fetch(`${WORKER_URL}/api/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error; return; }
+    hintEl.textContent = "حساب ساخته شد — حالا وارد شو";
+    setTimeout(() => {
+      showLogin();
+      document.getElementById("loginUsername").value = username;
+    }, 900);
+  } catch (e) {
+    errEl.textContent = "اتصال به سرور برقرار نشد. اینترنتت رو چک کن.";
+  }
+}
+
+async function login() {
+  const username = document.getElementById("loginUsername").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const errEl = document.getElementById("loginError");
+  errEl.textContent = "";
+  try {
+    const res = await fetch(`${WORKER_URL}/api/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error; return; }
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("username", data.username);
+    window.location.href = "index.html";
+  } catch (e) {
+    errEl.textContent = "اتصال به سرور برقرار نشد. اینترنتت رو چک کن.";
+  }
+}
+</script>
+</body>
+</html>
