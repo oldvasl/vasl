@@ -12,51 +12,81 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root, :root[data-theme="purple"] {
-    --primary: #1A0A31;
-    --surface: #241243;
-    --card: #2D1856;
-    --accent: #8B5CF6;
-    --accent-hover: #A78BFA;
+    /* Obsidian Plum */
+    --primary: #2D1E2F;
+    --surface: #3A2740;
+    --card: #4E2A4F;
+    --accent: #A855F7;
+    --accent-hover: #C084FC;
     --text: #FFFFFF;
-    --subtext: #C9C4D8;
-    --border: #3D2A64;
+    --subtext: #CBB8D6;
+    --border: #5C3560;
     --success: #22C55E;
     --error: #EF4444;
     --radius: 16px;
   }
   :root[data-theme="dark"] {
-    --primary: #0D0D0D;
-    --surface: #1A1A1A;
-    --card: #222222;
-    --accent: #52525B;
-    --accent-hover: #71717A;
+    /* Walnut Noir */
+    --primary: #2E1F1B;
+    --surface: #3A2822;
+    --card: #5E4B43;
+    --accent: #D2A679;
+    --accent-hover: #E0BA95;
     --text: #FFFFFF;
-    --subtext: #A1A1AA;
-    --border: #333333;
+    --subtext: #D6C7BC;
+    --border: #6B564C;
     --success: #22C55E;
     --error: #EF4444;
   }
   :root[data-theme="red"] {
-    --primary: #1F0A0A;
-    --surface: #2B1010;
-    --card: #351515;
-    --accent: #B91C1C;
-    --accent-hover: #DC2626;
+    /* Crimson Velvet */
+    --primary: #2C0F12;
+    --surface: #3A1519;
+    --card: #6B1E23;
+    --accent: #DC2626;
+    --accent-hover: #EF4444;
     --text: #FFFFFF;
-    --subtext: #D8B4B4;
-    --border: #4A1F1F;
+    --subtext: #D9B8BA;
+    --border: #7A2429;
     --success: #22C55E;
     --error: #EF4444;
   }
   :root[data-theme="blue"] {
-    --primary: #0A0F1F;
-    --surface: #10172B;
-    --card: #151D35;
-    --accent: #2563EB;
-    --accent-hover: #3B82F6;
+    /* Navy Mirage */
+    --primary: #141E30;
+    --surface: #1B2A42;
+    --card: #35577D;
+    --accent: #3B82F6;
+    --accent-hover: #60A5FA;
     --text: #FFFFFF;
-    --subtext: #B4C2D8;
-    --border: #1F2A4A;
+    --subtext: #B8C7D9;
+    --border: #2E4A6B;
+    --success: #22C55E;
+    --error: #EF4444;
+  }
+  :root[data-theme="teal"] {
+    /* Deep Teal Silk */
+    --primary: #0B3037;
+    --surface: #123E46;
+    --card: #134E5E;
+    --accent: #14B8A6;
+    --accent-hover: #5EEAD4;
+    --text: #FFFFFF;
+    --subtext: #B5D9DD;
+    --border: #1B5C6B;
+    --success: #22C55E;
+    --error: #EF4444;
+  }
+  :root[data-theme="emerald"] {
+    /* Emerald Depth */
+    --primary: #0F2027;
+    --surface: #16332E;
+    --card: #28623A;
+    --accent: #10B981;
+    --accent-hover: #34D399;
+    --text: #FFFFFF;
+    --subtext: #B7D9C4;
+    --border: #2F6B43;
     --success: #22C55E;
     --error: #EF4444;
   }
@@ -247,16 +277,18 @@
   .profile-edit { margin-top: 16px; text-align: right; border-top: 1px solid var(--border); padding-top: 14px; }
   .theme-picker { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; text-align: right; }
   .theme-picker-label { font-size: 13px; color: var(--subtext); margin-bottom: 10px; }
-  .theme-options { display: flex; gap: 10px; }
+  .theme-options { display: flex; gap: 10px; flex-wrap: wrap; }
   .theme-swatch {
     width: 42px; height: 42px; border-radius: 12px; border: 2px solid transparent;
     cursor: pointer; padding: 0; flex-shrink: 0; position: relative;
   }
   .theme-swatch.active { border-color: #fff; }
-  .theme-swatch[data-theme-value="purple"] { background: linear-gradient(135deg, #1A0A31, #8B5CF6); }
-  .theme-swatch[data-theme-value="dark"] { background: linear-gradient(135deg, #0D0D0D, #71717A); }
-  .theme-swatch[data-theme-value="red"] { background: linear-gradient(135deg, #1F0A0A, #DC2626); }
-  .theme-swatch[data-theme-value="blue"] { background: linear-gradient(135deg, #0A0F1F, #3B82F6); }
+  .theme-swatch[data-theme-value="purple"] { background: linear-gradient(135deg, #2D1E2F, #A855F7); }
+  .theme-swatch[data-theme-value="dark"] { background: linear-gradient(135deg, #2E1F1B, #D2A679); }
+  .theme-swatch[data-theme-value="red"] { background: linear-gradient(135deg, #2C0F12, #DC2626); }
+  .theme-swatch[data-theme-value="blue"] { background: linear-gradient(135deg, #141E30, #3B82F6); }
+  .theme-swatch[data-theme-value="teal"] { background: linear-gradient(135deg, #0B3037, #14B8A6); }
+  .theme-swatch[data-theme-value="emerald"] { background: linear-gradient(135deg, #0F2027, #10B981); }
   .back-link { background: none; border: none; color: var(--accent-hover); font-size: 13px; cursor: pointer; font-family: inherit; padding: 0; margin-bottom: 14px; }
   .username-link { cursor: pointer; }
   .username-link:hover { text-decoration: underline; }
@@ -267,6 +299,13 @@
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
     padding: 10px 12px;
   }
+  .audio-cover {
+    width: 42px; height: 42px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+    background: var(--card); display: flex; align-items: center; justify-content: center;
+    color: var(--subtext);
+  }
+  .audio-cover img { width: 100%; height: 100%; object-fit: cover; }
+  .audio-cover svg { width: 20px; height: 20px; }
   .audio-play-btn {
     width: 38px; height: 38px; border-radius: 50%; border: none; background: var(--accent); color: #fff;
     display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
@@ -320,6 +359,23 @@
   }
   .admin-stat-box .num { font-size: 20px; font-weight: 700; color: var(--accent-hover); }
   .admin-stat-box .label { font-size: 12px; color: var(--subtext); margin-top: 2px; }
+
+  .admin-user-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 8px;
+  }
+  .admin-user-name { font-weight: 500; font-size: 14px; }
+  .banned-tag {
+    display: inline-block; margin-inline-start: 6px; font-size: 10px; color: var(--error);
+    border: 1px solid var(--error); border-radius: 6px; padding: 1px 6px;
+  }
+  .admin-user-date { font-size: 11px; color: var(--subtext); margin-top: 2px; }
+  .ban-btn, .unban-btn {
+    border: none; border-radius: 8px; padding: 7px 12px; font-size: 12px; cursor: pointer; font-family: inherit; flex-shrink: 0;
+  }
+  .ban-btn { background: var(--error); color: #fff; }
+  .unban-btn { background: var(--success); color: #fff; }
 
   /* حالت دسکتاپ: عرض بیشتر + گرید ۳ ستونه چسبیده برای کارت‌های رسانه */
   @media (min-width: 900px) {
@@ -410,10 +466,6 @@
           <button onclick="clearFile()">×</button>
         </div>
       </div>
-      <div id="audioMetaFields" class="hidden" style="margin-top:10px;">
-        <input type="text" id="audioTitleInput" placeholder="نام آهنگ (اختیاری)" style="margin-bottom:8px;" />
-        <input type="text" id="audioPerformerInput" placeholder="نام خواننده/هنرمند (اختیاری)" />
-      </div>
       <div class="submit-row">
         <button class="primary" id="submitBtn" onclick="submitPost()">ثبت در دفتر</button>
       </div>
@@ -458,9 +510,11 @@
           <div class="theme-picker-label">تم اپلیکیشن</div>
           <div class="theme-options">
             <button class="theme-swatch" data-theme-value="purple" title="بنفش" onclick="selectTheme('purple')"></button>
-            <button class="theme-swatch" data-theme-value="dark" title="مشکی" onclick="selectTheme('dark')"></button>
+            <button class="theme-swatch" data-theme-value="dark" title="گردویی" onclick="selectTheme('dark')"></button>
             <button class="theme-swatch" data-theme-value="red" title="قرمز تیره" onclick="selectTheme('red')"></button>
             <button class="theme-swatch" data-theme-value="blue" title="آبی تیره" onclick="selectTheme('blue')"></button>
+            <button class="theme-swatch" data-theme-value="teal" title="فیروزه‌ای تیره" onclick="selectTheme('teal')"></button>
+            <button class="theme-swatch" data-theme-value="emerald" title="زمردی تیره" onclick="selectTheme('emerald')"></button>
           </div>
         </div>
       </div>
@@ -483,11 +537,24 @@
       <div style="font-weight:700; font-size:16px; margin-bottom:10px;">پنل مدیریت</div>
       <div class="admin-stats" id="adminStats">در حال بارگذاری آمار...</div>
     </div>
-    <div class="feed-header">
-      <span>همه پست‌ها</span>
-      <button class="refresh-btn" onclick="loadAdminFeed(true)">بروزرسانی</button>
+
+    <div class="profile-filter">
+      <button class="filter-chip active" id="adminTab-posts" onclick="setAdminTab('posts')">پست‌ها</button>
+      <button class="filter-chip" id="adminTab-users" onclick="setAdminTab('users')">کاربران</button>
     </div>
-    <div id="adminFeed"></div>
+
+    <div id="adminPostsSection">
+      <div class="feed-header">
+        <span>همه پست‌ها</span>
+        <button class="refresh-btn" onclick="loadAdminFeed(true)">بروزرسانی</button>
+      </div>
+      <div id="adminFeed"></div>
+    </div>
+
+    <div id="adminUsersSection" class="hidden">
+      <input type="text" id="adminUserSearch" placeholder="جستجوی نام کاربری..." oninput="onAdminUserSearch()" style="margin-bottom:12px;" />
+      <div id="adminUsersList"></div>
+    </div>
   </div>
 
 </div>
@@ -513,7 +580,7 @@ function logout() {
 }
 
 // ---------- تم ----------
-const VALID_THEMES = ["purple", "dark", "red", "blue"];
+const VALID_THEMES = ["purple", "dark", "red", "blue", "teal", "emerald"];
 let currentTheme = localStorage.getItem("theme") || "purple";
 
 function applyTheme(theme) {
@@ -613,18 +680,12 @@ function onFileChosen() {
   document.getElementById("fileChip").classList.toggle("hidden", !selectedFile);
   document.getElementById("attachLabel").classList.toggle("hidden", !!selectedFile);
   if (selectedFile) document.getElementById("fileName").textContent = selectedFile.name;
-
-  const isAudio = selectedFile && selectedFile.type.startsWith("audio/");
-  document.getElementById("audioMetaFields").classList.toggle("hidden", !isAudio);
 }
 function clearFile() {
   selectedFile = null;
   document.getElementById("fileInput").value = "";
   document.getElementById("fileChip").classList.add("hidden");
   document.getElementById("attachLabel").classList.remove("hidden");
-  document.getElementById("audioMetaFields").classList.add("hidden");
-  document.getElementById("audioTitleInput").value = "";
-  document.getElementById("audioPerformerInput").value = "";
 }
 
 async function submitPost() {
@@ -639,10 +700,6 @@ async function submitPost() {
   fd.append("text", text);
   if (selectedFile) {
     fd.append("file", selectedFile);
-    if (selectedFile.type.startsWith("audio/")) {
-      fd.append("audio_title", document.getElementById("audioTitleInput").value.trim());
-      fd.append("audio_performer", document.getElementById("audioPerformerInput").value.trim());
-    }
   }
   const targetView = selectedFile ? "media" : "text";
 
@@ -681,10 +738,14 @@ function avatarColor(name) {
 // ---------- پلیر اختصاصی موزیک ----------
 let currentAudio = null;
 
-function buildAudioPlayer(fileId, safeId) {
+function buildAudioPlayer(fileId, safeId, thumbFileId) {
+  const coverHtml = thumbFileId
+    ? `<img src="${WORKER_URL}/api/media/${thumbFileId}" alt="" />`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
   return `
     <div class="audio-player">
       <audio id="audioEl-${safeId}" src="${WORKER_URL}/api/media/${fileId}" preload="metadata"></audio>
+      <div class="audio-cover">${coverHtml}</div>
       <button class="audio-play-btn" id="audioBtn-${safeId}" onclick="toggleAudio('${safeId}')">
         <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
@@ -823,7 +884,7 @@ function renderPost(p, num) {
     const meta = p.audio_title || p.audio_performer
       ? `<div class="audio-meta">${escapeHtml(p.audio_title || "")}${p.audio_performer ? " — " + escapeHtml(p.audio_performer) : ""}</div>`
       : "";
-    mediaHtml = `<div class="entry-media has-audio">${meta}${buildAudioPlayer(p.file_id, safeId)}</div>`;
+    mediaHtml = `<div class="entry-media has-audio">${meta}${buildAudioPlayer(p.file_id, safeId, p.audio_thumb)}</div>`;
   } else if (p.type === "document") {
     mediaHtml = `<div class="entry-doc">فایل پیوست — <a href="${WORKER_URL}/api/media/${p.file_id}" target="_blank">دانلود</a></div>`;
   }
@@ -921,6 +982,107 @@ async function loadAdminFeed(reset = true) {
 function loadMoreAdmin() {
   feedState.admin.page++;
   loadAdminFeed(false);
+}
+
+// ---------- کاربران پنل مدیریت ----------
+const adminUsersState = { page: 1, search: "", loaded: false };
+let adminUserSearchTimer = null;
+
+function setAdminTab(tab) {
+  document.getElementById("adminTab-posts").classList.toggle("active", tab === "posts");
+  document.getElementById("adminTab-users").classList.toggle("active", tab === "users");
+  document.getElementById("adminPostsSection").classList.toggle("hidden", tab !== "posts");
+  document.getElementById("adminUsersSection").classList.toggle("hidden", tab !== "users");
+
+  if (tab === "users" && !adminUsersState.loaded) {
+    loadAdminUsers(true);
+  }
+}
+
+function onAdminUserSearch() {
+  clearTimeout(adminUserSearchTimer);
+  adminUserSearchTimer = setTimeout(() => {
+    adminUsersState.search = document.getElementById("adminUserSearch").value.trim();
+    loadAdminUsers(true);
+  }, 350);
+}
+
+function renderUserRow(u) {
+  const joined = u.created_at ? new Date(u.created_at).toLocaleDateString("fa-IR") : "-";
+  const banTag = u.banned ? `<span class="banned-tag">مسدود</span>` : "";
+  const actionBtn = u.banned
+    ? `<button class="unban-btn" onclick="toggleBan('${u.username}', false)">رفع مسدودی</button>`
+    : `<button class="ban-btn" onclick="toggleBan('${u.username}', true)">مسدود کردن</button>`;
+  return `
+    <div class="admin-user-row">
+      <div>
+        <span class="admin-user-name">${escapeHtml(u.username)}</span>${banTag}
+        <div class="admin-user-date">عضویت: ${joined}</div>
+      </div>
+      ${actionBtn}
+    </div>`;
+}
+
+async function loadAdminUsers(reset = true) {
+  const listEl = document.getElementById("adminUsersList");
+  if (reset) {
+    adminUsersState.page = 1;
+    listEl.innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
+  }
+  try {
+    const res = await fetch(
+      `${WORKER_URL}/api/admin/users?search=${encodeURIComponent(adminUsersState.search)}&page=${adminUsersState.page}&pageSize=20`,
+      { headers: { "Authorization": `Bearer ${getToken()}` } }
+    );
+    const data = await res.json();
+    adminUsersState.loaded = true;
+
+    if (!res.ok) {
+      listEl.innerHTML = `<div class="empty-state">${escapeHtml(data.error || "دسترسی نداری")}</div>`;
+      return;
+    }
+
+    if (reset && (!data.users || data.users.length === 0)) {
+      listEl.innerHTML = `<div class="empty-state">کاربری پیدا نشد</div>`;
+      return;
+    }
+    if (reset) listEl.innerHTML = "";
+
+    listEl.insertAdjacentHTML("beforeend", data.users.map(renderUserRow).join(""));
+
+    const oldBtn = document.getElementById("loadMoreBtn-adminUsers");
+    if (oldBtn) oldBtn.remove();
+    if (data.hasMore) {
+      listEl.insertAdjacentHTML("beforeend", `<button class="load-more-btn" id="loadMoreBtn-adminUsers" onclick="loadMoreAdminUsers()">بارگذاری بیشتر</button>`);
+    }
+  } catch (e) {
+    if (reset) listEl.innerHTML = `<div class="empty-state">بارگذاری نشد</div>`;
+  }
+}
+
+function loadMoreAdminUsers() {
+  adminUsersState.page++;
+  loadAdminUsers(false);
+}
+
+async function toggleBan(username, banned) {
+  const confirmMsg = banned ? `مطمئنی می‌خوای «${username}» رو مسدود کنی؟` : `رفع مسدودی «${username}»؟`;
+  if (!confirm(confirmMsg)) return;
+  try {
+    const res = await fetch(`${WORKER_URL}/api/admin/ban`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+      body: JSON.stringify({ username, banned }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error);
+      return;
+    }
+    loadAdminUsers(true);
+  } catch (e) {
+    alert("اتصال به سرور برقرار نشد");
+  }
 }
 
 async function deletePost(id, safeId) {
