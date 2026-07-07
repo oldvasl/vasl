@@ -202,6 +202,48 @@
   .username-link { cursor: pointer; }
   .username-link:hover { text-decoration: underline; }
 
+  /* پلیر اختصاصی موزیک */
+  .audio-player {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .audio-play-btn {
+    width: 38px; height: 38px; border-radius: 50%; border: none; background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
+  }
+  .audio-play-btn:hover { background: var(--accent-hover); }
+  .audio-play-btn svg { width: 18px; height: 18px; }
+  .audio-play-btn .icon-pause { display: none; }
+  .audio-play-btn.playing .icon-play { display: none; }
+  .audio-play-btn.playing .icon-pause { display: block; }
+
+  .audio-body { flex: 1; min-width: 0; }
+  .audio-bars { display: flex; align-items: flex-end; gap: 3px; height: 18px; margin-bottom: 6px; }
+  .audio-bars span { width: 3px; background: var(--accent); border-radius: 2px; height: 20%; }
+  .audio-bars.playing span { animation: audio-bar-bounce 1s ease-in-out infinite; }
+  .audio-bars span:nth-child(1) { animation-delay: 0s; }
+  .audio-bars span:nth-child(2) { animation-delay: 0.1s; }
+  .audio-bars span:nth-child(3) { animation-delay: 0.2s; }
+  .audio-bars span:nth-child(4) { animation-delay: 0.3s; }
+  .audio-bars span:nth-child(5) { animation-delay: 0.15s; }
+  .audio-bars span:nth-child(6) { animation-delay: 0.25s; }
+  .audio-bars span:nth-child(7) { animation-delay: 0.05s; }
+  .audio-bars span:nth-child(8) { animation-delay: 0.35s; }
+  @keyframes audio-bar-bounce { 0%, 100% { height: 20%; } 50% { height: 100%; } }
+
+  .audio-progress-row { display: flex; align-items: center; gap: 8px; }
+  .audio-seek {
+    flex: 1; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px;
+    background: var(--border); outline: none; cursor: pointer; margin: 0;
+  }
+  .audio-seek::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%;
+    background: var(--accent); cursor: pointer;
+  }
+  .audio-seek::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: none; cursor: pointer; }
+  .audio-time { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--subtext); flex-shrink: 0; white-space: nowrap; }
+
   /* حالت دسکتاپ: عرض بیشتر + گرید ۳ ستونه چسبیده برای کارت‌های رسانه */
   @media (min-width: 900px) {
     .wrap { max-width: 1100px; padding-inline: 24px; }
@@ -453,6 +495,103 @@ function avatarColor(name) {
   return palette[sum % palette.length];
 }
 
+// ---------- پلیر اختصاصی موزیک ----------
+let currentAudio = null;
+
+function buildAudioPlayer(fileId, safeId) {
+  return `
+    <div class="audio-player">
+      <audio id="audioEl-${safeId}" src="${WORKER_URL}/api/media/${fileId}" preload="metadata"></audio>
+      <button class="audio-play-btn" id="audioBtn-${safeId}" onclick="toggleAudio('${safeId}')">
+        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+      </button>
+      <div class="audio-body">
+        <div class="audio-bars" id="audioBars-${safeId}">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="audio-progress-row">
+          <input type="range" class="audio-seek" id="audioSeek-${safeId}" min="0" max="100" value="0" oninput="seekAudio('${safeId}', this.value)" />
+          <span class="audio-time" id="audioTime-${safeId}">۰:۰۰</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+function toPersianDigits(str) {
+  const map = { 0: "۰", 1: "۱", 2: "۲", 3: "۳", 4: "۴", 5: "۵", 6: "۶", 7: "۷", 8: "۸", 9: "۹" };
+  return str.replace(/[0-9]/g, (d) => map[d]);
+}
+function formatTime(sec) {
+  if (!isFinite(sec) || sec < 0) return "۰:۰۰";
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60).toString().padStart(2, "0");
+  return toPersianDigits(`${m}:${s}`);
+}
+
+function playAudioUI(safeId) {
+  document.getElementById(`audioBtn-${safeId}`)?.classList.add("playing");
+  document.getElementById(`audioBars-${safeId}`)?.classList.add("playing");
+}
+function pauseAudioUI(safeId) {
+  document.getElementById(`audioBtn-${safeId}`)?.classList.remove("playing");
+  document.getElementById(`audioBars-${safeId}`)?.classList.remove("playing");
+}
+
+function toggleAudio(safeId) {
+  const audioEl = document.getElementById(`audioEl-${safeId}`);
+  if (!audioEl) return;
+
+  if (currentAudio && currentAudio.safeId !== safeId) {
+    currentAudio.audioEl.pause();
+    pauseAudioUI(currentAudio.safeId);
+  }
+
+  if (audioEl.paused) {
+    audioEl.play();
+    currentAudio = { safeId, audioEl };
+    playAudioUI(safeId);
+  } else {
+    audioEl.pause();
+    pauseAudioUI(safeId);
+    currentAudio = null;
+  }
+}
+
+function seekAudio(safeId, value) {
+  const audioEl = document.getElementById(`audioEl-${safeId}`);
+  if (!audioEl || !audioEl.duration) return;
+  audioEl.currentTime = (value / 100) * audioEl.duration;
+}
+
+function bindAudioEvents(safeId) {
+  const audioEl = document.getElementById(`audioEl-${safeId}`);
+  if (!audioEl || audioEl.dataset.bound) return;
+  audioEl.dataset.bound = "1";
+
+  audioEl.addEventListener("timeupdate", () => {
+    if (!audioEl.duration) return;
+    const seekEl = document.getElementById(`audioSeek-${safeId}`);
+    const timeEl = document.getElementById(`audioTime-${safeId}`);
+    if (seekEl) seekEl.value = (audioEl.currentTime / audioEl.duration) * 100;
+    if (timeEl) timeEl.textContent = `${formatTime(audioEl.currentTime)} / ${formatTime(audioEl.duration)}`;
+  });
+  audioEl.addEventListener("loadedmetadata", () => {
+    const timeEl = document.getElementById(`audioTime-${safeId}`);
+    if (timeEl) timeEl.textContent = `۰:۰۰ / ${formatTime(audioEl.duration)}`;
+  });
+  audioEl.addEventListener("ended", () => {
+    pauseAudioUI(safeId);
+    if (currentAudio && currentAudio.safeId === safeId) currentAudio = null;
+  });
+}
+
+function bindAllAudioPlayers(container) {
+  container.querySelectorAll("audio[id^='audioEl-']").forEach((el) => {
+    bindAudioEvents(el.id.replace("audioEl-", ""));
+  });
+}
+
 const PAGE_SIZE = 10;
 
 function renderPost(p, num) {
@@ -498,7 +637,7 @@ function renderPost(p, num) {
   } else if (p.type === "video") {
     mediaHtml = `<div class="entry-media"><video src="${WORKER_URL}/api/media/${p.file_id}" controls></video></div>`;
   } else if (p.type === "audio") {
-    mediaHtml = `<div class="entry-media has-audio"><audio src="${WORKER_URL}/api/media/${p.file_id}" controls></audio></div>`;
+    mediaHtml = `<div class="entry-media has-audio">${buildAudioPlayer(p.file_id, safeId)}</div>`;
   } else if (p.type === "document") {
     mediaHtml = `<div class="entry-doc">فایل پیوست — <a href="${WORKER_URL}/api/media/${p.file_id}" target="_blank">دانلود</a></div>`;
   }
@@ -528,6 +667,7 @@ async function loadFeedView(kind, reset = true) {
     const startIndex = (feedState[kind].page - 1) * PAGE_SIZE;
     const html = data.posts.map((p, i) => renderPost(p, data.total - (startIndex + i))).join("");
     feedEl.insertAdjacentHTML("beforeend", html);
+    bindAllAudioPlayers(feedEl);
 
     const oldBtn = document.getElementById(`loadMoreBtn-${kind}`);
     if (oldBtn) oldBtn.remove();
@@ -712,6 +852,7 @@ async function loadProfilePosts(username, reset) {
     const startIndex = (profileState.page - 1) * PAGE_SIZE;
     const html = data.posts.map((p, i) => renderPost(p, data.total - (startIndex + i))).join("");
     feedEl.insertAdjacentHTML("beforeend", html);
+    bindAllAudioPlayers(feedEl);
 
     const oldBtn = document.getElementById("loadMoreBtn-profile");
     if (oldBtn) oldBtn.remove();
