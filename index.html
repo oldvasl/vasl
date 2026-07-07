@@ -463,9 +463,12 @@ function renderPost(p, num) {
   const safeId = p.id.replace(/[^a-zA-Z0-9_]/g, "");
 
   const deleteBtn = isOwner ? `<button class="delete-btn" onclick="deletePost('${p.id}','${safeId}')">حذف</button>` : "";
+  const avatarHtml = p.avatar_file_id
+    ? `<div class="avatar" style="overflow:hidden;"><img src="${WORKER_URL}/api/media/${p.avatar_file_id}" style="width:100%;height:100%;object-fit:cover;" /></div>`
+    : `<div class="avatar" style="background:${avatarColor(p.username || "")}">${initial}</div>`;
   const header = `
     <div class="entry-top">
-      <div class="avatar" style="background:${avatarColor(p.username || "")}">${initial}</div>
+      ${avatarHtml}
       <span class="entry-name username-link" onclick="openProfile('${p.username}')">${escapeHtml(p.username)}</span>
       <div class="entry-meta">
         <span class="entry-num">#${numStr}</span>
