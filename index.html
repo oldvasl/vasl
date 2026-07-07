@@ -87,6 +87,14 @@
   textarea::placeholder { color: var(--subtext); }
   textarea:focus { outline: none; border-color: var(--accent); }
 
+  input[type="text"] {
+    width: 100%; font-family: inherit; font-size: 14px; color: var(--text);
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px;
+  }
+  input[type="text"]::placeholder { color: var(--subtext); }
+  input[type="text"]:focus { outline: none; border-color: var(--accent); }
+
   button.primary {
     padding: 10px 16px; border: none; border-radius: 10px;
     background: var(--accent); color: #fff; font-family: inherit; font-size: 15px; font-weight: 500;
@@ -243,6 +251,24 @@
   }
   .audio-seek::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: none; cursor: pointer; }
   .audio-time { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--subtext); flex-shrink: 0; white-space: nowrap; }
+  .audio-meta { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+
+  /* فیلتر رسانه/متن داخل پروفایل */
+  .profile-filter { display: flex; gap: 8px; margin-bottom: 14px; }
+  .filter-chip {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+    padding: 6px 14px; font-size: 12px; color: var(--subtext); cursor: pointer; font-family: inherit;
+  }
+  .filter-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* پنل مدیریت */
+  .admin-stats { display: flex; gap: 10px; flex-wrap: wrap; }
+  .admin-stat-box {
+    flex: 1; min-width: 90px; background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px; text-align: center;
+  }
+  .admin-stat-box .num { font-size: 20px; font-weight: 700; color: var(--accent-hover); }
+  .admin-stat-box .label { font-size: 12px; color: var(--subtext); margin-top: 2px; }
 
   /* حالت دسکتاپ: عرض بیشتر + گرید ۳ ستونه چسبیده برای کارت‌های رسانه */
   @media (min-width: 900px) {
@@ -333,6 +359,10 @@
           <button onclick="clearFile()">×</button>
         </div>
       </div>
+      <div id="audioMetaFields" class="hidden" style="margin-top:10px;">
+        <input type="text" id="audioTitleInput" placeholder="نام آهنگ (اختیاری)" style="margin-bottom:8px;" />
+        <input type="text" id="audioPerformerInput" placeholder="نام خواننده/هنرمند (اختیاری)" />
+      </div>
       <div class="submit-row">
         <button class="primary" id="submitBtn" onclick="submitPost()">ثبت در دفتر</button>
       </div>
@@ -378,7 +408,25 @@
     <div class="feed-header">
       <span id="profilePostsLabel">پست‌های این کاربر</span>
     </div>
+    <div class="profile-filter">
+      <button class="filter-chip active" id="profFilter-all" onclick="setProfileFilter('all')">همه</button>
+      <button class="filter-chip" id="profFilter-media" onclick="setProfileFilter('media')">رسانه</button>
+      <button class="filter-chip" id="profFilter-text" onclick="setProfileFilter('text')">متن</button>
+    </div>
     <div id="profileFeed"></div>
+  </div>
+
+  <!-- پنل مدیریت (فقط برای مالک سایت) -->
+  <div id="view-admin" class="view hidden">
+    <div class="surface-card">
+      <div style="font-weight:700; font-size:16px; margin-bottom:10px;">پنل مدیریت</div>
+      <div class="admin-stats" id="adminStats">در حال بارگذاری آمار...</div>
+    </div>
+    <div class="feed-header">
+      <span>همه پست‌ها</span>
+      <button class="refresh-btn" onclick="loadAdminFeed(true)">بروزرسانی</button>
+    </div>
+    <div id="adminFeed"></div>
   </div>
 
 </div>
@@ -413,6 +461,19 @@ document.getElementById("whoami").textContent = getUsername() || "";
   }
 }
 
+const ADMIN_USERNAME = "Aghey";
+const isAdmin = getUsername() === ADMIN_USERNAME;
+if (isAdmin) {
+  const nav = document.querySelector(".top-nav");
+  nav.style.gridTemplateColumns = "repeat(5, 1fr)";
+  nav.insertAdjacentHTML("beforeend", `
+    <button class="nav-item" id="navBtn-admin" onclick="switchView('admin')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg>
+      <span>مدیریت</span>
+    </button>
+  `);
+}
+
 window.addEventListener("scroll", () => {
   const btn = document.getElementById("backToTop");
   if (window.scrollY > 300) btn.classList.add("visible");
@@ -422,16 +483,20 @@ window.addEventListener("scroll", () => {
 const feedState = {
   media: { page: 1, loaded: false },
   text: { page: 1, loaded: false },
+  admin: { page: 1, loaded: false },
 };
 
 function switchView(name, forceReload = false) {
   document.querySelectorAll(".view").forEach((el) => el.classList.add("hidden"));
   document.getElementById(`view-${name}`).classList.remove("hidden");
   document.querySelectorAll(".nav-item").forEach((el) => el.classList.remove("active"));
-  document.getElementById(`navBtn-${name}`).classList.add("active");
+  document.getElementById(`navBtn-${name}`)?.classList.add("active");
 
   if ((name === "media" || name === "text") && (forceReload || !feedState[name].loaded)) {
     loadFeedView(name, true);
+  }
+  if (name === "admin" && (forceReload || !feedState.admin.loaded)) {
+    loadAdminFeed(true);
   }
 }
 
@@ -442,12 +507,18 @@ function onFileChosen() {
   document.getElementById("fileChip").classList.toggle("hidden", !selectedFile);
   document.getElementById("attachLabel").classList.toggle("hidden", !!selectedFile);
   if (selectedFile) document.getElementById("fileName").textContent = selectedFile.name;
+
+  const isAudio = selectedFile && selectedFile.type.startsWith("audio/");
+  document.getElementById("audioMetaFields").classList.toggle("hidden", !isAudio);
 }
 function clearFile() {
   selectedFile = null;
   document.getElementById("fileInput").value = "";
   document.getElementById("fileChip").classList.add("hidden");
   document.getElementById("attachLabel").classList.remove("hidden");
+  document.getElementById("audioMetaFields").classList.add("hidden");
+  document.getElementById("audioTitleInput").value = "";
+  document.getElementById("audioPerformerInput").value = "";
 }
 
 async function submitPost() {
@@ -460,7 +531,13 @@ async function submitPost() {
 
   const fd = new FormData();
   fd.append("text", text);
-  if (selectedFile) fd.append("file", selectedFile);
+  if (selectedFile) {
+    fd.append("file", selectedFile);
+    if (selectedFile.type.startsWith("audio/")) {
+      fd.append("audio_title", document.getElementById("audioTitleInput").value.trim());
+      fd.append("audio_performer", document.getElementById("audioPerformerInput").value.trim());
+    }
+  }
   const targetView = selectedFile ? "media" : "text";
 
   btn.disabled = true;
@@ -597,11 +674,11 @@ const PAGE_SIZE = 10;
 function renderPost(p, num) {
   const initial = p.username ? p.username[0].toUpperCase() : "?";
   const hasMedia = (p.type === "photo" || p.type === "video" || p.type === "audio" || p.type === "document") && p.file_id;
-  const isOwner = p.username === getUsername();
+  const canDelete = p.username === getUsername() || getUsername() === ADMIN_USERNAME;
   const numStr = String(num).padStart(6, "0");
   const safeId = p.id.replace(/[^a-zA-Z0-9_]/g, "");
 
-  const deleteBtn = isOwner ? `<button class="delete-btn" onclick="deletePost('${p.id}','${safeId}')">حذف</button>` : "";
+  const deleteBtn = canDelete ? `<button class="delete-btn" onclick="deletePost('${p.id}','${safeId}')">حذف</button>` : "";
   const avatarHtml = p.avatar_file_id
     ? `<div class="avatar" style="overflow:hidden;"><img src="${WORKER_URL}/api/media/${p.avatar_file_id}" style="width:100%;height:100%;object-fit:cover;" /></div>`
     : `<div class="avatar" style="background:${avatarColor(p.username || "")}">${initial}</div>`;
@@ -637,7 +714,10 @@ function renderPost(p, num) {
   } else if (p.type === "video") {
     mediaHtml = `<div class="entry-media"><video src="${WORKER_URL}/api/media/${p.file_id}" controls></video></div>`;
   } else if (p.type === "audio") {
-    mediaHtml = `<div class="entry-media has-audio">${buildAudioPlayer(p.file_id, safeId)}</div>`;
+    const meta = p.audio_title || p.audio_performer
+      ? `<div class="audio-meta">${escapeHtml(p.audio_title || "")}${p.audio_performer ? " — " + escapeHtml(p.audio_performer) : ""}</div>`
+      : "";
+    mediaHtml = `<div class="entry-media has-audio">${meta}${buildAudioPlayer(p.file_id, safeId)}</div>`;
   } else if (p.type === "document") {
     mediaHtml = `<div class="entry-doc">فایل پیوست — <a href="${WORKER_URL}/api/media/${p.file_id}" target="_blank">دانلود</a></div>`;
   }
@@ -682,6 +762,59 @@ async function loadFeedView(kind, reset = true) {
 function loadMoreFeed(kind) {
   feedState[kind].page++;
   loadFeedView(kind, false);
+}
+
+async function loadAdminFeed(reset = true) {
+  const feedEl = document.getElementById("adminFeed");
+  const statsEl = document.getElementById("adminStats");
+  if (reset) {
+    feedState.admin.page = 1;
+    feedEl.innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
+  }
+  try {
+    const [statsRes, feedRes] = await Promise.all([
+      fetch(`${WORKER_URL}/api/admin/stats`, { headers: { "Authorization": `Bearer ${getToken()}` } }),
+      fetch(`${WORKER_URL}/api/feed?filter=all&page=${feedState.admin.page}&pageSize=${PAGE_SIZE}`),
+    ]);
+
+    const statsData = await statsRes.json();
+    if (statsRes.ok) {
+      statsEl.innerHTML = `
+        <div class="admin-stat-box"><div class="num">${statsData.stats.users}</div><div class="label">کاربر</div></div>
+        <div class="admin-stat-box"><div class="num">${statsData.stats.posts}</div><div class="label">پست</div></div>
+        <div class="admin-stat-box"><div class="num">${statsData.stats.comments}</div><div class="label">کامنت</div></div>
+      `;
+    } else {
+      statsEl.textContent = statsData.error || "دسترسی نداری";
+    }
+
+    const data = await feedRes.json();
+    feedState.admin.loaded = true;
+
+    if (reset && (!data.posts || data.posts.length === 0)) {
+      feedEl.innerHTML = `<div class="empty-state">پستی وجود نداره</div>`;
+      return;
+    }
+    if (reset) feedEl.innerHTML = "";
+
+    const startIndex = (feedState.admin.page - 1) * PAGE_SIZE;
+    const html = data.posts.map((p, i) => renderPost(p, data.total - (startIndex + i))).join("");
+    feedEl.insertAdjacentHTML("beforeend", html);
+    bindAllAudioPlayers(feedEl);
+
+    const oldBtn = document.getElementById("loadMoreBtn-admin");
+    if (oldBtn) oldBtn.remove();
+    if (data.hasMore) {
+      feedEl.insertAdjacentHTML("beforeend", `<button class="load-more-btn" id="loadMoreBtn-admin" onclick="loadMoreAdmin()">بارگذاری بیشتر</button>`);
+    }
+  } catch (e) {
+    if (reset) feedEl.innerHTML = `<div class="empty-state">بارگذاری نشد</div>`;
+  }
+}
+
+function loadMoreAdmin() {
+  feedState.admin.page++;
+  loadAdminFeed(false);
 }
 
 async function deletePost(id, safeId) {
@@ -773,7 +906,7 @@ function escapeHtml(str) {
 
 // ---------- پروفایل ----------
 let lastView = "media";
-const profileState = { username: null, page: 1 };
+const profileState = { username: null, page: 1, filter: "all" };
 let selectedAvatarFile = null;
 
 function openProfile(username) {
@@ -788,6 +921,9 @@ function openProfile(username) {
 
   profileState.username = username;
   profileState.page = 1;
+  profileState.filter = "all";
+  document.querySelectorAll(".filter-chip").forEach((el) => el.classList.remove("active"));
+  document.getElementById("profFilter-all")?.classList.add("active");
   loadProfile(username);
 }
 
@@ -840,7 +976,7 @@ async function loadProfilePosts(username, reset) {
     feedEl.innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
   }
   try {
-    const res = await fetch(`${WORKER_URL}/api/feed?username=${encodeURIComponent(username)}&page=${profileState.page}&pageSize=${PAGE_SIZE}`);
+    const res = await fetch(`${WORKER_URL}/api/feed?username=${encodeURIComponent(username)}&filter=${profileState.filter}&page=${profileState.page}&pageSize=${PAGE_SIZE}`);
     const data = await res.json();
 
     if (reset && (!data.posts || data.posts.length === 0)) {
@@ -867,6 +1003,13 @@ async function loadProfilePosts(username, reset) {
 function loadMoreProfile() {
   profileState.page++;
   loadProfilePosts(profileState.username, false);
+}
+
+function setProfileFilter(filter) {
+  profileState.filter = filter;
+  document.querySelectorAll(".filter-chip").forEach((el) => el.classList.remove("active"));
+  document.getElementById(`profFilter-${filter}`)?.classList.add("active");
+  loadProfilePosts(profileState.username, true);
 }
 
 function onAvatarChosen() {
