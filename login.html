@@ -1,9 +1,9 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>وصل لایت</title>
+<title>اسم نداره هنوز</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
@@ -71,13 +71,30 @@
   .error { color: var(--error); font-size: 13px; margin-top: 8px; min-height: 16px; }
   .hint { color: var(--success); font-size: 13px; margin-top: 8px; min-height: 16px; }
   .hidden { display: none !important; }
+
+  .sound-toggle {
+    position: fixed; top: 16px; left: 16px; width: 38px; height: 38px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border); color: var(--subtext);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .sound-toggle svg { width: 17px; height: 17px; }
+  .sound-toggle .icon-muted { display: none; }
+  .sound-toggle.muted .icon-on { display: none; }
+  .sound-toggle.muted .icon-muted { display: block; }
 </style>
 </head>
 <body>
+
+<audio id="bgMusic" src="login.mp3" loop></audio>
+<button class="sound-toggle" id="soundToggle" onclick="toggleSound()" aria-label="قطع/وصل صدا">
+  <svg class="icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18 6a9 9 0 0 1 0 12"/></svg>
+  <svg class="icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M17 9l6 6M23 9l-6 6"/></svg>
+</button>
+
 <div class="box">
   <div class="brand">
-    <h1>وصل لایت</h1>
-    <p>سایت دولکی عاقی</p>
+    <h1>خراب شده</h1>
+    <p>کاردستی شومبلکی عاقی</p>
   </div>
 
   <div class="card">
@@ -167,6 +184,34 @@ async function login() {
     window.location.href = "index.html";
   } catch (e) {
     errEl.textContent = "اتصال به سرور برقرار نشد. اینترنتت رو چک کن.";
+  }
+}
+
+// ---------- صدای پس‌زمینه ----------
+const bgMusic = document.getElementById("bgMusic");
+bgMusic.volume = 0.5;
+
+function tryAutoplay() {
+  bgMusic.play().catch(() => {
+    // پخش خودکار مسدود شده؛ با اولین لمس/کلیک شروع می‌شه
+    document.addEventListener("click", startOnUserGesture, { once: true });
+    document.addEventListener("touchstart", startOnUserGesture, { once: true });
+  });
+}
+function startOnUserGesture() {
+  if (document.getElementById("soundToggle").classList.contains("muted")) return;
+  bgMusic.play().catch(() => {});
+}
+tryAutoplay();
+
+function toggleSound() {
+  const btn = document.getElementById("soundToggle");
+  if (bgMusic.paused) {
+    bgMusic.play().catch(() => {});
+    btn.classList.remove("muted");
+  } else {
+    bgMusic.pause();
+    btn.classList.add("muted");
   }
 }
 </script>
