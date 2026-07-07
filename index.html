@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
+<script>
+(function(){try{var t=localStorage.getItem("theme")||"purple";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();
+</script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>دفتر</title>
@@ -8,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root {
+  :root, :root[data-theme="purple"] {
     --primary: #1A0A31;
     --surface: #241243;
     --card: #2D1856;
@@ -20,6 +23,42 @@
     --success: #22C55E;
     --error: #EF4444;
     --radius: 16px;
+  }
+  :root[data-theme="dark"] {
+    --primary: #0D0D0D;
+    --surface: #1A1A1A;
+    --card: #222222;
+    --accent: #52525B;
+    --accent-hover: #71717A;
+    --text: #FFFFFF;
+    --subtext: #A1A1AA;
+    --border: #333333;
+    --success: #22C55E;
+    --error: #EF4444;
+  }
+  :root[data-theme="red"] {
+    --primary: #1F0A0A;
+    --surface: #2B1010;
+    --card: #351515;
+    --accent: #B91C1C;
+    --accent-hover: #DC2626;
+    --text: #FFFFFF;
+    --subtext: #D8B4B4;
+    --border: #4A1F1F;
+    --success: #22C55E;
+    --error: #EF4444;
+  }
+  :root[data-theme="blue"] {
+    --primary: #0A0F1F;
+    --surface: #10172B;
+    --card: #151D35;
+    --accent: #2563EB;
+    --accent-hover: #3B82F6;
+    --text: #FFFFFF;
+    --subtext: #B4C2D8;
+    --border: #1F2A4A;
+    --success: #22C55E;
+    --error: #EF4444;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
@@ -206,6 +245,18 @@
   .profile-username { font-size: 18px; font-weight: 700; }
   .profile-bio { color: var(--subtext); font-size: 13px; margin-top: 6px; white-space: pre-wrap; }
   .profile-edit { margin-top: 16px; text-align: right; border-top: 1px solid var(--border); padding-top: 14px; }
+  .theme-picker { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; text-align: right; }
+  .theme-picker-label { font-size: 13px; color: var(--subtext); margin-bottom: 10px; }
+  .theme-options { display: flex; gap: 10px; }
+  .theme-swatch {
+    width: 42px; height: 42px; border-radius: 12px; border: 2px solid transparent;
+    cursor: pointer; padding: 0; flex-shrink: 0; position: relative;
+  }
+  .theme-swatch.active { border-color: #fff; }
+  .theme-swatch[data-theme-value="purple"] { background: linear-gradient(135deg, #1A0A31, #8B5CF6); }
+  .theme-swatch[data-theme-value="dark"] { background: linear-gradient(135deg, #0D0D0D, #71717A); }
+  .theme-swatch[data-theme-value="red"] { background: linear-gradient(135deg, #1F0A0A, #DC2626); }
+  .theme-swatch[data-theme-value="blue"] { background: linear-gradient(135deg, #0A0F1F, #3B82F6); }
   .back-link { background: none; border: none; color: var(--accent-hover); font-size: 13px; cursor: pointer; font-family: inherit; padding: 0; margin-bottom: 14px; }
   .username-link { cursor: pointer; }
   .username-link:hover { text-decoration: underline; }
@@ -402,6 +453,16 @@
           <button class="primary" id="saveProfileBtn" onclick="saveProfile()">ذخیره پروفایل</button>
         </div>
         <div class="error" id="profileError"></div>
+
+        <div class="theme-picker">
+          <div class="theme-picker-label">تم اپلیکیشن</div>
+          <div class="theme-options">
+            <button class="theme-swatch" data-theme-value="purple" title="بنفش" onclick="selectTheme('purple')"></button>
+            <button class="theme-swatch" data-theme-value="dark" title="مشکی" onclick="selectTheme('dark')"></button>
+            <button class="theme-swatch" data-theme-value="red" title="قرمز تیره" onclick="selectTheme('red')"></button>
+            <button class="theme-swatch" data-theme-value="blue" title="آبی تیره" onclick="selectTheme('blue')"></button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -449,6 +510,51 @@ function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("username");
   window.location.href = "login.html";
+}
+
+// ---------- تم ----------
+const VALID_THEMES = ["purple", "dark", "red", "blue"];
+let currentTheme = localStorage.getItem("theme") || "purple";
+
+function applyTheme(theme) {
+  if (!VALID_THEMES.includes(theme)) theme = "purple";
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+  currentTheme = theme;
+  markActiveSwatch(theme);
+}
+
+function markActiveSwatch(theme) {
+  document.querySelectorAll(".theme-swatch").forEach((el) => {
+    el.classList.toggle("active", el.dataset.themeValue === theme);
+  });
+}
+
+async function selectTheme(theme) {
+  applyTheme(theme);
+  try {
+    await fetch(`${WORKER_URL}/api/theme`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+      body: JSON.stringify({ theme }),
+    });
+  } catch (e) {
+    // اگه ذخیره روی سرور شکست بخوره، تم همچنان همینجا (لوکال) اعمال شده
+  }
+}
+
+async function syncThemeFromServer() {
+  try {
+    const res = await fetch(`${WORKER_URL}/api/profile?username=${encodeURIComponent(getUsername())}`);
+    const data = await res.json();
+    if (res.ok && data.profile && data.profile.theme && data.profile.theme !== currentTheme) {
+      applyTheme(data.profile.theme);
+    } else {
+      markActiveSwatch(currentTheme);
+    }
+  } catch (e) {
+    markActiveSwatch(currentTheme);
+  }
 }
 
 document.getElementById("whoami").textContent = getUsername() || "";
@@ -961,6 +1067,7 @@ async function loadProfile(username) {
     if (isSelf) {
       document.getElementById("profileEditBlock").classList.remove("hidden");
       document.getElementById("profileBioInput").value = p.bio || "";
+      markActiveSwatch(currentTheme);
     }
 
     loadProfilePosts(username, true);
@@ -1060,6 +1167,7 @@ async function saveProfile() {
   }
 }
 
+syncThemeFromServer();
 switchView("media");
 </script>
 </body>
