@@ -110,6 +110,17 @@
   .logout-link { color: var(--subtext); background: none; border: none; text-decoration: underline; cursor: pointer; font-family: inherit; font-size: 13px; padding: 0; }
   .header-avatar { width: 26px; height: 26px; border-radius: 50%; color: #fff; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
+  .bell-btn {
+    position: relative; background: none; border: none; color: var(--subtext); cursor: pointer;
+    padding: 2px; display: flex; align-items: center; justify-content: center;
+  }
+  .bell-btn svg { width: 20px; height: 20px; }
+  .bell-btn:hover { color: var(--text); }
+  .bell-dot {
+    position: absolute; top: -2px; left: -2px; width: 9px; height: 9px; border-radius: 50%;
+    background: var(--error); border: 2px solid var(--primary);
+  }
+
   .back-to-top {
     position: fixed; bottom: 20px; left: 20px; z-index: 60;
     width: 44px; height: 44px; border-radius: 50%;
@@ -504,6 +515,24 @@
   .ban-btn { background: var(--error); color: #fff; }
   .unban-btn { background: var(--success); color: #fff; }
 
+  .notif-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px; margin-bottom: 8px; position: relative;
+  }
+  .notif-item.is-new { border-color: var(--accent); }
+  .notif-icon {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--surface); color: var(--accent-hover);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .notif-icon svg { width: 15px; height: 15px; }
+  .notif-body { flex: 1; min-width: 0; }
+  .notif-text { font-size: 14px; }
+  .notif-text b { font-weight: 500; }
+  .notif-snippet { font-size: 13px; color: var(--subtext); margin-top: 3px; }
+  .notif-time { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--subtext); margin-top: 4px; }
+  .notif-new-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 6px; }
+
   /* حالت دسکتاپ: عرض بیشتر + گرید ۳ ستونه چسبیده برای کارت‌های رسانه */
   @media (min-width: 900px) {
     .wrap { max-width: 1100px; padding-inline: 24px; }
@@ -535,6 +564,10 @@
       <p>فید عمومی</p>
     </div>
     <div class="who">
+      <button class="bell-btn" id="bellBtn" onclick="openNotifications()" aria-label="اعلان‌ها">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="bell-dot hidden" id="bellDot"></span>
+      </button>
       <div class="header-avatar" id="headerAvatar" style="cursor:pointer" onclick="openProfile(getUsername())"></div>
       <span id="whoami"></span>
       <button class="logout-link" onclick="logout()">خروج</button>
@@ -666,6 +699,16 @@
     <div id="profileFeed"></div>
   </div>
 
+  <!-- صفحه اعلان‌ها -->
+  <div id="view-notifications" class="view hidden">
+    <button class="back-link" onclick="closeNotifications()">← بازگشت</button>
+    <div class="feed-header">
+      <span>اعلان‌ها</span>
+      <button class="refresh-btn" onclick="loadNotifications(true)">بروزرسانی</button>
+    </div>
+    <div id="notificationsList"></div>
+  </div>
+
   <!-- پنل مدیریت (فقط برای مالک سایت) -->
   <div id="view-admin" class="view hidden">
     <div class="surface-card">
@@ -788,6 +831,7 @@ document.getElementById("whoami").textContent = getUsername() || "";
     headerAvatarEl.style.background = avatarColor(uname);
   }
 }
+checkNotificationsBadge();
 
 const ADMIN_USERNAME = "Aghey";
 const isAdmin = getUsername() === ADMIN_USERNAME;
@@ -1925,7 +1969,7 @@ let selectedAvatarFile = null;
 function openProfile(username) {
   if (!username) return;
   const currentVisible = document.querySelector(".view:not(.hidden)");
-  if (currentVisible && currentVisible.id !== "view-profile") {
+  if (currentVisible && currentVisible.id !== "view-profile" && currentVisible.id !== "view-notifications") {
     lastView = currentVisible.id.replace("view-", "");
   }
 
@@ -1942,6 +1986,108 @@ function openProfile(username) {
 
 function closeProfile() {
   switchView(lastView);
+}
+
+// ---------- اعلان‌ها ----------
+const notifState = { page: 1 };
+
+function openNotifications() {
+  const currentVisible = document.querySelector(".view:not(.hidden)");
+  if (currentVisible && currentVisible.id !== "view-profile" && currentVisible.id !== "view-notifications") {
+    lastView = currentVisible.id.replace("view-", "");
+  }
+  document.querySelectorAll(".view").forEach((el) => el.classList.add("hidden"));
+  document.getElementById("view-notifications").classList.remove("hidden");
+  loadNotifications(true);
+}
+
+function closeNotifications() {
+  switchView(lastView);
+}
+
+function notifIcon(type) {
+  if (type === "comment") {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
+  }
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>`;
+}
+
+function renderNotifItem(n) {
+  let text = "اعلان جدید";
+  if (n.type === "comment") {
+    text = `<b>${escapeHtml(n.from_username)}</b> روی پستت کامنت گذاشت`;
+  }
+  const snippet = n.text ? `<div class="notif-snippet">${escapeHtml(n.text)}</div>` : "";
+  const newDot = n.is_new ? `<div class="notif-new-dot"></div>` : "";
+  return `
+    <div class="notif-item ${n.is_new ? "is-new" : ""}">
+      <div class="notif-icon">${notifIcon(n.type)}</div>
+      <div class="notif-body">
+        <div class="notif-text">${text}</div>
+        ${snippet}
+        <div class="notif-time">${new Date(n.date).toLocaleString("fa-IR")}</div>
+      </div>
+      ${newDot}
+    </div>`;
+}
+
+async function loadNotifications(reset = true) {
+  const listEl = document.getElementById("notificationsList");
+  if (reset) {
+    notifState.page = 1;
+    listEl.innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
+  }
+  try {
+    const res = await fetch(`${WORKER_URL}/api/notifications?page=${notifState.page}&pageSize=20`, {
+      headers: { "Authorization": `Bearer ${getToken()}` },
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      listEl.innerHTML = `<div class="empty-state">${escapeHtml(data.error || "خطا در بارگذاری")}</div>`;
+      return;
+    }
+
+    if (reset && (!data.notifications || data.notifications.length === 0)) {
+      listEl.innerHTML = `<div class="empty-state">هنوز اعلانی نداری</div>`;
+    } else {
+      if (reset) listEl.innerHTML = "";
+      listEl.insertAdjacentHTML("beforeend", data.notifications.map(renderNotifItem).join(""));
+
+      const oldBtn = document.getElementById("loadMoreBtn-notif");
+      if (oldBtn) oldBtn.remove();
+      if (data.hasMore) {
+        listEl.insertAdjacentHTML("beforeend", `<button class="load-more-btn" id="loadMoreBtn-notif" onclick="loadMoreNotifications()">بارگذاری بیشتر</button>`);
+      }
+    }
+
+    if (reset) {
+      document.getElementById("bellDot").classList.add("hidden");
+      fetch(`${WORKER_URL}/api/notifications/read`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${getToken()}` },
+      }).catch(() => {});
+    }
+  } catch (e) {
+    if (reset) listEl.innerHTML = `<div class="empty-state">بارگذاری نشد</div>`;
+  }
+}
+
+function loadMoreNotifications() {
+  notifState.page++;
+  loadNotifications(false);
+}
+
+async function checkNotificationsBadge() {
+  try {
+    const res = await fetch(`${WORKER_URL}/api/notifications?page=1&pageSize=1`, {
+      headers: { "Authorization": `Bearer ${getToken()}` },
+    });
+    const data = await res.json();
+    if (res.ok && data.unread_count > 0) {
+      document.getElementById("bellDot").classList.remove("hidden");
+    }
+  } catch (e) {}
 }
 
 async function loadProfile(username) {
