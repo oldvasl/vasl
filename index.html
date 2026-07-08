@@ -1011,6 +1011,11 @@ const reelsState = { posts: [], index: 0, page: 1, hasMore: true, loading: false
 let reelsObserver = null;
 
 async function openReels(startPostId) {
+  // AudioContext باید داخل یه ژست واقعی کاربر ساخته/رزیوم بشه، وگرنه بعداً که
+  // پخش خودکار (با اسکرول) صدا رو از تو گراف صوتی رد می‌کنه، مرورگر ساکتش نگه می‌داره
+  // (المنت audio ظاهراً "در حال پخش"ه و سیکر/زمان حرکت می‌کنه ولی صدایی شنیده نمی‌شه)
+  ensureAudioContext();
+
   // پاز کردن پلیر کوچیک اگه چیزی داشت پخش می‌شد
   if (currentAudio) {
     currentAudio.audioEl.pause();
@@ -1165,6 +1170,7 @@ function renderReelSlide(p, i) {
 }
 
 function onReelTap(i) {
+  ensureAudioContext();
   const audioEl = document.getElementById(`reelAudio-${i}`);
   if (!audioEl) return;
   if (audioEl.paused) {
@@ -1226,8 +1232,8 @@ function bindReelLoader(audioEl, i) {
     setReelLoaderProgress(i, 1);
     setTimeout(() => {
       hideReelLoader(i);
-      audioEl.play().catch(() => {});
-      updatePlayPauseUI(i, true);
+      ensureAudioContext();
+      audioEl.play().then(() => updatePlayPauseUI(i, true)).catch(() => updatePlayPauseUI(i, false));
     }, 250);
   }, { once: true });
 
@@ -1242,13 +1248,13 @@ function playReelSlide(i) {
   const audioEl = document.getElementById(`reelAudio-${i}`);
   if (!audioEl) return;
   reelsState.index = i;
+  ensureAudioContext();
   connectReelVisualizer(audioEl, i);
 
   if (audioEl.readyState >= 4) {
     // آهنگ از قبل کامل بافر شده — بدون لودینگ مستقیم پخش می‌شه
     hideReelLoader(i);
-    audioEl.play().catch(() => {});
-    updatePlayPauseUI(i, true);
+    audioEl.play().then(() => updatePlayPauseUI(i, true)).catch(() => updatePlayPauseUI(i, false));
   } else {
     showReelLoader(i);
     bindReelLoader(audioEl, i);
@@ -1314,6 +1320,7 @@ function reelScrollToIndex(idx) {
 }
 
 function reelNext() {
+  ensureAudioContext();
   const total = reelsState.posts.length;
   if (total === 0) return;
   let idx;
@@ -1327,6 +1334,7 @@ function reelNext() {
 }
 
 function reelPrev() {
+  ensureAudioContext();
   const idx = reelsState.index - 1;
   if (idx < 0) return;
   reelScrollToIndex(idx);
