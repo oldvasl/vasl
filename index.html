@@ -354,6 +354,26 @@
     display: flex; align-items: center; justify-content: center; cursor: pointer;
   }
   .reels-close svg { width: 18px; height: 18px; }
+  .reels-download {
+    position: fixed; top: 16px; right: 16px; z-index: 210; width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .reels-download svg { width: 18px; height: 18px; }
+  .reels-seek-wrap {
+    position: absolute; bottom: 0; inset-inline: 0; z-index: 7; padding: 0 14px 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .reels-seek {
+    flex: 1; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px;
+    background: rgba(255,255,255,0.25); outline: none; cursor: pointer; margin: 0;
+  }
+  .reels-seek::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 13px; height: 13px; border-radius: 50%;
+    background: #fff; cursor: pointer; box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  }
+  .reels-seek::-moz-range-thumb { width: 13px; height: 13px; border-radius: 50%; background: #fff; border: none; cursor: pointer; }
+  .reels-seek-time { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: rgba(255,255,255,0.75); flex-shrink: 0; white-space: nowrap; }
   .reels-scroller {
     height: 100%; width: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none;
   }
@@ -364,81 +384,57 @@
   }
   .reels-slide .bg-blur {
     position: absolute; inset: -20px; background-size: cover; background-position: center;
-    filter: blur(40px) brightness(0.4); transform: scale(1.2);
+    filter: blur(40px) brightness(0.45); transform: scale(1.2);
   }
   .reels-slide .bg-fallback { position: absolute; inset: 0; background: linear-gradient(160deg, var(--primary), var(--card)); }
   .reels-tap-area { position: absolute; inset: 0; z-index: 1; }
-
-  /* آرت‌ورک با دایره لودینگ */
-  .reels-art-outer {
-    position: relative; width: 224px; height: 224px; z-index: 2;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .reels-art-ring {
-    position: absolute; inset: 0; border-radius: 50%;
-    transform: rotate(-90deg);
-  }
-  .reels-art-ring circle {
-    fill: none; stroke-width: 4;
-    stroke-dasharray: 628; stroke-dashoffset: 628;
-    transition: none;
-  }
-  .reels-art-ring .ring-bg { stroke: rgba(255,255,255,0.15); }
-  .reels-art-ring .ring-fill { stroke: var(--accent); stroke-linecap: round; }
   .reels-art-wrap {
-    width: 200px; height: 200px; border-radius: 20px; overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    position: relative; width: 220px; height: 220px; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 2;
   }
   .reels-art-wrap img { width: 100%; height: 100%; object-fit: cover; }
   .reels-art-wrap .placeholder-icon { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--card); color: var(--subtext); }
   .reels-art-wrap .placeholder-icon svg { width: 60px; height: 60px; }
-
-  /* اطلاعات آهنگ */
-  .reels-info { position: absolute; bottom: 130px; inset-inline: 20px; z-index: 3; color: #fff; text-align: center; }
+  .reels-center { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .reels-loader {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.4); opacity: 1; transition: opacity 0.4s ease; z-index: 3;
+  }
+  .reels-loader.loader-hidden { opacity: 0; pointer-events: none; }
+  .reels-loader svg { width: 64px; height: 64px; transform: rotate(-90deg); }
+  .reels-loader-track { fill: none; stroke: rgba(255,255,255,0.25); stroke-width: 4; }
+  .reels-loader-fill {
+    fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round;
+    stroke-dasharray: 163.36; stroke-dashoffset: 163.36; transition: stroke-dashoffset 0.15s linear;
+  }
+  .reels-controls {
+    display: flex; align-items: center; justify-content: center; gap: 14px; z-index: 4;
+  }
+  .reels-ctrl-btn {
+    background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: #fff;
+    width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .reels-ctrl-btn svg { width: 18px; height: 18px; }
+  .reels-ctrl-btn.reels-ctrl-main { width: 54px; height: 54px; background: var(--accent-gradient); border-color: transparent; }
+  .reels-ctrl-btn.reels-ctrl-main svg { width: 24px; height: 24px; }
+  .reels-ctrl-btn.reels-ctrl-main .icon-pause { display: none; }
+  .reels-ctrl-btn.reels-ctrl-main.playing .icon-play { display: none; }
+  .reels-ctrl-btn.reels-ctrl-main.playing .icon-pause { display: block; }
+  .reels-ctrl-btn.reels-toggle.active { background: var(--accent-gradient); border-color: transparent; }
+  .reels-info { position: absolute; bottom: 90px; inset-inline: 20px; z-index: 3; color: #fff; text-align: center; }
   .reels-title { font-size: 18px; font-weight: 700; }
   .reels-performer { font-size: 14px; color: rgba(255,255,255,0.75); margin-top: 2px; }
   .reels-username { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 6px; }
-
-  /* کنترل‌های مینیمال */
-  .reels-controls {
-    position: absolute; bottom: 40px; inset-inline: 0; z-index: 5;
-    display: flex; align-items: center; justify-content: center; gap: 28px;
+  .reels-play-hint {
+    position: absolute; z-index: 4; width: 64px; height: 64px; border-radius: 50%;
+    background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: #fff;
+    opacity: 0; transition: opacity 0.15s; pointer-events: none;
   }
-  .reels-ctrl-btn {
-    background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer;
-    display: flex; align-items: center; justify-content: center; padding: 0;
-  }
-  .reels-ctrl-btn svg { width: 26px; height: 26px; }
-  .reels-ctrl-btn:hover { color: #fff; }
-  .reels-play-btn {
-    width: 62px; height: 62px; border-radius: 50%; border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; color: #fff;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  }
-  .reels-play-btn svg { width: 28px; height: 28px; }
-  .reels-play-btn .rpl-pause { display: none; }
-  .reels-play-btn.playing .rpl-play { display: none; }
-  .reels-play-btn.playing .rpl-pause { display: block; }
-
-  /* دکمه دانلود گوشه بالا-راست */
-  .reels-download-btn {
-    position: absolute; top: 16px; right: 16px; z-index: 6;
-    width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer;
-    background: rgba(0,0,0,0.45); color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  }
-  .reels-download-btn svg { width: 17px; height: 17px; }
-
-  /* نوار پیشرفت پایین */
-  .reels-progress-track { position: absolute; bottom: 0; inset-inline: 0; height: 3px; background: rgba(255,255,255,0.15); z-index: 7; }
-  .reels-progress-fill { height: 100%; width: 0%; background: var(--accent); }
-
-  /* اکولایزر نقاشی */
+  .reels-play-hint svg { width: 28px; height: 28px; }
+  .reels-play-hint.show { opacity: 1; }
   .reels-visualizer {
-    position: fixed; bottom: 3px; left: 0; right: 0; height: 110px; z-index: 6;
+    position: fixed; bottom: 3px; left: 0; right: 0; height: 90px; z-index: 6;
     pointer-events: none; width: 100%;
   }
   .reels-launch-btn {
@@ -679,6 +675,9 @@
 <div id="reelsOverlay" class="reels-overlay hidden">
   <button class="reels-close" onclick="closeReels()" aria-label="بستن">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  </button>
+  <button class="reels-download" onclick="downloadCurrentReel()" aria-label="دانلود آهنگ" title="دانلود آهنگ">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
   </button>
   <div id="reelsScroller" class="reels-scroller"></div>
   <canvas id="reelsVisualizer" class="reels-visualizer"></canvas>
@@ -998,7 +997,7 @@ function bindAllAudioPlayers(container) {
 
 // ---------- حالت ریلز موزیک (با لیزی‌لود) ----------
 const REELS_PAGE_SIZE = 8;
-const reelsState = { posts: [], index: 0, page: 1, hasMore: true, loading: false };
+const reelsState = { posts: [], index: 0, page: 1, hasMore: true, loading: false, shuffle: false, repeatOne: false };
 let reelsObserver = null;
 
 async function openReels(startPostId) {
@@ -1090,64 +1089,68 @@ function closeReels() {
 }
 
 function renderReelSlide(p, i) {
-  const mediaUrl = `${WORKER_URL}/api/media/${p.file_id}`;
-  const thumbUrl = p.audio_thumb ? `${WORKER_URL}/api/media/${p.audio_thumb}` : null;
-
-  const bgHtml = thumbUrl
-    ? `<div class="bg-blur" style="background-image:url('${thumbUrl}')"></div>`
+  const bgHtml = p.audio_thumb
+    ? `<div class="bg-blur" style="background-image:url('${WORKER_URL}/api/media/${p.audio_thumb}')"></div>`
     : `<div class="bg-fallback"></div>`;
-
-  const artInner = thumbUrl
-    ? `<img src="${thumbUrl}" loading="lazy" onload="onReelThumbLoad(${i})" />`
+  const artHtml = p.audio_thumb
+    ? `<img src="${WORKER_URL}/api/media/${p.audio_thumb}" />`
     : `<div class="placeholder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>`;
 
-  const title = escapeHtml(p.audio_title || "بدون‌نام");
+  const title = p.audio_title || "بدون‌نام";
   const performerHtml = p.audio_performer ? `<div class="reels-performer">${escapeHtml(p.audio_performer)}</div>` : "";
-  const circumference = 2 * Math.PI * 100; // r=100 → دایره ۲۰۰px
 
   return `
     <div class="reels-slide" id="reel-${i}" data-index="${i}">
       ${bgHtml}
       <div class="reels-tap-area" onclick="onReelTap(${i})"></div>
-
-      <!-- دکمه دانلود گوشه بالا-راست -->
-      <a class="reels-download-btn" href="${mediaUrl}" download title="دانلود آهنگ" onclick="event.stopPropagation()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      </a>
-
-      <!-- کاور با دایره لودینگ -->
-      <div class="reels-art-outer" id="reelOuter-${i}">
-        <svg class="reels-art-ring" viewBox="0 0 208 208" width="224" height="224">
-          <circle class="ring-bg" cx="104" cy="104" r="100" />
-          <circle class="ring-fill" id="reelRing-${i}" cx="104" cy="104" r="100"
-            style="stroke-dasharray:${circumference};stroke-dashoffset:${circumference}" />
-        </svg>
-        <div class="reels-art-wrap">${artInner}</div>
+      <div class="reels-center">
+        <div class="reels-art-wrap">
+          ${artHtml}
+          <div class="reels-loader" id="reelLoader-${i}">
+            <svg viewBox="0 0 60 60">
+              <circle class="reels-loader-track" cx="30" cy="30" r="26"></circle>
+              <circle class="reels-loader-fill" id="reelLoaderFill-${i}" cx="30" cy="30" r="26"></circle>
+            </svg>
+          </div>
+        </div>
+        <div class="reels-controls" onclick="event.stopPropagation()">
+          <button class="reels-ctrl-btn reels-toggle${reelsState.shuffle ? " active" : ""}" id="reelShuffleBtn-${i}" onclick="toggleReelShuffle()" title="پخش تصادفی">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.42 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+          </button>
+          <button class="reels-ctrl-btn" onclick="reelPrev()" title="آهنگ قبلی">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM9.5 12l8.5 6V6z"/></svg>
+          </button>
+          <button class="reels-ctrl-btn reels-ctrl-main" id="reelPlayBtn-${i}" onclick="onReelTap(${i})" title="پخش/توقف">
+            <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+          </button>
+          <button class="reels-ctrl-btn" onclick="reelNext()" title="آهنگ بعدی">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </button>
+          <button class="reels-ctrl-btn reels-toggle${reelsState.repeatOne ? " active" : ""}" id="reelRepeatBtn-${i}" onclick="toggleReelRepeat()" title="تکرار آهنگ">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2z"/></svg>
+          </button>
+        </div>
       </div>
-
-      <!-- اطلاعات -->
+      <div class="reels-play-hint" id="reelHint-${i}">
+        <svg class="hint-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="hint-pause hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+      </div>
       <div class="reels-info">
-        <div class="reels-title">${title}</div>
+        <div class="reels-title">${escapeHtml(title)}</div>
         ${performerHtml}
         <div class="reels-username">@${escapeHtml(p.username)}</div>
       </div>
-
-      <!-- کنترل‌های مینیمال -->
-      <div class="reels-controls">
-        <button class="reels-ctrl-btn" onclick="event.stopPropagation();seekReelBy(${i},-10)" title="۱۰ثانیه به عقب">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/><text x="7" y="15" font-size="5.5" fill="currentColor" stroke="none" font-family="sans-serif">10</text></svg>
-        </button>
-        <button class="reels-play-btn" id="reelPlayBtn-${i}" onclick="event.stopPropagation();onReelTap(${i})">
-          <svg class="rpl-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-          <svg class="rpl-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
-        </button>
-        <button class="reels-ctrl-btn" onclick="event.stopPropagation();seekReelBy(${i},10)" title="۱۰ثانیه به جلو">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-3.5"/><text x="7" y="15" font-size="5.5" fill="currentColor" stroke="none" font-family="sans-serif">10</text></svg>
-        </button>
+      <div class="reels-seek-wrap" onclick="event.stopPropagation()">
+        <span class="reels-seek-time" id="reelTimeCur-${i}">۰:۰۰</span>
+        <input type="range" class="reels-seek" id="reelSeek-${i}" min="0" max="100" value="0" step="0.1"
+          oninput="onReelSeek(${i}, this.value)"
+          onpointerdown="this.dataset.dragging='1'"
+          onpointerup="delete this.dataset.dragging"
+        />
+        <span class="reels-seek-time" id="reelTimeDur-${i}">۰:۰۰</span>
       </div>
-
-      <div class="reels-progress-track"><div class="reels-progress-fill" id="reelProgress-${i}"></div></div>
-      <audio id="reelAudio-${i}" src="${mediaUrl}" preload="auto" loop></audio>
+      <audio id="reelAudio-${i}" src="${WORKER_URL}/api/media/${p.file_id}" preload="metadata"></audio>
     </div>`;
 }
 
@@ -1158,90 +1161,176 @@ function onReelTap(i) {
     playReelSlide(i);
   } else {
     audioEl.pause();
-    setReelPlayBtnState(i, false);
+    updatePlayPauseUI(i, false);
   }
 }
 
-function setReelPlayBtnState(i, playing) {
-  const btn = document.getElementById(`reelPlayBtn-${i}`);
-  if (!btn) return;
-  btn.classList.toggle("playing", playing);
+function updatePlayPauseUI(i, playing) {
+  const hint = document.getElementById(`reelHint-${i}`);
+  if (hint) {
+    hint.querySelector(".hint-play").classList.toggle("hidden", playing);
+    hint.querySelector(".hint-pause").classList.toggle("hidden", !playing);
+    hint.classList.add("show");
+    clearTimeout(hint._t);
+    hint._t = setTimeout(() => hint.classList.remove("show"), 500);
+  }
+  const mainBtn = document.getElementById(`reelPlayBtn-${i}`);
+  if (mainBtn) mainBtn.classList.toggle("playing", playing);
 }
 
-function showReelHint(i, playing) {
-  setReelPlayBtnState(i, playing);
+// نگهداری‌شده برای سازگاری با کدهای قبلی
+function showReelHint(i, playing) { updatePlayPauseUI(i, playing); }
+
+// ---------- لودینگ دایره‌ای روی کاور تا وقتی دانلود آهنگ کامل بشه ----------
+const REEL_LOADER_CIRCUMFERENCE = 2 * Math.PI * 26; // ≈ 163.36
+
+function setReelLoaderProgress(i, ratio) {
+  const fill = document.getElementById(`reelLoaderFill-${i}`);
+  if (!fill) return;
+  const clamped = Math.max(0, Math.min(1, ratio));
+  fill.style.strokeDashoffset = String(REEL_LOADER_CIRCUMFERENCE * (1 - clamped));
 }
 
-// دایره لودینگ: وقتی thumb لود شد حلقه کامل می‌شه
-function onReelThumbLoad(i) {
-  const ring = document.getElementById(`reelRing-${i}`);
-  if (!ring) return;
-  const circumference = 2 * Math.PI * 100;
-  ring.style.transition = "stroke-dashoffset 0.6s ease";
-  ring.style.strokeDashoffset = "0";
+function hideReelLoader(i) {
+  const loader = document.getElementById(`reelLoader-${i}`);
+  if (loader) loader.classList.add("loader-hidden");
 }
 
-// حلقه لودینگ آهنگ (نه thumbnail): نشون می‌ده چقدر از آهنگ بافر شده
-function bindLoadingRing(audioEl, i) {
-  if (audioEl.dataset.boundRing) return;
-  audioEl.dataset.boundRing = "1";
-  const circumference = 2 * Math.PI * 100;
+function showReelLoader(i) {
+  const loader = document.getElementById(`reelLoader-${i}`);
+  if (loader) loader.classList.remove("loader-hidden");
+  setReelLoaderProgress(i, 0);
+}
+
+function bindReelLoader(audioEl, i) {
+  if (audioEl.dataset.boundLoader) return;
+  audioEl.dataset.boundLoader = "1";
+
   audioEl.addEventListener("progress", () => {
     if (!audioEl.duration || !audioEl.buffered.length) return;
-    const buffered = audioEl.buffered.end(audioEl.buffered.length - 1);
-    const ratio = buffered / audioEl.duration;
-    // اگه thumb نداشتیم، از بافر خود فایل برای حلقه استفاده می‌کنیم
-    const thumbImg = document.querySelector(`#reel-${i} .reels-art-wrap img`);
-    if (!thumbImg) {
-      const ring = document.getElementById(`reelRing-${i}`);
-      if (ring) {
-        ring.style.transition = "stroke-dashoffset 0.3s linear";
-        ring.style.strokeDashoffset = circumference * (1 - ratio);
-      }
-    }
+    const bufferedEnd = audioEl.buffered.end(audioEl.buffered.length - 1);
+    setReelLoaderProgress(i, bufferedEnd / audioEl.duration);
   });
-  audioEl.addEventListener("canplaythrough", () => {
-    const thumbImg = document.querySelector(`#reel-${i} .reels-art-wrap img`);
-    if (!thumbImg) {
-      const ring = document.getElementById(`reelRing-${i}`);
-      if (ring) {
-        ring.style.transition = "stroke-dashoffset 0.4s ease";
-        ring.style.strokeDashoffset = "0";
-      }
-    }
-  });
-}
 
-function seekReelBy(i, seconds) {
-  const audioEl = document.getElementById(`reelAudio-${i}`);
-  if (!audioEl) return;
-  audioEl.currentTime = Math.max(0, Math.min(audioEl.duration || 0, audioEl.currentTime + seconds));
+  audioEl.addEventListener("canplaythrough", () => {
+    setReelLoaderProgress(i, 1);
+    setTimeout(() => {
+      hideReelLoader(i);
+      audioEl.play().catch(() => {});
+      updatePlayPauseUI(i, true);
+    }, 250);
+  }, { once: true });
 }
 
 function playReelSlide(i) {
   document.querySelectorAll("#reelsScroller audio").forEach((a) => {
     if (a.id !== `reelAudio-${i}`) a.pause();
   });
-  document.querySelectorAll(".reels-play-btn").forEach((b) => b.classList.remove("playing"));
-
   const audioEl = document.getElementById(`reelAudio-${i}`);
   if (!audioEl) return;
-  audioEl.play().catch(() => {});
-  connectReelVisualizer(audioEl, i);
-  setReelPlayBtnState(i, true);
   reelsState.index = i;
-  bindLoadingRing(audioEl, i);
+  connectReelVisualizer(audioEl, i);
+
+  if (audioEl.readyState >= 4) {
+    // آهنگ از قبل کامل بافر شده — بدون لودینگ مستقیم پخش می‌شه
+    hideReelLoader(i);
+    audioEl.play().catch(() => {});
+    updatePlayPauseUI(i, true);
+  } else {
+    showReelLoader(i);
+    bindReelLoader(audioEl, i);
+  }
 
   if (!audioEl.dataset.boundProgress) {
     audioEl.dataset.boundProgress = "1";
     audioEl.addEventListener("timeupdate", () => {
       if (!audioEl.duration) return;
-      const fill = document.getElementById(`reelProgress-${i}`);
-      if (fill) fill.style.width = `${(audioEl.currentTime / audioEl.duration) * 100}%`;
+      const seek = document.getElementById(`reelSeek-${i}`);
+      if (seek && !seek.dataset.dragging) seek.value = (audioEl.currentTime / audioEl.duration) * 100;
+      const curEl = document.getElementById(`reelTimeCur-${i}`);
+      if (curEl) curEl.textContent = formatTime(audioEl.currentTime);
     });
-    audioEl.addEventListener("pause", () => setReelPlayBtnState(i, false));
-    audioEl.addEventListener("play", () => setReelPlayBtnState(i, true));
+    audioEl.addEventListener("loadedmetadata", () => {
+      const durEl = document.getElementById(`reelTimeDur-${i}`);
+      if (durEl) durEl.textContent = formatTime(audioEl.duration);
+    });
+    audioEl.addEventListener("ended", () => {
+      if (reelsState.repeatOne) {
+        audioEl.currentTime = 0;
+        audioEl.play().catch(() => {});
+      } else {
+        reelNext();
+      }
+    });
   }
+}
+
+function onReelSeek(i, value) {
+  const audioEl = document.getElementById(`reelAudio-${i}`);
+  if (!audioEl || !audioEl.duration) return;
+  audioEl.currentTime = (value / 100) * audioEl.duration;
+}
+
+// ---------- دانلود آهنگ فعلی ----------
+async function downloadCurrentReel() {
+  const p = reelsState.posts[reelsState.index];
+  if (!p) return;
+  const url = `${WORKER_URL}/api/media/${p.file_id}`;
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const safeName = (p.audio_title || "song").replace(/[\\/:*?"<>|]/g, "").slice(0, 60) || "song";
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = `${safeName}.mp3`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+  } catch (e) {
+    alert("دانلود انجام نشد، دوباره امتحان کن");
+  }
+}
+
+// ---------- بعدی / قبلی / شافل / تکرار ----------
+function reelScrollToIndex(idx) {
+  if (idx < 0 || idx >= reelsState.posts.length) return;
+  const slide = document.getElementById(`reel-${idx}`);
+  if (slide) slide.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function reelNext() {
+  const total = reelsState.posts.length;
+  if (total === 0) return;
+  let idx;
+  if (reelsState.shuffle && total > 1) {
+    do { idx = Math.floor(Math.random() * total); } while (idx === reelsState.index);
+  } else {
+    idx = reelsState.index + 1;
+    if (idx >= total) return; // به آخر لیست رسیدیم
+  }
+  reelScrollToIndex(idx);
+}
+
+function reelPrev() {
+  const idx = reelsState.index - 1;
+  if (idx < 0) return;
+  reelScrollToIndex(idx);
+}
+
+function toggleReelShuffle() {
+  reelsState.shuffle = !reelsState.shuffle;
+  document.querySelectorAll('[id^="reelShuffleBtn-"]').forEach((btn) => {
+    btn.classList.toggle("active", reelsState.shuffle);
+  });
+}
+
+function toggleReelRepeat() {
+  reelsState.repeatOne = !reelsState.repeatOne;
+  document.querySelectorAll('[id^="reelRepeatBtn-"]').forEach((btn) => {
+    btn.classList.toggle("active", reelsState.repeatOne);
+  });
 }
 
 // ---------- ویژوالایزر صدای واقعی (هماهنگ با رنگ تم) ----------
@@ -1289,54 +1378,28 @@ function startVisualizerLoop() {
   function resize() {
     canvas.width = canvas.clientWidth * dpr;
     canvas.height = canvas.clientHeight * dpr;
-    ctx.scale(dpr, dpr);
   }
   resize();
-  window.addEventListener("resize", () => { ctx.setTransform(1,0,0,1,0,0); resize(); });
+  window.addEventListener("resize", resize);
 
-  // خوندن رنگ accent از تم فعلی
-  function getAccentColor() {
-    return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#8B5CF6";
-  }
-
-  const smoothed = new Float32Array(32).fill(0);
+  const accentColor = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#8B5CF6";
 
   function draw() {
     vizAnimationId = requestAnimationFrame(draw);
-    const W = canvas.clientWidth;
-    const H = canvas.clientHeight;
-    ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (!analyser) return;
 
-    const bufferLength = analyser.frequencyBinCount; // 32
+    const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
     analyser.getByteFrequencyData(dataArray);
 
-    // smooth کردن
+    const barWidth = canvas.width / bufferLength;
+    ctx.fillStyle = accentColor;
     for (let i = 0; i < bufferLength; i++) {
-      smoothed[i] = smoothed[i] * 0.78 + (dataArray[i] / 255) * 0.22;
-    }
-
-    const accent = getAccentColor();
-    const barW = W / (bufferLength * 1.5);
-    const gap = barW * 0.5;
-
-    for (let i = 0; i < bufferLength; i++) {
-      const v = smoothed[i];
-      const barH = Math.max(v * H * 0.85, 2);
-      const x = i * (barW + gap) + gap;
-      const y = H - barH;
-
-      // گرادینت عمودی از رنگ تم به شفاف
-      const grad = ctx.createLinearGradient(0, y, 0, H);
-      grad.addColorStop(0, accent + "CC");
-      grad.addColorStop(1, accent + "22");
-
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.roundRect ? ctx.roundRect(x, y, barW, barH, barW / 2)
-                    : ctx.rect(x, y, barW, barH);
-      ctx.fill();
+      const v = dataArray[i] / 255;
+      const barHeight = Math.max(v * canvas.height, 2);
+      ctx.globalAlpha = 0.35 + v * 0.5;
+      ctx.fillRect(i * barWidth + 1, canvas.height - barHeight, Math.max(barWidth - 2, 1), barHeight);
     }
   }
   draw();
@@ -1368,6 +1431,7 @@ function bindReelsObserver() {
         } else {
           const audioEl = document.getElementById(`reelAudio-${idx}`);
           if (audioEl) audioEl.pause();
+          updatePlayPauseUI(idx, false);
         }
       });
     },
