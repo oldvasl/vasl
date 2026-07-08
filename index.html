@@ -643,6 +643,7 @@
     <div class="profile-filter">
       <button class="filter-chip active" id="profFilter-all" onclick="setProfileFilter('all')">همه</button>
       <button class="filter-chip" id="profFilter-media" onclick="setProfileFilter('media')">رسانه</button>
+      <button class="filter-chip" id="profFilter-audio" onclick="setProfileFilter('audio')">آهنگ‌ها</button>
       <button class="filter-chip" id="profFilter-text" onclick="setProfileFilter('text')">متن</button>
     </div>
     <div id="profileFeed"></div>
@@ -1858,7 +1859,8 @@ async function loadProfilePosts(username, reset) {
     feedEl.innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
   }
   try {
-    const res = await fetch(`${WORKER_URL}/api/feed?username=${encodeURIComponent(username)}&filter=${profileState.filter}&page=${profileState.page}&pageSize=${PAGE_SIZE}`);
+    const excludeAudio = (profileState.filter === "all" || profileState.filter === "media") ? "&excludeAudio=1" : "";
+    const res = await fetch(`${WORKER_URL}/api/feed?username=${encodeURIComponent(username)}&filter=${profileState.filter}&page=${profileState.page}&pageSize=${PAGE_SIZE}${excludeAudio}`);
     const data = await res.json();
 
     if (reset && (!data.posts || data.posts.length === 0)) {
