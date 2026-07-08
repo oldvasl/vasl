@@ -361,8 +361,7 @@
   }
   .reels-download svg { width: 18px; height: 18px; }
   .reels-seek-wrap {
-    position: absolute; bottom: 0; inset-inline: 0; z-index: 7; padding: 0 14px 10px;
-    display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: center; gap: 8px; width: 260px; max-width: 80vw;
   }
   .reels-seek {
     flex: 1; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px;
@@ -379,7 +378,7 @@
   }
   .reels-scroller::-webkit-scrollbar { display: none; }
   .reels-slide {
-    height: 100vh; width: 100%; scroll-snap-align: start; position: relative;
+    height: 100vh; width: 100%; scroll-snap-align: start; scroll-snap-stop: always; position: relative;
     display: flex; align-items: center; justify-content: center; overflow: hidden;
   }
   .reels-slide .bg-blur {
@@ -396,6 +395,16 @@
   .reels-art-wrap .placeholder-icon { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--card); color: var(--subtext); }
   .reels-art-wrap .placeholder-icon svg { width: 60px; height: 60px; }
   .reels-center { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  @media (max-width: 480px), (max-height: 700px) {
+    .reels-art-wrap { width: 150px; height: 150px; border-radius: 16px; }
+    .reels-center { gap: 10px; }
+    .reels-ctrl-btn { width: 36px; height: 36px; }
+    .reels-ctrl-btn svg { width: 16px; height: 16px; }
+    .reels-ctrl-btn.reels-ctrl-main { width: 46px; height: 46px; }
+    .reels-ctrl-btn.reels-ctrl-main svg { width: 20px; height: 20px; }
+    .reels-seek-wrap { width: 210px; }
+    .reels-info { bottom: 70px; }
+  }
   .reels-loader {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     background: rgba(0,0,0,0.4); opacity: 1; transition: opacity 0.4s ease; z-index: 3;
@@ -1131,6 +1140,15 @@ function renderReelSlide(p, i) {
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2z"/></svg>
           </button>
         </div>
+        <div class="reels-seek-wrap" onclick="event.stopPropagation()">
+          <span class="reels-seek-time" id="reelTimeCur-${i}">۰:۰۰</span>
+          <input type="range" class="reels-seek" id="reelSeek-${i}" min="0" max="100" value="0" step="0.1"
+            oninput="onReelSeek(${i}, this.value)"
+            onpointerdown="this.dataset.dragging='1'"
+            onpointerup="delete this.dataset.dragging"
+          />
+          <span class="reels-seek-time" id="reelTimeDur-${i}">۰:۰۰</span>
+        </div>
       </div>
       <div class="reels-play-hint" id="reelHint-${i}">
         <svg class="hint-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
@@ -1141,16 +1159,7 @@ function renderReelSlide(p, i) {
         ${performerHtml}
         <div class="reels-username">@${escapeHtml(p.username)}</div>
       </div>
-      <div class="reels-seek-wrap" onclick="event.stopPropagation()">
-        <span class="reels-seek-time" id="reelTimeCur-${i}">۰:۰۰</span>
-        <input type="range" class="reels-seek" id="reelSeek-${i}" min="0" max="100" value="0" step="0.1"
-          oninput="onReelSeek(${i}, this.value)"
-          onpointerdown="this.dataset.dragging='1'"
-          onpointerup="delete this.dataset.dragging"
-        />
-        <span class="reels-seek-time" id="reelTimeDur-${i}">۰:۰۰</span>
-      </div>
-      <audio id="reelAudio-${i}" src="${WORKER_URL}/api/media/${p.file_id}" preload="metadata"></audio>
+      <audio id="reelAudio-${i}" src="${WORKER_URL}/api/media/${p.file_id}" preload="auto"></audio>
     </div>`;
 }
 
@@ -1220,6 +1229,9 @@ function bindReelLoader(audioEl, i) {
       updatePlayPauseUI(i, true);
     }, 250);
   }, { once: true });
+
+  // بعضی مرورگرها (خصوصاً موبایل) بدون فراخوانی صریح load شروع به دانلود واقعی نمی‌کنن
+  if (audioEl.readyState === 0) audioEl.load();
 }
 
 function playReelSlide(i) {
