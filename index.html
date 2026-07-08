@@ -242,12 +242,27 @@
   .empty-state { text-align: center; padding: 30px 10px; color: var(--subtext); font-size: 14px; }
   .hidden { display: none !important; }
 
-  /* بخش کامنت‌ها */
-  .comments-toggle {
-    background: none; border: none; color: var(--accent-hover); font-size: 13px;
-    cursor: pointer; font-family: inherit; padding: 0; margin-top: 8px;
+  /* نوار اکشن پست: آپ‌ووت / داون‌ووت / لایک / کامنت / دانلود */
+  .action-bar { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+  .action-pill {
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    flex: 1; min-width: 0;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+    padding: 7px 8px; font-family: inherit; font-size: 12px; color: var(--subtext);
+    cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
-  .text-entry .comments-toggle, .text-entry .comments-section { margin-inline-start: 0; }
+  .action-pill svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .action-pill .count { font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
+  .action-pill:hover:not(.disabled) { border-color: var(--accent); color: var(--text); }
+  .action-pill.up.active { background: var(--accent-gradient); border-color: transparent; color: #fff; }
+  .action-pill.down.active { background: var(--error); border-color: transparent; color: #fff; }
+  .action-pill.like.active { background: var(--accent-gradient); border-color: transparent; color: #fff; }
+  .action-pill.like.active svg { fill: currentColor; }
+  .action-pill.disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+  .text-entry .action-bar { margin-inline-start: 0; }
+
+  /* بخش کامنت‌ها */
+  .text-entry .comments-section { margin-inline-start: 0; }
   .post-card .comments-wrap { padding: 0 12px 10px; }
   .comments-section { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
   .comment-item { padding: 6px 0; font-size: 13px; border-bottom: 1px solid var(--border); }
@@ -1463,6 +1478,13 @@ function bindReelsObserver() {
 
 const PAGE_SIZE = 10;
 
+// ---------- آیکون‌های نوار اکشن پست ----------
+const ICON_ARROW_UP = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>`;
+const ICON_ARROW_DOWN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>`;
+const ICON_HEART = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>`;
+const ICON_COMMENT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>`;
+const ICON_DOWNLOAD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>`;
+
 function renderPost(p, num) {
   const initial = p.username ? p.username[0].toUpperCase() : "?";
   const hasMedia = (p.type === "photo" || p.type === "video" || p.type === "audio" || p.type === "document") && p.file_id;
@@ -1485,8 +1507,37 @@ function renderPost(p, num) {
     </div>`;
   const textHtml = p.text ? `<div class="entry-text">${escapeHtml(p.text)}</div>` : "";
   const timeHtml = `<div class="entry-time">${new Date(p.date).toLocaleString("fa-IR")}</div>`;
+
+  // ---------- نوار اکشن (آپ‌ووت / داون‌ووت / لایک / کامنت / دانلود) ----------
+  const score = (p.upvotes || 0) - (p.downvotes || 0);
+  const userVote = p.userVote || null;
+  const liked = !!p.liked;
+  const likesCount = p.likes || 0;
+
+  const downloadExtByType = { photo: "jpg", video: "mp4", audio: "mp3", document: "bin" };
+  const downloadExt = downloadExtByType[p.type];
+  const downloadBtn = hasMedia
+    ? `<button class="action-pill download" onclick="downloadPostMedia('${WORKER_URL}/api/media/${p.file_id}','${safeId}','${downloadExt}')" title="دانلود" aria-label="دانلود">${ICON_DOWNLOAD}</button>`
+    : `<button class="action-pill download disabled" disabled title="فایلی برای دانلود نیست" aria-label="دانلود">${ICON_DOWNLOAD}</button>`;
+
+  const actionBar = `
+    <div class="action-bar">
+      <button class="action-pill up${userVote === "up" ? " active" : ""}" id="upBtn-${safeId}" onclick="voteOnPost('${p.id}','${safeId}','up')" title="آپ‌ووت" aria-label="آپ‌ووت">
+        ${ICON_ARROW_UP}<span class="count" id="voteScore-${safeId}">${score}</span>
+      </button>
+      <button class="action-pill down${userVote === "down" ? " active" : ""}" id="downBtn-${safeId}" onclick="voteOnPost('${p.id}','${safeId}','down')" title="داون‌ووت" aria-label="داون‌ووت">
+        ${ICON_ARROW_DOWN}
+      </button>
+      <button class="action-pill like${liked ? " active" : ""}" id="likeBtn-${safeId}" onclick="toggleLike('${p.id}','${safeId}')" title="سیو" aria-label="سیو">
+        ${ICON_HEART}<span class="count" id="likeCount-${safeId}">${likesCount}</span>
+      </button>
+      <button class="action-pill comment" onclick="toggleComments('${p.id}','${safeId}')" title="کامنت‌ها" aria-label="کامنت‌ها">
+        ${ICON_COMMENT}
+      </button>
+      ${downloadBtn}
+    </div>`;
+
   const commentsBlock = `
-    <button class="comments-toggle" onclick="toggleComments('${p.id}','${safeId}')">نمایش کامنت‌ها</button>
     <div class="comments-section hidden" id="comments-${safeId}">
       <div id="commentsList-${safeId}"></div>
       <div class="comment-form">
@@ -1497,7 +1548,7 @@ function renderPost(p, num) {
     </div>`;
 
   if (!hasMedia) {
-    return `<div class="text-entry" id="post-${safeId}">${header}${textHtml}${timeHtml}${commentsBlock}</div>`;
+    return `<div class="text-entry" id="post-${safeId}">${header}${textHtml}${timeHtml}${actionBar}${commentsBlock}</div>`;
   }
 
   let mediaHtml = "";
@@ -1511,7 +1562,7 @@ function renderPost(p, num) {
     mediaHtml = `<div class="entry-doc">فایل پیوست — <a href="${WORKER_URL}/api/media/${p.file_id}" target="_blank">دانلود</a></div>`;
   }
 
-  return `<div class="post-card" id="post-${safeId}">${header}${mediaHtml}${textHtml}${timeHtml}<div class="comments-wrap">${commentsBlock}</div></div>`;
+  return `<div class="post-card" id="post-${safeId}">${header}${mediaHtml}${textHtml}${timeHtml}<div class="comments-wrap">${actionBar}${commentsBlock}</div></div>`;
 }
 
 async function loadFeedView(kind, reset = true) {
@@ -1522,7 +1573,9 @@ async function loadFeedView(kind, reset = true) {
     feedEl.innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
   }
   try {
-    const res = await fetch(`${WORKER_URL}/api/feed?filter=${kind}&page=${feedState[kind].page}&pageSize=${PAGE_SIZE}`);
+    const res = await fetch(`${WORKER_URL}/api/feed?filter=${kind}&page=${feedState[kind].page}&pageSize=${PAGE_SIZE}`, {
+      headers: { "Authorization": `Bearer ${getToken()}` },
+    });
     const data = await res.json();
     feedState[kind].loaded = true;
 
@@ -1563,7 +1616,9 @@ async function loadAdminFeed(reset = true) {
   try {
     const [statsRes, feedRes] = await Promise.all([
       fetch(`${WORKER_URL}/api/admin/stats`, { headers: { "Authorization": `Bearer ${getToken()}` } }),
-      fetch(`${WORKER_URL}/api/feed?filter=all&page=${feedState.admin.page}&pageSize=${PAGE_SIZE}`),
+      fetch(`${WORKER_URL}/api/feed?filter=all&page=${feedState.admin.page}&pageSize=${PAGE_SIZE}`, {
+        headers: { "Authorization": `Bearer ${getToken()}` },
+      }),
     ]);
 
     const statsData = await statsRes.json();
@@ -1727,6 +1782,72 @@ async function deletePost(id, safeId) {
   }
 }
 
+// ---------- آپ‌ووت / داون‌ووت ----------
+async function voteOnPost(postId, safeId, action) {
+  try {
+    const res = await fetch(`${WORKER_URL}/api/vote`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+      body: JSON.stringify({ post_id: postId, action }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 401) { logout(); return; }
+      alert(data.error);
+      return;
+    }
+    const scoreEl = document.getElementById(`voteScore-${safeId}`);
+    const upBtn = document.getElementById(`upBtn-${safeId}`);
+    const downBtn = document.getElementById(`downBtn-${safeId}`);
+    if (scoreEl) scoreEl.textContent = data.score;
+    if (upBtn) upBtn.classList.toggle("active", data.userVote === "up");
+    if (downBtn) downBtn.classList.toggle("active", data.userVote === "down");
+  } catch (e) {
+    alert("اتصال به سرور برقرار نشد");
+  }
+}
+
+// ---------- لایک (سیو) ----------
+async function toggleLike(postId, safeId) {
+  try {
+    const res = await fetch(`${WORKER_URL}/api/like`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+      body: JSON.stringify({ post_id: postId }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 401) { logout(); return; }
+      alert(data.error);
+      return;
+    }
+    const likeBtn = document.getElementById(`likeBtn-${safeId}`);
+    const likeCount = document.getElementById(`likeCount-${safeId}`);
+    if (likeBtn) likeBtn.classList.toggle("active", data.liked);
+    if (likeCount) likeCount.textContent = data.likes;
+  } catch (e) {
+    alert("اتصال به سرور برقرار نشد");
+  }
+}
+
+// ---------- دانلود مدیای پست ----------
+async function downloadPostMedia(url, safeId, ext) {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = `dahat-${safeId}.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+  } catch (e) {
+    alert("دانلود انجام نشد، دوباره امتحان کن");
+  }
+}
+
 const loadedComments = {};
 
 function toggleComments(postId, safeId) {
@@ -1868,7 +1989,9 @@ async function loadProfilePosts(username, reset) {
   }
   try {
     const excludeAudio = (profileState.filter === "all" || profileState.filter === "media") ? "&excludeAudio=1" : "";
-    const res = await fetch(`${WORKER_URL}/api/feed?username=${encodeURIComponent(username)}&filter=${profileState.filter}&page=${profileState.page}&pageSize=${PAGE_SIZE}${excludeAudio}`);
+    const res = await fetch(`${WORKER_URL}/api/feed?username=${encodeURIComponent(username)}&filter=${profileState.filter}&page=${profileState.page}&pageSize=${PAGE_SIZE}${excludeAudio}`, {
+      headers: { "Authorization": `Bearer ${getToken()}` },
+    });
     const data = await res.json();
 
     if (reset && (!data.posts || data.posts.length === 0)) {
