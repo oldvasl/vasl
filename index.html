@@ -278,11 +278,33 @@
   .text-entry .comments-section { margin-inline-start: 0; }
   .post-card .comments-wrap { padding: 0 12px 10px; }
   .comments-section { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
-  .comment-item { padding: 6px 0; font-size: 13px; border-bottom: 1px solid var(--border); }
-  .comment-item:last-child { border-bottom: none; }
+  .comment-item {
+    padding: 8px 10px; font-size: 13px; margin-bottom: 6px; border-radius: 10px;
+    background: color-mix(in srgb, var(--card) 80%, white 20%);
+    border: 1px solid var(--border);
+  }
+  .comment-item.is-reply {
+    margin-inline-start: 22px;
+    background: color-mix(in srgb, var(--card) 88%, white 28%);
+  }
   .comment-item b { color: var(--accent-hover); font-weight: 500; }
   .comment-time { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--subtext); margin-inline-start: 6px; }
   .comment-empty { font-size: 12px; color: var(--subtext); padding: 4px 0; }
+  .comment-reply-link {
+    background: none; border: none; color: var(--accent-hover); font-size: 11px; cursor: pointer;
+    font-family: inherit; padding: 0; margin-top: 4px;
+  }
+  .comment-reply-form { display: none; gap: 6px; margin-top: 6px; }
+  .comment-reply-form.open { display: flex; }
+  .comment-reply-form input {
+    flex: 1; font-family: inherit; font-size: 12px; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 9px;
+  }
+  .comment-reply-form input::placeholder { color: var(--subtext); }
+  .comment-reply-form button {
+    background: var(--accent-gradient); color: #fff; border: none; border-radius: 8px; padding: 0 12px;
+    font-family: inherit; font-size: 12px; cursor: pointer;
+  }
   .comment-form { display: flex; gap: 6px; margin-top: 8px; }
   .comment-form input {
     flex: 1; font-family: inherit; font-size: 13px; color: var(--text);
@@ -1904,6 +1926,58 @@ function toggleComments(postId, safeId) {
   }
 }
 
+function buildCommentGroups(comments) {
+  const byId = {};
+  comments.forEach((c) => { byId[c.id] = c; });
+  function findRoot(c) {
+    let cur = c;
+    let guard = 0;
+    while (cur.parent_id && byId[cur.parent_id] && guard < 20) {
+      cur = byId[cur.parent_id];
+      guard++;
+    }
+    return cur.id;
+  }
+  const roots = comments.filter((c) => !c.parent_id);
+  const repliesByRoot = {};
+  roots.forEach((r) => { repliesByRoot[r.id] = []; });
+  comments.forEach((c) => {
+    if (c.parent_id) {
+      const rootId = findRoot(c);
+      if (!repliesByRoot[rootId]) repliesByRoot[rootId] = [];
+      repliesByRoot[rootId].push(c);
+    }
+  });
+  return { roots, repliesByRoot, byId };
+}
+
+function renderCommentItem(c, isReply, replyToUsername, postId, safeId) {
+  const replyToHint = replyToUsername
+    ? ` <span style="color:var(--subtext); font-size:11px;">↩ ${escapeHtml(replyToUsername)}</span>`
+    : "";
+  return `
+    <div class="comment-item${isReply ? " is-reply" : ""}">
+      <div><b>${escapeHtml(c.username)}</b>${replyToHint}</div>
+      <span>${escapeHtml(c.text)}</span>
+      <div><span class="comment-time">${new Date(c.date).toLocaleString("fa-IR")}</span></div>
+      <button class="comment-reply-link" onclick="toggleReplyForm('${c.id}')">پاسخ</button>
+      <div class="comment-reply-form" id="replyForm-${c.id}">
+        <input type="text" id="replyInput-${c.id}" placeholder="پاسخ به ${escapeHtml(c.username)}..." onkeydown="if(event.key==='Enter') submitComment('${postId}','${safeId}','${c.id}')" />
+        <button onclick="submitComment('${postId}','${safeId}','${c.id}')">ارسال</button>
+      </div>
+    </div>`;
+}
+
+function toggleReplyForm(commentId) {
+  const form = document.getElementById(`replyForm-${commentId}`);
+  if (!form) return;
+  form.classList.toggle("open");
+  if (form.classList.contains("open")) {
+    const input = document.getElementById(`replyInput-${commentId}`);
+    if (input) input.focus();
+  }
+}
+
 async function loadComments(postId, safeId) {
   const listEl = document.getElementById(`commentsList-${safeId}`);
   listEl.innerHTML = `<div class="comment-empty">در حال بارگذاری...</div>`;
@@ -1915,41 +1989,52 @@ async function loadComments(postId, safeId) {
       listEl.innerHTML = `<div class="comment-empty">هنوز کامنتی نیست</div>`;
       return;
     }
-    listEl.innerHTML = data.comments.map(c => `
-      <div class="comment-item">
-        <b>${escapeHtml(c.username)}</b>
-        <span>${escapeHtml(c.text)}</span>
-        <span class="comment-time">${new Date(c.date).toLocaleString("fa-IR")}</span>
-      </div>
-    `).join("");
+
+    const { roots, repliesByRoot, byId } = buildCommentGroups(data.comments);
+    listEl.innerHTML = roots.map((root) => {
+      const rootHtml = renderCommentItem(root, false, null, postId, safeId);
+      const replies = (repliesByRoot[root.id] || []).sort((a, b) => a.date - b.date);
+      const repliesHtml = replies.map((r) => {
+        const parent = r.parent_id ? byId[r.parent_id] : null;
+        const replyToUsername = parent && parent.id !== root.id ? parent.username : null;
+        return renderCommentItem(r, true, replyToUsername, postId, safeId);
+      }).join("");
+      return rootHtml + repliesHtml;
+    }).join("");
   } catch (e) {
     listEl.innerHTML = `<div class="comment-empty">کامنت‌ها بارگذاری نشدن</div>`;
   }
 }
 
-async function submitComment(postId, safeId) {
-  const input = document.getElementById(`commentInput-${safeId}`);
+async function submitComment(postId, safeId, parentId) {
+  const inputId = parentId ? `replyInput-${parentId}` : `commentInput-${safeId}`;
+  const input = document.getElementById(inputId);
   const errEl = document.getElementById(`commentError-${safeId}`);
+  if (!input) return;
   const text = input.value.trim();
-  errEl.textContent = "";
+  if (errEl) errEl.textContent = "";
   if (!text) return;
   input.disabled = true;
   try {
     const res = await fetch(`${WORKER_URL}/api/comment`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
-      body: JSON.stringify({ post_id: postId, text }),
+      body: JSON.stringify({ post_id: postId, text, parent_id: parentId || null }),
     });
     const data = await res.json();
     if (!res.ok) {
       if (res.status === 401) { logout(); return; }
-      errEl.textContent = data.error;
+      if (errEl) errEl.textContent = data.error; else alert(data.error);
       return;
     }
     input.value = "";
+    if (parentId) {
+      const replyForm = document.getElementById(`replyForm-${parentId}`);
+      if (replyForm) replyForm.classList.remove("open");
+    }
     loadComments(postId, safeId);
   } catch (e) {
-    errEl.textContent = "اتصال به سرور برقرار نشد";
+    if (errEl) errEl.textContent = "اتصال به سرور برقرار نشد"; else alert("اتصال به سرور برقرار نشد");
   } finally {
     input.disabled = false;
   }
