@@ -489,8 +489,22 @@
   .music-fab svg { width: 22px; height: 22px; }
 
   /* اورلی ریلز موزیک */
-  .reels-overlay { position: fixed; inset: 0; background: #000; z-index: 200; }
-  .reels-overlay.hidden { display: none !important; }
+  /* طراحی تمام‌صفحه‌ی پلیر — طراحی دوم مینی‌پلیره: همیشه توی DOM هست و با محتوای مینی‌پلیر همگامه،
+     فقط با کلاس open (با انیمیشن) نمایان می‌شه؛ چیزی مستقل/جدا فچ نمی‌شه */
+  .full-player {
+    position: fixed; inset: 0; background: #000; z-index: 200;
+    visibility: hidden; opacity: 0; transform: translateY(6%);
+    transition: opacity 0.28s ease, transform 0.32s cubic-bezier(.22,1,.36,1), visibility 0s linear 0.32s;
+  }
+  .full-player.open {
+    visibility: visible; opacity: 1; transform: translateY(0);
+    transition: opacity 0.28s ease, transform 0.32s cubic-bezier(.22,1,.36,1);
+  }
+  .full-player .bg-blur {
+    position: absolute; inset: -20px; background-size: cover; background-position: center;
+    filter: blur(40px) brightness(0.45); transform: scale(1.2);
+    background-color: var(--primary);
+  }
   .reels-close {
     position: fixed; top: 16px; left: 16px; z-index: 210; width: 38px; height: 38px; border-radius: 50%;
     background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff;
@@ -516,20 +530,10 @@
   }
   .reels-seek::-moz-range-thumb { width: 13px; height: 13px; border-radius: 50%; background: #fff; border: none; cursor: pointer; }
   .reels-seek-time { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: rgba(255,255,255,0.75); flex-shrink: 0; white-space: nowrap; }
-  .reels-scroller {
-    height: 100%; width: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none;
+  .full-player .reels-center {
+    position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 18px;
   }
-  .reels-scroller::-webkit-scrollbar { display: none; }
-  .reels-slide {
-    height: 100vh; width: 100%; scroll-snap-align: start; scroll-snap-stop: always; position: relative;
-    display: flex; align-items: center; justify-content: center; overflow: hidden;
-  }
-  .reels-slide .bg-blur {
-    position: absolute; inset: -20px; background-size: cover; background-position: center;
-    filter: blur(40px) brightness(0.45); transform: scale(1.2);
-  }
-  .reels-slide .bg-fallback { position: absolute; inset: 0; background: linear-gradient(160deg, var(--primary), var(--card)); }
-  .reels-tap-area { position: absolute; inset: 0; z-index: 1; }
   .reels-art-wrap {
     position: relative; width: 220px; height: 220px; border-radius: 20px; overflow: hidden;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 2;
@@ -537,27 +541,15 @@
   .reels-art-wrap img { width: 100%; height: 100%; object-fit: cover; }
   .reels-art-wrap .placeholder-icon { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--card); color: var(--subtext); }
   .reels-art-wrap .placeholder-icon svg { width: 60px; height: 60px; }
-  .reels-center { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 18px; }
   @media (max-width: 480px), (max-height: 700px) {
     .reels-art-wrap { width: 150px; height: 150px; border-radius: 16px; }
-    .reels-center { gap: 10px; }
+    .full-player .reels-center { gap: 10px; }
     .reels-ctrl-btn { width: 36px; height: 36px; }
     .reels-ctrl-btn svg { width: 16px; height: 16px; }
     .reels-ctrl-btn.reels-ctrl-main { width: 46px; height: 46px; }
     .reels-ctrl-btn.reels-ctrl-main svg { width: 20px; height: 20px; }
     .reels-seek-wrap { width: 210px; }
     .reels-info { bottom: 70px; }
-  }
-  .reels-loader {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    background: rgba(0,0,0,0.4); opacity: 1; transition: opacity 0.4s ease; z-index: 3;
-  }
-  .reels-loader.loader-hidden { opacity: 0; pointer-events: none; }
-  .reels-loader svg { width: 64px; height: 64px; transform: rotate(-90deg); }
-  .reels-loader-track { fill: none; stroke: rgba(255,255,255,0.25); stroke-width: 4; }
-  .reels-loader-fill {
-    fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round;
-    stroke-dasharray: 163.36; stroke-dashoffset: 163.36; transition: stroke-dashoffset 0.15s linear;
   }
   .reels-controls {
     display: flex; align-items: center; justify-content: center; gap: 14px; z-index: 4;
@@ -577,14 +569,6 @@
   .reels-info { position: absolute; bottom: 90px; inset-inline: 20px; z-index: 3; color: #fff; text-align: center; }
   .reels-title { font-size: 18px; font-weight: 700; }
   .reels-performer { font-size: 14px; color: rgba(255,255,255,0.75); margin-top: 2px; }
-  .reels-username { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 6px; }
-  .reels-play-hint {
-    position: absolute; z-index: 4; width: 64px; height: 64px; border-radius: 50%;
-    background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: #fff;
-    opacity: 0; transition: opacity 0.15s; pointer-events: none;
-  }
-  .reels-play-hint svg { width: 28px; height: 28px; }
-  .reels-play-hint.show { opacity: 1; }
   .reels-visualizer {
     position: fixed; bottom: 3px; left: 0; right: 0; height: 90px; z-index: 6;
     pointer-events: none; width: 100%;
@@ -792,7 +776,7 @@
       <button class="refresh-btn" onclick="loadMusicList(true)">بروزرسانی</button>
     </div>
     <div id="musicList"></div>
-    <button class="music-fab" onclick="openReels()" title="پخش تمام‌صفحه" aria-label="پخش تمام‌صفحه">
+    <button class="music-fab" onclick="openFullPlayer()" title="پخش تمام‌صفحه" aria-label="پخش تمام‌صفحه">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zM5 10h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
     </button>
   </div>
@@ -942,8 +926,8 @@
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
 </button>
 
-<!-- مینی‌پلیر کپسولی: با کلیک روی بدنه‌ش، اورلی تمام‌صفحه‌ی همون آهنگ باز می‌شه -->
-<div id="miniPlayer" class="mini-player hidden" onclick="openMiniPlayerReels()">
+<!-- مینی‌پلیر کپسولی: با کلیک روی بدنه‌ش، طراحی تمام‌صفحه‌ی همون آهنگ با انیمیشن باز می‌شه -->
+<div id="miniPlayer" class="mini-player hidden" onclick="openFullPlayer()">
   <div class="mini-player-cover" id="miniPlayerCover"></div>
   <div class="mini-player-info">
     <div class="mini-player-title" id="miniPlayerTitle"></div>
@@ -974,16 +958,50 @@
   <div class="post-modal-content" id="postModalContent"></div>
 </div>
 
-<!-- اورلی تمام‌صفحه: پخش ریلزی آهنگ‌ها -->
-<div id="reelsOverlay" class="reels-overlay hidden">
-  <button class="reels-close" onclick="closeReels()" aria-label="بستن">
+<!-- طراحی تمام‌صفحه‌ی پلیر: طراحی دوم خود مینی‌پلیره، همیشه با همون آهنگ همگامه، فقط با کلاس open نمایان می‌شه -->
+<div id="fullPlayer" class="full-player">
+  <div class="bg-blur" id="fullPlayerBg"></div>
+  <button class="reels-close" onclick="closeFullPlayer()" aria-label="بستن">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
   </button>
-  <button class="reels-download" onclick="downloadCurrentReel()" aria-label="دانلود آهنگ" title="دانلود آهنگ">
+  <button class="reels-download" onclick="downloadCurrentTrack()" aria-label="دانلود آهنگ" title="دانلود آهنگ">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
   </button>
-  <div id="reelsScroller" class="reels-scroller"></div>
-  <canvas id="reelsVisualizer" class="reels-visualizer"></canvas>
+  <canvas id="fullPlayerVisualizer" class="reels-visualizer"></canvas>
+  <div class="reels-center">
+    <div class="reels-art-wrap" id="fullPlayerArt"></div>
+    <div class="reels-controls" onclick="event.stopPropagation()">
+      <button class="reels-ctrl-btn reels-toggle" id="fullPlayerShuffleBtn" onclick="toggleFullPlayerShuffle(event)" title="پخش تصادفی">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.42 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+      </button>
+      <button class="reels-ctrl-btn" onclick="miniPlayerPrev(event)" title="آهنگ قبلی">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM9.5 12l8.5 6V6z"/></svg>
+      </button>
+      <button class="reels-ctrl-btn reels-ctrl-main" id="fullPlayerPlayBtn" onclick="fullPlayerToggle(event)" title="پخش/توقف">
+        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+      </button>
+      <button class="reels-ctrl-btn" onclick="miniPlayerNext(event)" title="آهنگ بعدی">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+      </button>
+      <button class="reels-ctrl-btn reels-toggle" id="fullPlayerRepeatBtn" onclick="toggleFullPlayerRepeat(event)" title="تکرار آهنگ">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2z"/></svg>
+      </button>
+    </div>
+    <div class="reels-seek-wrap" onclick="event.stopPropagation()">
+      <span class="reels-seek-time" id="fullPlayerTimeCur">۰:۰۰</span>
+      <input type="range" class="reels-seek" id="fullPlayerSeek" min="0" max="100" value="0" step="0.1"
+        oninput="onFullPlayerSeek(this.value)"
+        onpointerdown="this.dataset.dragging='1'"
+        onpointerup="delete this.dataset.dragging"
+      />
+      <span class="reels-seek-time" id="fullPlayerTimeDur">۰:۰۰</span>
+    </div>
+  </div>
+  <div class="reels-info">
+    <div class="reels-title" id="fullPlayerTitle"></div>
+    <div class="reels-performer" id="fullPlayerPerformer"></div>
+  </div>
 </div>
 
 <script>
@@ -1223,10 +1241,7 @@ function avatarColor(name) {
 
 // ---------- پلیر اختصاصی موزیک ----------
 let currentAudio = null;
-// وقتی از مینی‌پلیر می‌ریم تو تمام‌صفحه، زمان و وضعیت پخش همون آهنگ رو اینجا نگه می‌داریم
-// تا تو ریلز از همون‌جا ادامه پیدا کنه، نه اینکه از اول شروع بشه
-let reelsAudioHandoff = null;
-// safeId -> {postId, title, performer, thumbFileId} — برای مینی‌پلیر، تا لازم نباشه دوباره از DOM/سرور بخونیمش
+// safeId -> {postId, title, performer, thumbFileId} — برای مینی‌پلیر/طراحی تمام‌صفحه، تا لازم نباشه دوباره از DOM/سرور بخونیمش
 const audioMetaRegistry = {};
 
 function buildAudioPlayer(fileId, safeId, thumbFileId, title, performer, postId) {
@@ -1240,7 +1255,7 @@ function buildAudioPlayer(fileId, safeId, thumbFileId, title, performer, postId)
   return `
     <div class="audio-player">
       <audio id="audioEl-${safeId}" src="${WORKER_URL}/api/media/${fileId}" preload="metadata"></audio>
-      <div class="audio-cover" onclick="openReels('${postId}')" title="پخش ریلزی">${coverHtml}</div>
+      <div class="audio-cover" onclick="openFullPlayer('${safeId}')" title="پخش تمام‌صفحه">${coverHtml}</div>
       <button class="audio-play-btn" id="audioBtn-${safeId}" onclick="toggleAudio('${safeId}')">
         <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
@@ -1296,7 +1311,7 @@ function toggleAudio(safeId) {
     audioEl.pause();
     pauseAudioUI(safeId);
     currentAudio = null;
-    renderMiniPlayer(safeId, false);
+    syncNowPlayingUI(safeId, false);
   }
 }
 
@@ -1338,17 +1353,50 @@ function bindAllAudioPlayers(container) {
 // ---------- مینی‌پلیر کپسولی ----------
 // هر جای سایت (فید رسانه، پروفایل، پنل مدیریت و ...) یه آهنگ از پلیر کوچیک شروع بشه، این کپسول شناور می‌شه.
 // کلیک روش، همون آهنگ رو تو اورلی تمام‌صفحه‌ی ریلز باز می‌کنه.
+// ---------- پلیر یکپارچه: مینی‌پلیر + طراحی تمام‌صفحه، هر دو روی همون عنصر <audio> فعلی ----------
+// دیگه هیچ‌کدوم مستقل نیستن: نه ادیوی جدا می‌سازن، نه از سرور فچ می‌کنن؛
+// فقط دو تا نمای متفاوت از یه currentAudio واحدن که هم‌زمان با هم آپدیت می‌شن.
 const miniPlayerState = { queue: [], index: -1 };
+const playerPrefs = { shuffle: false, repeatOne: false };
 
 function collectAudioQueueFromDOM() {
   // ترتیب همه‌ی پلیرهای صوتی‌ای که الان تو صفحه (هر ویویی که بازه) رندر شدن
   return [...document.querySelectorAll('audio[id^="audioEl-"]')].map((el) => el.id.replace("audioEl-", ""));
 }
 
+// آماده‌سازی یه آهنگ برای پخش (اگه از قبل همینه که داره پخش می‌شه، کاری نمی‌کنه)
+function ensureTrackPlaying(safeId) {
+  const audioEl = document.getElementById(`audioEl-${safeId}`);
+  if (!audioEl) return false;
+  if (currentAudio && currentAudio.safeId === safeId && !audioEl.paused) return true;
+
+  if (currentAudio && currentAudio.safeId !== safeId) {
+    currentAudio.audioEl.pause();
+    pauseAudioUI(currentAudio.safeId);
+  }
+  bindAudioEvents(safeId);
+  audioEl.play().catch(() => {});
+  currentAudio = { safeId, audioEl };
+  playAudioUI(safeId);
+  showMiniPlayer(safeId);
+  return true;
+}
+
 function showMiniPlayer(safeId) {
   miniPlayerState.queue = collectAudioQueueFromDOM();
   miniPlayerState.index = miniPlayerState.queue.indexOf(safeId);
-  renderMiniPlayer(safeId, true);
+  syncNowPlayingUI(safeId, true);
+}
+
+// هر جا وضعیت «الان چی داره پخش می‌شه» عوض بشه، این یکی صدا زده می‌شه تا
+// هم مینی‌پلیر هم طراحی تمام‌صفحه با هم، هم‌زمان، آپدیت بشن
+function syncNowPlayingUI(safeId, playing) {
+  renderMiniPlayer(safeId, playing);
+  renderFullPlayer(safeId, playing);
+  const panel = document.getElementById("fullPlayer");
+  if (playing && currentAudio && panel && panel.classList.contains("open")) {
+    connectFullPlayerVisualizer(currentAudio.audioEl);
+  }
 }
 
 function renderMiniPlayer(safeId, playing) {
@@ -1375,9 +1423,11 @@ function renderMiniPlayer(safeId, playing) {
 
 function hideMiniPlayer() {
   const wrap = document.getElementById("miniPlayer");
-  if (!wrap) return;
-  wrap.classList.add("hidden");
-  wrap.dataset.safeId = "";
+  if (wrap) {
+    wrap.classList.add("hidden");
+    wrap.dataset.safeId = "";
+  }
+  closeFullPlayer();
 }
 
 function miniPlayerToggle(e) {
@@ -1401,9 +1451,14 @@ function stepMiniPlayer(dir) {
   if (miniPlayerState.queue.length === 0) return;
   if (curSafeId) miniPlayerState.index = miniPlayerState.queue.indexOf(curSafeId);
 
-  let idx = miniPlayerState.index + dir;
-  if (idx < 0) idx = miniPlayerState.queue.length - 1;
-  if (idx >= miniPlayerState.queue.length) idx = 0;
+  let idx;
+  if (playerPrefs.shuffle && miniPlayerState.queue.length > 1) {
+    do { idx = Math.floor(Math.random() * miniPlayerState.queue.length); } while (idx === miniPlayerState.index);
+  } else {
+    idx = miniPlayerState.index + dir;
+    if (idx < 0) idx = miniPlayerState.queue.length - 1;
+    if (idx >= miniPlayerState.queue.length) idx = 0;
+  }
   const nextSafeId = miniPlayerState.queue[idx];
   if (!nextSafeId || !audioMetaRegistry[nextSafeId]) return;
   miniPlayerState.index = idx;
@@ -1420,28 +1475,34 @@ function stepMiniPlayer(dir) {
     currentAudio.audioEl.pause();
     pauseAudioUI(currentAudio.safeId);
   }
+  bindAudioEvents(nextSafeId);
   audioEl.play().catch(() => {});
   currentAudio = { safeId: nextSafeId, audioEl };
   playAudioUI(nextSafeId);
-  renderMiniPlayer(nextSafeId, true);
+  syncNowPlayingUI(nextSafeId, true);
 }
 
 function handleMiniPlayerTrackEnded(safeId) {
   const wrap = document.getElementById("miniPlayer");
   if (!wrap || wrap.dataset.safeId !== safeId) return; // این آهنگ رو مینی‌پلیر نشون نمی‌داد
+
+  if (playerPrefs.repeatOne) {
+    const audioEl = document.getElementById(`audioEl-${safeId}`);
+    if (audioEl) {
+      audioEl.currentTime = 0;
+      audioEl.play().catch(() => {});
+    }
+    return;
+  }
+
   miniPlayerState.queue = collectAudioQueueFromDOM();
   const idx = miniPlayerState.queue.indexOf(safeId);
-  if (idx >= 0 && idx < miniPlayerState.queue.length - 1) {
+  const hasNext = idx >= 0 && idx < miniPlayerState.queue.length - 1;
+  if (hasNext || (playerPrefs.shuffle && miniPlayerState.queue.length > 1)) {
     stepMiniPlayer(1);
   } else {
     hideMiniPlayer();
   }
-}
-
-function openMiniPlayerReels() {
-  const safeId = document.getElementById("miniPlayer")?.dataset.safeId;
-  const meta = safeId ? audioMetaRegistry[safeId] : null;
-  if (meta && meta.postId) openReels(meta.postId);
 }
 
 function closeMiniPlayer(e) {
@@ -1456,375 +1517,127 @@ function closeMiniPlayer(e) {
   hideMiniPlayer();
 }
 
-// ---------- حالت ریلز موزیک (با لیزی‌لود) ----------
-const REELS_PAGE_SIZE = 8;
-const reelsState = { posts: [], index: 0, page: 1, hasMore: true, loading: false, shuffle: false, repeatOne: false };
-let reelsObserver = null;
+// ---------- طراحی تمام‌صفحه (بازطراحی دوم مینی‌پلیر) ----------
+function renderFullPlayer(safeId, playing) {
+  const meta = audioMetaRegistry[safeId];
+  if (!meta) return;
+  const panel = document.getElementById("fullPlayer");
+  panel.dataset.safeId = safeId;
 
-async function openReels(startPostId) {
-  // AudioContext باید داخل یه ژست واقعی کاربر ساخته/رزیوم بشه، وگرنه بعداً که
-  // پخش خودکار (با اسکرول) صدا رو از تو گراف صوتی رد می‌کنه، مرورگر ساکتش نگه می‌داره
-  // (المنت audio ظاهراً "در حال پخش"ه و سیکر/زمان حرکت می‌کنه ولی صدایی شنیده نمی‌شه)
+  const bg = document.getElementById("fullPlayerBg");
+  const art = document.getElementById("fullPlayerArt");
+  if (meta.thumbFileId) {
+    bg.style.backgroundImage = `url('${WORKER_URL}/api/media/${meta.thumbFileId}')`;
+    art.innerHTML = `<img src="${WORKER_URL}/api/media/${meta.thumbFileId}" alt="" />`;
+  } else {
+    bg.style.backgroundImage = "none";
+    art.innerHTML = `<div class="placeholder-icon">${ICON_MUSIC}</div>`;
+  }
+
+  document.getElementById("fullPlayerTitle").textContent = meta.title || "بدون‌عنوان";
+  document.getElementById("fullPlayerPerformer").textContent = meta.performer || "";
+
+  updateFullPlayerPlayState(playing);
+  updateFullPlayerShuffleRepeatUI();
+}
+
+function updateFullPlayerPlayState(playing) {
+  document.getElementById("fullPlayerPlayBtn")?.classList.toggle("playing", !!playing);
+}
+
+function updateFullPlayerShuffleRepeatUI() {
+  document.getElementById("fullPlayerShuffleBtn")?.classList.toggle("active", playerPrefs.shuffle);
+  document.getElementById("fullPlayerRepeatBtn")?.classList.toggle("active", playerPrefs.repeatOne);
+}
+
+// نقطه‌ی ورودی مشترک: از دکمه‌ی فول‌اسکرین تب سگ‌تونز، کلیک رو کاور آهنگ، یا کلیک رو خود مینی‌پلیر
+// safeId اختیاریه؛ اگه ندی همون آهنگی که الان پخش می‌شه (یا اولین آهنگ موجود تو صفحه) باز می‌شه
+function openFullPlayer(safeId) {
   ensureAudioContext();
 
-  // پاز کردن پلیر کوچیک اگه چیزی داشت پخش می‌شد — ولی قبلش زمان و وضعیتش رو نگه می‌داریم
-  reelsAudioHandoff = null;
-  if (currentAudio) {
-    const meta = audioMetaRegistry[currentAudio.safeId];
-    if (meta && meta.postId) {
-      reelsAudioHandoff = {
-        postId: meta.postId,
-        time: currentAudio.audioEl.currentTime || 0,
-        wasPlaying: !currentAudio.audioEl.paused,
-      };
-    }
-    currentAudio.audioEl.pause();
-    pauseAudioUI(currentAudio.safeId);
-    currentAudio = null;
+  if (!safeId && currentAudio) safeId = currentAudio.safeId;
+  if (!safeId) {
+    const queue = collectAudioQueueFromDOM();
+    if (queue.length > 0) safeId = queue[0];
   }
-  hideMiniPlayer();
+  if (safeId) ensureTrackPlaying(safeId);
+  if (!currentAudio) return; // هیچ آهنگی برای نمایش نیست
 
-  reelsState.posts = [];
-  reelsState.page = 1;
-  reelsState.hasMore = true;
-  reelsState.loading = false;
+  connectFullPlayerVisualizer(currentAudio.audioEl);
+  renderFullPlayer(currentAudio.safeId, !currentAudio.audioEl.paused);
 
-  document.getElementById("reelsOverlay").classList.remove("hidden");
   document.body.style.overflow = "hidden";
-  const scroller = document.getElementById("reelsScroller");
-  scroller.innerHTML = `<div class="reels-slide"><div class="bg-fallback"></div><div style="color:#fff;position:relative;z-index:2;">در حال بارگذاری...</div></div>`;
-
-  try {
-    const res = await fetch(`${WORKER_URL}/api/feed?filter=audio&page=1&pageSize=${REELS_PAGE_SIZE}`);
-    const data = await res.json();
-    reelsState.posts = data.posts || [];
-    reelsState.hasMore = !!data.hasMore;
-
-    if (reelsState.posts.length === 0) {
-      scroller.innerHTML = `<div class="reels-slide"><div class="bg-fallback"></div><div style="color:#fff;position:relative;z-index:2;">آهنگی برای پخش نیست</div></div>`;
-      return;
-    }
-
-    scroller.innerHTML = reelsState.posts.map((p, i) => renderReelSlide(p, i)).join("");
-    bindReelsObserver();
-    startVisualizerLoop();
-
-    let startIndex = 0;
-    if (startPostId && startPostId !== "undefined") {
-      const foundIdx = reelsState.posts.findIndex((p) => p.id === startPostId);
-      if (foundIdx >= 0) startIndex = foundIdx;
-    }
-    const targetSlide = document.getElementById(`reel-${startIndex}`);
-    if (targetSlide) targetSlide.scrollIntoView({ behavior: "instant", block: "start" });
-    const handoffForStart =
-      reelsAudioHandoff && reelsState.posts[startIndex] && reelsState.posts[startIndex].id === reelsAudioHandoff.postId
-        ? reelsAudioHandoff
-        : null;
-    setTimeout(() => playReelSlide(startIndex, handoffForStart), 150);
-  } catch (e) {
-    scroller.innerHTML = `<div class="reels-slide"><div class="bg-fallback"></div><div style="color:#fff;position:relative;z-index:2;">خطا در بارگذاری</div></div>`;
-  }
+  document.getElementById("fullPlayer").classList.add("open");
+  startVisualizerLoop();
+  startFullPlayerSeekLoop();
 }
 
-async function loadMoreReels() {
-  if (reelsState.loading || !reelsState.hasMore) return;
-  reelsState.loading = true;
-  try {
-    const nextPage = reelsState.page + 1;
-    const res = await fetch(`${WORKER_URL}/api/feed?filter=audio&page=${nextPage}&pageSize=${REELS_PAGE_SIZE}`);
-    const data = await res.json();
-    const newPosts = data.posts || [];
-    if (newPosts.length === 0) {
-      reelsState.hasMore = false;
-      return;
-    }
-
-    const scroller = document.getElementById("reelsScroller");
-    const startIdx = reelsState.posts.length;
-    reelsState.posts = reelsState.posts.concat(newPosts);
-    reelsState.page = nextPage;
-    reelsState.hasMore = !!data.hasMore;
-
-    const html = newPosts.map((p, j) => renderReelSlide(p, startIdx + j)).join("");
-    scroller.insertAdjacentHTML("beforeend", html);
-
-    // اسلایدهای تازه‌اضافه‌شده رو هم به observer وصل کن
-    for (let j = 0; j < newPosts.length; j++) {
-      const el = document.getElementById(`reel-${startIdx + j}`);
-      if (el && reelsObserver) reelsObserver.observe(el);
-    }
-  } catch (e) {
-    // اگه لود بیشتر شکست خورد، مشکلی نیست؛ کاربر همچنان به همون‌هایی که داره دسترسی داره
-  } finally {
-    reelsState.loading = false;
-  }
-}
-
-function closeReels() {
-  if (reelsObserver) reelsObserver.disconnect();
-  reelsObserver = null;
-  stopVisualizerLoop();
-
-  const activeIndex = reelsState.index;
-  const activePost = reelsState.posts[activeIndex];
-  const activeAudioEl = document.getElementById(`reelAudio-${activeIndex}`);
-
-  document.getElementById("reelsOverlay").classList.add("hidden");
+function closeFullPlayer() {
+  const panel = document.getElementById("fullPlayer");
+  if (!panel || !panel.classList.contains("open")) return;
+  panel.classList.remove("open");
   document.body.style.overflow = "";
-
-  // همه‌ی آهنگ‌های دیگه‌ی ریلز رو متوقف می‌کنیم؛ فقط اونی که الان پخش می‌شه ممکنه ادامه پیدا کنه
-  document.querySelectorAll("#reelsScroller audio").forEach((a) => {
-    if (a !== activeAudioEl) a.pause();
-  });
-
-  if (!activePost || !activeAudioEl || activeAudioEl.paused) {
-    if (activeAudioEl) activeAudioEl.pause();
-    return;
-  }
-
-  // آهنگی داشت پخش می‌شد — به‌جای قطع کردنش، پخش رو به مینی‌پلیر می‌سپاریم تا بی‌وقفه ادامه پیدا کنه
-  const safeId = activePost.id.replace(/[^a-zA-Z0-9_]/g, "");
-  const time = activeAudioEl.currentTime;
-
-  if (!audioMetaRegistry[safeId]) {
-    audioMetaRegistry[safeId] = {
-      postId: activePost.id,
-      title: activePost.audio_title || "",
-      performer: activePost.audio_performer || "",
-      thumbFileId: activePost.audio_thumb || null,
-    };
-  }
-
-  const feedAudioEl = document.getElementById(`audioEl-${safeId}`);
-  if (feedAudioEl && feedAudioEl !== activeAudioEl) {
-    // این آهنگ الان تو یه پست فید هم مونت شده — زمان و پخش رو به همون منتقل می‌کنیم
-    activeAudioEl.pause();
-    feedAudioEl.currentTime = time;
-    feedAudioEl
-      .play()
-      .then(() => {
-        currentAudio = { safeId, audioEl: feedAudioEl };
-        playAudioUI(safeId);
-        showMiniPlayer(safeId);
-      })
-      .catch(() => {});
-  } else {
-    // هیچ پلیری تو فید مونت نیست — خود المنت صوتی ریلز رو به مینی‌پلیر می‌سپاریم تا صدا قطع نشه
-    activeAudioEl.id = `audioEl-${safeId}`;
-    bindAudioEvents(safeId);
-    currentAudio = { safeId, audioEl: activeAudioEl };
-    playAudioUI(safeId);
-    showMiniPlayer(safeId);
-  }
+  stopVisualizerLoop();
+  // پخش صدا قطع نمی‌شه — چون همون عنصر audio مینی‌پلیره، فقط نمای تمام‌صفحه بسته می‌شه
 }
 
-function renderReelSlide(p, i) {
-  const bgHtml = p.audio_thumb
-    ? `<div class="bg-blur" style="background-image:url('${WORKER_URL}/api/media/${p.audio_thumb}')"></div>`
-    : `<div class="bg-fallback"></div>`;
-  const artHtml = p.audio_thumb
-    ? `<img src="${WORKER_URL}/api/media/${p.audio_thumb}" />`
-    : `<div class="placeholder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>`;
-
-  const title = p.audio_title || "بدون‌نام";
-  const performerHtml = p.audio_performer ? `<div class="reels-performer">${escapeHtml(p.audio_performer)}</div>` : "";
-
-  return `
-    <div class="reels-slide" id="reel-${i}" data-index="${i}">
-      ${bgHtml}
-      <div class="reels-tap-area" onclick="onReelTap(${i})"></div>
-      <div class="reels-center">
-        <div class="reels-art-wrap">
-          ${artHtml}
-          <div class="reels-loader" id="reelLoader-${i}">
-            <svg viewBox="0 0 60 60">
-              <circle class="reels-loader-track" cx="30" cy="30" r="26"></circle>
-              <circle class="reels-loader-fill" id="reelLoaderFill-${i}" cx="30" cy="30" r="26"></circle>
-            </svg>
-          </div>
-        </div>
-        <div class="reels-controls" onclick="event.stopPropagation()">
-          <button class="reels-ctrl-btn reels-toggle${reelsState.shuffle ? " active" : ""}" id="reelShuffleBtn-${i}" onclick="toggleReelShuffle()" title="پخش تصادفی">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.42 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
-          </button>
-          <button class="reels-ctrl-btn" onclick="reelPrev()" title="آهنگ قبلی">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM9.5 12l8.5 6V6z"/></svg>
-          </button>
-          <button class="reels-ctrl-btn reels-ctrl-main" id="reelPlayBtn-${i}" onclick="onReelTap(${i})" title="پخش/توقف">
-            <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-            <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
-          </button>
-          <button class="reels-ctrl-btn" onclick="reelNext()" title="آهنگ بعدی">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-          </button>
-          <button class="reels-ctrl-btn reels-toggle${reelsState.repeatOne ? " active" : ""}" id="reelRepeatBtn-${i}" onclick="toggleReelRepeat()" title="تکرار آهنگ">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2z"/></svg>
-          </button>
-        </div>
-        <div class="reels-seek-wrap" onclick="event.stopPropagation()">
-          <span class="reels-seek-time" id="reelTimeCur-${i}">۰:۰۰</span>
-          <input type="range" class="reels-seek" id="reelSeek-${i}" min="0" max="100" value="0" step="0.1"
-            oninput="onReelSeek(${i}, this.value)"
-            onpointerdown="this.dataset.dragging='1'"
-            onpointerup="delete this.dataset.dragging"
-          />
-          <span class="reels-seek-time" id="reelTimeDur-${i}">۰:۰۰</span>
-        </div>
-      </div>
-      <div class="reels-play-hint" id="reelHint-${i}">
-        <svg class="hint-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        <svg class="hint-pause hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
-      </div>
-      <div class="reels-info">
-        <div class="reels-title">${escapeHtml(title)}</div>
-        ${performerHtml}
-        <div class="reels-username">@${escapeHtml(p.username)}</div>
-      </div>
-      <audio id="reelAudio-${i}" src="${WORKER_URL}/api/media/${p.file_id}" preload="auto"></audio>
-    </div>`;
+function fullPlayerToggle(e) {
+  e.stopPropagation();
+  const safeId = document.getElementById("fullPlayer")?.dataset.safeId;
+  if (safeId) toggleAudio(safeId);
 }
 
-function onReelTap(i) {
-  ensureAudioContext();
-  const audioEl = document.getElementById(`reelAudio-${i}`);
-  if (!audioEl) return;
-  if (audioEl.paused) {
-    playReelSlide(i);
-  } else {
-    audioEl.pause();
-    updatePlayPauseUI(i, false);
-  }
+function onFullPlayerSeek(value) {
+  if (!currentAudio || !currentAudio.audioEl.duration) return;
+  currentAudio.audioEl.currentTime = (value / 100) * currentAudio.audioEl.duration;
 }
 
-function updatePlayPauseUI(i, playing) {
-  const hint = document.getElementById(`reelHint-${i}`);
-  if (hint) {
-    hint.querySelector(".hint-play").classList.toggle("hidden", playing);
-    hint.querySelector(".hint-pause").classList.toggle("hidden", !playing);
-    hint.classList.add("show");
-    clearTimeout(hint._t);
-    hint._t = setTimeout(() => hint.classList.remove("show"), 500);
-  }
-  const mainBtn = document.getElementById(`reelPlayBtn-${i}`);
-  if (mainBtn) mainBtn.classList.toggle("playing", playing);
+function toggleFullPlayerShuffle(e) {
+  e.stopPropagation();
+  playerPrefs.shuffle = !playerPrefs.shuffle;
+  updateFullPlayerShuffleRepeatUI();
+}
+function toggleFullPlayerRepeat(e) {
+  e.stopPropagation();
+  playerPrefs.repeatOne = !playerPrefs.repeatOne;
+  updateFullPlayerShuffleRepeatUI();
 }
 
-// نگهداری‌شده برای سازگاری با کدهای قبلی
-function showReelHint(i, playing) { updatePlayPauseUI(i, playing); }
-
-// ---------- لودینگ دایره‌ای روی کاور تا وقتی دانلود آهنگ کامل بشه ----------
-const REEL_LOADER_CIRCUMFERENCE = 2 * Math.PI * 26; // ≈ 163.36
-
-function setReelLoaderProgress(i, ratio) {
-  const fill = document.getElementById(`reelLoaderFill-${i}`);
-  if (!fill) return;
-  const clamped = Math.max(0, Math.min(1, ratio));
-  fill.style.strokeDashoffset = String(REEL_LOADER_CIRCUMFERENCE * (1 - clamped));
-}
-
-function hideReelLoader(i) {
-  const loader = document.getElementById(`reelLoader-${i}`);
-  if (loader) loader.classList.add("loader-hidden");
-}
-
-function showReelLoader(i) {
-  const loader = document.getElementById(`reelLoader-${i}`);
-  if (loader) loader.classList.remove("loader-hidden");
-  setReelLoaderProgress(i, 0);
-}
-
-// اعمال زمان/وضعیت handoff (اگه بود) و شروع پخش یه اسلاید ریلز
-function applyReelHandoffAndPlay(audioEl, i, handoff) {
-  if (handoff && handoff.time > 0) audioEl.currentTime = handoff.time;
-  if (handoff && handoff.wasPlaying === false) {
-    updatePlayPauseUI(i, false);
-    return;
-  }
-  audioEl.play().then(() => updatePlayPauseUI(i, true)).catch(() => updatePlayPauseUI(i, false));
-}
-
-function bindReelLoader(audioEl, i, handoff) {
-  if (audioEl.dataset.boundLoader) return;
-  audioEl.dataset.boundLoader = "1";
-
-  audioEl.addEventListener("progress", () => {
-    if (!audioEl.duration || !audioEl.buffered.length) return;
-    const bufferedEnd = audioEl.buffered.end(audioEl.buffered.length - 1);
-    setReelLoaderProgress(i, bufferedEnd / audioEl.duration);
-  });
-
-  audioEl.addEventListener("canplaythrough", () => {
-    setReelLoaderProgress(i, 1);
-    setTimeout(() => {
-      hideReelLoader(i);
-      ensureAudioContext();
-      applyReelHandoffAndPlay(audioEl, i, handoff);
-    }, 250);
-  }, { once: true });
-
-  // بعضی مرورگرها (خصوصاً موبایل) بدون فراخوانی صریح load شروع به دانلود واقعی نمی‌کنن
-  if (audioEl.readyState === 0) audioEl.load();
-}
-
-function playReelSlide(i, handoff) {
-  document.querySelectorAll("#reelsScroller audio").forEach((a) => {
-    if (a.id !== `reelAudio-${i}`) a.pause();
-  });
-  const audioEl = document.getElementById(`reelAudio-${i}`);
-  if (!audioEl) return;
-  reelsState.index = i;
-  ensureAudioContext();
-  connectReelVisualizer(audioEl, i);
-
-  if (audioEl.readyState >= 4) {
-    // آهنگ از قبل کامل بافر شده — بدون لودینگ مستقیم پخش می‌شه
-    hideReelLoader(i);
-    applyReelHandoffAndPlay(audioEl, i, handoff);
-  } else {
-    showReelLoader(i);
-    bindReelLoader(audioEl, i, handoff);
-  }
-
-  if (!audioEl.dataset.boundProgress) {
-    audioEl.dataset.boundProgress = "1";
-    audioEl.addEventListener("timeupdate", () => {
-      if (!audioEl.duration) return;
-      const seek = document.getElementById(`reelSeek-${i}`);
+// سیکبار و زمان رو تا وقتی طراحی تمام‌صفحه بازه، هر فریم از خود audioEl فعلی می‌خونه
+// (نه event listener جدا برای هر آهنگ؛ چون آهنگ فعلی می‌تونه با next/prev عوض بشه)
+let fullPlayerSeekLoopId = null;
+function startFullPlayerSeekLoop() {
+  if (fullPlayerSeekLoopId) return;
+  const tick = () => {
+    const panel = document.getElementById("fullPlayer");
+    if (!panel || !panel.classList.contains("open")) {
+      fullPlayerSeekLoopId = null;
+      return;
+    }
+    if (currentAudio && currentAudio.audioEl.duration) {
+      const audioEl = currentAudio.audioEl;
+      const seek = document.getElementById("fullPlayerSeek");
       if (seek && !seek.dataset.dragging) seek.value = (audioEl.currentTime / audioEl.duration) * 100;
-      const curEl = document.getElementById(`reelTimeCur-${i}`);
+      const curEl = document.getElementById("fullPlayerTimeCur");
+      const durEl = document.getElementById("fullPlayerTimeDur");
       if (curEl) curEl.textContent = formatTime(audioEl.currentTime);
-    });
-    audioEl.addEventListener("loadedmetadata", () => {
-      const durEl = document.getElementById(`reelTimeDur-${i}`);
       if (durEl) durEl.textContent = formatTime(audioEl.duration);
-    });
-    audioEl.addEventListener("ended", () => {
-      if (reelsState.repeatOne) {
-        audioEl.currentTime = 0;
-        audioEl.play().catch(() => {});
-      } else {
-        reelNext();
-      }
-    });
-  }
-}
-
-function onReelSeek(i, value) {
-  const audioEl = document.getElementById(`reelAudio-${i}`);
-  if (!audioEl || !audioEl.duration) return;
-  audioEl.currentTime = (value / 100) * audioEl.duration;
+    }
+    fullPlayerSeekLoopId = requestAnimationFrame(tick);
+  };
+  fullPlayerSeekLoopId = requestAnimationFrame(tick);
 }
 
 // ---------- دانلود آهنگ فعلی ----------
-async function downloadCurrentReel() {
-  const p = reelsState.posts[reelsState.index];
-  if (!p) return;
-  const url = `${WORKER_URL}/api/media/${p.file_id}`;
+async function downloadCurrentTrack() {
+  if (!currentAudio) return;
+  const meta = audioMetaRegistry[currentAudio.safeId] || {};
+  const url = currentAudio.audioEl.currentSrc || currentAudio.audioEl.src;
   try {
     const res = await fetch(url);
     const blob = await res.blob();
     const blobUrl = URL.createObjectURL(blob);
-    const safeName = (p.audio_title || "song").replace(/[\\/:*?"<>|]/g, "").slice(0, 60) || "song";
+    const safeName = (meta.title || "song").replace(/[\\/:*?"<>|]/g, "").slice(0, 60) || "song";
     const a = document.createElement("a");
     a.href = blobUrl;
     a.download = `${safeName}.mp3`;
@@ -1837,55 +1650,13 @@ async function downloadCurrentReel() {
   }
 }
 
-// ---------- بعدی / قبلی / شافل / تکرار ----------
-function reelScrollToIndex(idx) {
-  if (idx < 0 || idx >= reelsState.posts.length) return;
-  const slide = document.getElementById(`reel-${idx}`);
-  if (slide) slide.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-function reelNext() {
-  ensureAudioContext();
-  const total = reelsState.posts.length;
-  if (total === 0) return;
-  let idx;
-  if (reelsState.shuffle && total > 1) {
-    do { idx = Math.floor(Math.random() * total); } while (idx === reelsState.index);
-  } else {
-    idx = reelsState.index + 1;
-    if (idx >= total) return; // به آخر لیست رسیدیم
-  }
-  reelScrollToIndex(idx);
-}
-
-function reelPrev() {
-  ensureAudioContext();
-  const idx = reelsState.index - 1;
-  if (idx < 0) return;
-  reelScrollToIndex(idx);
-}
-
-function toggleReelShuffle() {
-  reelsState.shuffle = !reelsState.shuffle;
-  document.querySelectorAll('[id^="reelShuffleBtn-"]').forEach((btn) => {
-    btn.classList.toggle("active", reelsState.shuffle);
-  });
-}
-
-function toggleReelRepeat() {
-  reelsState.repeatOne = !reelsState.repeatOne;
-  document.querySelectorAll('[id^="reelRepeatBtn-"]').forEach((btn) => {
-    btn.classList.toggle("active", reelsState.repeatOne);
-  });
-}
-
 // ---------- ویژوالایزر صدای واقعی (هماهنگ با رنگ تم) ----------
 let audioCtx = null;
 let analyser = null;
 let vizAnimationId = null;
 let vizRunning = false;
-const reelSourceNodes = {};
-let activeReelSourceIndex = null;
+const fullPlayerSourceNodes = {};
+let activeFullPlayerSourceKey = null;
 
 function ensureAudioContext() {
   if (!audioCtx) {
@@ -1897,27 +1668,32 @@ function ensureAudioContext() {
   if (audioCtx.state === "suspended") audioCtx.resume().catch(() => {});
 }
 
-function connectReelVisualizer(audioEl, i) {
+// هر عنصر <audio> فقط یه‌بار توی کل عمرش می‌تونه createMediaElementSource بشه،
+// برای همین نتیجه‌ش رو با کلید safeId کش می‌کنیم تا با هر بار باز کردن پلیر دوباره نسازیمش
+function connectFullPlayerVisualizer(audioEl) {
   ensureAudioContext();
-  if (!reelSourceNodes[i]) {
+  const key = currentAudio ? currentAudio.safeId : null;
+  if (!key) return;
+
+  if (!fullPlayerSourceNodes[key]) {
     try {
-      reelSourceNodes[i] = audioCtx.createMediaElementSource(audioEl);
+      fullPlayerSourceNodes[key] = audioCtx.createMediaElementSource(audioEl);
     } catch (e) {
       return; // اگه به هر دلیلی نشد وصل بشه، پخش صدا خودش تحت تأثیر قرار نمی‌گیره
     }
   }
-  if (activeReelSourceIndex !== null && activeReelSourceIndex !== i && reelSourceNodes[activeReelSourceIndex]) {
-    try { reelSourceNodes[activeReelSourceIndex].disconnect(analyser); } catch (e) {}
+  if (activeFullPlayerSourceKey !== null && activeFullPlayerSourceKey !== key && fullPlayerSourceNodes[activeFullPlayerSourceKey]) {
+    try { fullPlayerSourceNodes[activeFullPlayerSourceKey].disconnect(analyser); } catch (e) {}
   }
-  try { reelSourceNodes[i].connect(analyser); } catch (e) {}
-  activeReelSourceIndex = i;
+  try { fullPlayerSourceNodes[key].connect(analyser); } catch (e) {}
+  activeFullPlayerSourceKey = key;
 }
 
 function startVisualizerLoop() {
   if (vizRunning) return;
   vizRunning = true;
 
-  const canvas = document.getElementById("reelsVisualizer");
+  const canvas = document.getElementById("fullPlayerVisualizer");
   const ctx = canvas.getContext("2d");
   const dpr = window.devicePixelRatio || 1;
 
@@ -1955,35 +1731,11 @@ function stopVisualizerLoop() {
   vizRunning = false;
   if (vizAnimationId) cancelAnimationFrame(vizAnimationId);
   vizAnimationId = null;
-  const canvas = document.getElementById("reelsVisualizer");
+  const canvas = document.getElementById("fullPlayerVisualizer");
   if (canvas) {
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
-}
-
-function bindReelsObserver() {
-  if (reelsObserver) reelsObserver.disconnect();
-  const scroller = document.getElementById("reelsScroller");
-  reelsObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        const idx = parseInt(entry.target.dataset.index, 10);
-        if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
-          playReelSlide(idx);
-          if (idx >= reelsState.posts.length - 3) {
-            loadMoreReels();
-          }
-        } else {
-          const audioEl = document.getElementById(`reelAudio-${idx}`);
-          if (audioEl) audioEl.pause();
-          updatePlayPauseUI(idx, false);
-        }
-      });
-    },
-    { root: scroller, threshold: [0, 0.6, 1] }
-  );
-  document.querySelectorAll(".reels-slide").forEach((slide) => reelsObserver.observe(slide));
 }
 
 const PAGE_SIZE = 10;
@@ -2141,8 +1893,8 @@ function renderMusicRow(p) {
   return `
     <div class="music-row">
       <audio id="audioEl-${safeId}" src="${WORKER_URL}/api/media/${p.file_id}" preload="none"></audio>
-      <div class="music-row-cover" onclick="openReels('${p.id}')" title="پخش تمام‌صفحه">${coverHtml}</div>
-      <div class="music-row-info" onclick="openReels('${p.id}')">
+      <div class="music-row-cover" onclick="openFullPlayer('${safeId}')" title="پخش تمام‌صفحه">${coverHtml}</div>
+      <div class="music-row-info" onclick="openFullPlayer('${safeId}')">
         <div class="music-row-title">${escapeHtml(titleText)}</div>
         <div class="music-row-sub">${subText}</div>
       </div>
