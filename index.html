@@ -1,5 +1,5 @@
-<!DOCTYPE html>  
-<html lang="fa" dir="rtl"> 
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
 <head>
 <script>
 (function(){try{var t=localStorage.getItem("theme")||"purple";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();
@@ -680,20 +680,39 @@
   .notif-time { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--subtext); margin-top: 4px; }
   .notif-new-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 6px; }
 
-  /* حالت دسکتاپ: عرض بیشتر + گرید ۳ ستونه چسبیده برای کارت‌های رسانه */
+  /* حالت دسکتاپ: عرض بیشتر + چیدمان واقعی masonry (سه ستون) برای کارت‌های رسانه */
   @media (min-width: 900px) {
     .wrap { max-width: 1100px; padding-inline: 24px; }
 
+    /* از column-count استفاده می‌کنیم نه grid، چون grid ردیف‌ها رو بین ستون‌ها هم‌تراز می‌کنه
+       و همین باعث می‌شه فاصله‌ی واقعی بین کارت‌های یه ستون بسته به قد کارت‌های ستون‌های دیگه بیشتر از ۵px بشه.
+       با column-count هر ستون کاملاً مستقله و فاصله‌ها همیشه دقیقاً ۵px می‌مونن. */
     #mediaFeed {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 5px;
-      align-items: start;
+      column-count: 3;
+      column-gap: 5px;
     }
-    #mediaFeed .post-card { margin-bottom: 0; }
+    #mediaFeed .post-card {
+      display: inline-block;
+      width: 100%;
+      break-inside: avoid;
+      -webkit-column-break-inside: avoid;
+      margin: 0 0 5px;
+    }
     #mediaFeed .empty-state,
     #mediaFeed .load-more-btn {
-      grid-column: 1 / -1;
+      column-span: all;
+    }
+
+    /* رسانه با اندازه‌ی طبیعی خودش نمایش داده بشه (نه کراپ‌شده)، فقط با یه سقف/کف منطقی */
+    #mediaFeed .entry-media img,
+    #mediaFeed .entry-media video {
+      width: auto;
+      max-width: 100%;
+      height: auto;
+      min-height: 120px;
+      max-height: 480px;
+      object-fit: contain;
+      margin: 0 auto;
     }
 
     .top-nav { max-width: 500px; margin-inline: auto; }
