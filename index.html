@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <script>
@@ -138,7 +138,7 @@
   .top-nav {
     position: sticky; top: 0; z-index: 50;
     background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    display: grid; grid-template-columns: repeat(4, 1fr);
+    display: grid; grid-template-columns: repeat(5, 1fr);
     margin-bottom: 18px; overflow: hidden;
   }
   .nav-item {
@@ -278,14 +278,13 @@
   .text-entry .comments-section { margin-inline-start: 0; }
   .post-card .comments-wrap { padding: 0 12px 10px; }
   .comments-section { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
+  .comments-list { max-height: 260px; overflow-y: auto; }
   .comment-item {
-    padding: 8px 10px; font-size: 13px; margin-bottom: 6px; border-radius: 10px;
-    background: color-mix(in srgb, var(--card) 80%, white 20%);
-    border: 1px solid var(--border);
+    padding: 8px 2px; font-size: 13px; border-bottom: 1px solid var(--border);
   }
+  .comment-item:last-child { border-bottom: none; }
   .comment-item.is-reply {
     margin-inline-start: 22px;
-    background: color-mix(in srgb, var(--card) 88%, white 28%);
   }
   .comment-item b { color: var(--accent-hover); font-weight: 500; }
   .comment-time { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--subtext); margin-inline-start: 6px; }
@@ -451,6 +450,42 @@
   .mini-player-close svg { width: 12px; height: 12px; }
   .mini-player-close:hover { color: var(--error); }
 
+  /* لیست موسیقی (تب موسیقی تو نوار بالا) */
+  .music-row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card-gradient); border: 1px solid var(--border); border-radius: 12px;
+    padding: 8px 10px; margin-bottom: 8px;
+  }
+  .music-row-cover {
+    width: 46px; height: 46px; border-radius: 8px; overflow: hidden; flex-shrink: 0; cursor: pointer;
+    background: var(--card); display: flex; align-items: center; justify-content: center; color: var(--subtext);
+  }
+  .music-row-cover img { width: 100%; height: 100%; object-fit: cover; }
+  .music-row-cover svg { width: 20px; height: 20px; }
+  .music-row-info { flex: 1; min-width: 0; cursor: pointer; }
+  .music-row-title { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .music-row-sub { font-size: 12px; color: var(--subtext); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .music-row-play {
+    width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--accent-gradient); color: #fff;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
+  }
+  .music-row-play:hover { filter: brightness(1.1); }
+  .music-row-play svg { width: 16px; height: 16px; }
+  .music-row-play .icon-pause { display: none; }
+  .music-row-play.playing .icon-play { display: none; }
+  .music-row-play.playing .icon-pause { display: block; }
+
+  /* دکمه‌ی معلق ورود به حالت تمام‌صفحه از تب سگ‌تونز */
+  .music-fab {
+    position: fixed; bottom: 90px; right: 20px; z-index: 55;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--accent-gradient); color: #fff; border: none;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.45); cursor: pointer;
+  }
+  .music-fab:hover { filter: brightness(1.1); }
+  .music-fab svg { width: 22px; height: 22px; }
+
   /* اورلی ریلز موزیک */
   .reels-overlay { position: fixed; inset: 0; background: #000; z-index: 200; }
   .reels-overlay.hidden { display: none !important; }
@@ -552,11 +587,6 @@
     position: fixed; bottom: 3px; left: 0; right: 0; height: 90px; z-index: 6;
     pointer-events: none; width: 100%;
   }
-  .reels-launch-btn {
-    display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--border);
-    border-radius: 20px; padding: 6px 14px; font-size: 12px; color: var(--text); cursor: pointer; font-family: inherit;
-  }
-  .reels-launch-btn svg { width: 14px; height: 14px; }
   .audio-cover { cursor: pointer; }
 
   /* فیلتر رسانه/متن داخل پروفایل */
@@ -655,7 +685,7 @@
     #mediaFeed {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 0;
+      gap: 10px 0;
       align-items: start;
     }
     #mediaFeed .post-card { margin-bottom: 0; }
@@ -689,7 +719,7 @@
     </div>
   </header>
 
-  <!-- نوار سوییچ بخش‌ها: رسانه / متن / پست جدید / چت -->
+  <!-- نوار سوییچ بخش‌ها: رسانه / متن / موسیقی / پست جدید / چت -->
   <nav class="top-nav">
     <button class="nav-item active" id="navBtn-media" onclick="switchView('media')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
@@ -698,6 +728,10 @@
     <button class="nav-item" id="navBtn-text" onclick="switchView('text')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
       <span>متن</span>
+    </button>
+    <button class="nav-item" id="navBtn-music" onclick="switchView('music')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <span>سگ‌تونز</span>
     </button>
     <button class="nav-item" id="navBtn-upload" onclick="switchView('upload')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
@@ -713,13 +747,7 @@
   <div id="view-media" class="view">
     <div class="feed-header">
       <span>رسانه‌ها</span>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <button class="reels-launch-btn" onclick="openReels()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-          سگ‌تونز
-        </button>
-        <button class="refresh-btn" onclick="loadFeedView('media', true)">بروزرسانی</button>
-      </div>
+      <button class="refresh-btn" onclick="loadFeedView('media', true)">بروزرسانی</button>
     </div>
     <div id="mediaFeed"></div>
   </div>
@@ -731,6 +759,18 @@
       <button class="refresh-btn" onclick="loadFeedView('text', true)">بروزرسانی</button>
     </div>
     <div id="textFeed"></div>
+  </div>
+
+  <!-- بخش سگ‌تونز: لیست همه‌ی آهنگ‌های آپلود شده تو سایت -->
+  <div id="view-music" class="view hidden">
+    <div class="feed-header">
+      <span>سگ‌تونز</span>
+      <button class="refresh-btn" onclick="loadMusicList(true)">بروزرسانی</button>
+    </div>
+    <div id="musicList"></div>
+    <button class="music-fab" onclick="openReels()" title="پخش تمام‌صفحه" aria-label="پخش تمام‌صفحه">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zM5 10h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+    </button>
   </div>
 
   <!-- بخش پست جدید -->
@@ -1026,7 +1066,7 @@ async function initAdminStatus() {
 
   if (isAdmin) {
     const nav = document.querySelector(".top-nav");
-    nav.style.gridTemplateColumns = "repeat(5, 1fr)";
+    nav.style.gridTemplateColumns = "repeat(6, 1fr)";
     nav.insertAdjacentHTML("beforeend", `
       <button class="nav-item" id="navBtn-admin" onclick="switchView('admin')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg>
@@ -1048,6 +1088,8 @@ const feedState = {
   text: { page: 1, loaded: false },
   admin: { page: 1, loaded: false },
 };
+const musicState = { page: 1, loaded: false };
+const MUSIC_PAGE_SIZE = 20;
 
 function switchView(name, forceReload = false) {
   document.querySelectorAll(".view").forEach((el) => el.classList.add("hidden"));
@@ -1057,6 +1099,9 @@ function switchView(name, forceReload = false) {
 
   if ((name === "media" || name === "text") && (forceReload || !feedState[name].loaded)) {
     loadFeedView(name, true);
+  }
+  if (name === "music" && (forceReload || !musicState.loaded)) {
+    loadMusicList(true);
   }
   if (name === "admin" && (forceReload || !feedState.admin.loaded)) {
     loadAdminFeed(true);
@@ -1906,7 +1951,7 @@ function renderPost(p, num) {
 
   const commentsBlock = `
     <div class="comments-section hidden" id="comments-${safeId}">
-      <div id="commentsList-${safeId}"></div>
+      <div class="comments-list" id="commentsList-${safeId}"></div>
       <div class="comment-form">
         <input type="text" id="commentInput-${safeId}" placeholder="یه کامنت بنویس..." onkeydown="if(event.key==='Enter') submitComment('${p.id}','${safeId}')" />
         <button onclick="submitComment('${p.id}','${safeId}')">ارسال</button>
@@ -1971,6 +2016,79 @@ async function loadFeedView(kind, reset = true) {
 function loadMoreFeed(kind) {
   feedState[kind].page++;
   loadFeedView(kind, false);
+}
+
+// ---------- تب موسیقی: لیست همه‌ی آهنگ‌های آپلود شده تو سایت ----------
+function renderMusicRow(p) {
+  const safeId = p.id.replace(/[^a-zA-Z0-9_]/g, "");
+  audioMetaRegistry[safeId] = {
+    postId: p.id,
+    title: p.audio_title || "",
+    performer: p.audio_performer || "",
+    thumbFileId: p.audio_thumb || null,
+  };
+
+  const coverHtml = p.audio_thumb
+    ? `<img src="${WORKER_URL}/api/media/${p.audio_thumb}" alt="" />`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
+
+  const titleText = p.audio_title || "بدون‌عنوان";
+  const subParts = [];
+  if (p.audio_performer) subParts.push(escapeHtml(p.audio_performer));
+  subParts.push(escapeHtml(p.username));
+  const subText = subParts.join(" — ");
+
+  return `
+    <div class="music-row">
+      <audio id="audioEl-${safeId}" src="${WORKER_URL}/api/media/${p.file_id}" preload="none"></audio>
+      <div class="music-row-cover" onclick="openReels('${p.id}')" title="پخش تمام‌صفحه">${coverHtml}</div>
+      <div class="music-row-info" onclick="openReels('${p.id}')">
+        <div class="music-row-title">${escapeHtml(titleText)}</div>
+        <div class="music-row-sub">${subText}</div>
+      </div>
+      <button class="music-row-play" id="audioBtn-${safeId}" onclick="toggleAudio('${safeId}')" title="پخش/توقف" aria-label="پخش/توقف">
+        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+      </button>
+    </div>`;
+}
+
+async function loadMusicList(reset = true) {
+  const listEl = document.getElementById("musicList");
+  if (reset) {
+    musicState.page = 1;
+    listEl.innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
+  }
+  try {
+    const res = await fetch(`${WORKER_URL}/api/feed?filter=audio&page=${musicState.page}&pageSize=${MUSIC_PAGE_SIZE}`, {
+      headers: { "Authorization": `Bearer ${getToken()}` },
+    });
+    const data = await res.json();
+    musicState.loaded = true;
+
+    if (reset && (!data.posts || data.posts.length === 0)) {
+      listEl.innerHTML = `<div class="empty-state">هنوز آهنگی آپلود نشده — اولین نفر باش.</div>`;
+      return;
+    }
+    if (reset) listEl.innerHTML = "";
+
+    const html = data.posts.map((p) => renderMusicRow(p)).join("");
+    listEl.insertAdjacentHTML("beforeend", html);
+    bindAllAudioPlayers(listEl);
+
+    const oldBtn = document.getElementById("loadMoreBtn-music");
+    if (oldBtn) oldBtn.remove();
+    if (data.hasMore) {
+      listEl.insertAdjacentHTML("beforeend", `<button class="load-more-btn" id="loadMoreBtn-music" onclick="loadMoreMusic()">بارگذاری بیشتر</button>`);
+    }
+  } catch (e) {
+    if (reset) listEl.innerHTML = `<div class="empty-state">لیست بارگذاری نشد. اتصال اینترنتت رو چک کن.</div>`;
+  }
+}
+
+function loadMoreMusic() {
+  musicState.page++;
+  loadMusicList(false);
 }
 
 async function loadAdminFeed(reset = true) {
