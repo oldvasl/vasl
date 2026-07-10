@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
   :root {
     --primary: #1A0A31;
@@ -36,24 +37,19 @@
     overflow: hidden;
     background: var(--primary);
   }
-  /* گرادیانت متحرک پس‌زمینه — چند رنگ از خود پالت تم، آروم جابه‌جا می‌شن */
-  .bg-anim {
-    position: fixed; inset: -10%; z-index: 0; pointer-events: none;
-    background:
-      radial-gradient(circle at 20% 30%, var(--accent) 0%, transparent 45%),
-      radial-gradient(circle at 80% 70%, var(--card) 0%, transparent 50%),
-      radial-gradient(circle at 60% 20%, var(--accent-hover) 0%, transparent 40%),
-      radial-gradient(circle at 30% 85%, var(--surface) 0%, transparent 55%),
-      linear-gradient(135deg, var(--primary), var(--surface));
-    background-size: 200% 200%, 200% 200%, 200% 200%, 200% 200%, 100% 100%;
-    filter: blur(60px) saturate(130%);
-    opacity: 0.9;
-    animation: bg-drift 18s ease-in-out infinite alternate;
-  }
-  @keyframes bg-drift {
-    0%   { background-position: 0% 0%, 100% 100%, 50% 0%, 0% 100%, 0% 0%; }
-    50%  { background-position: 60% 40%, 40% 60%, 20% 60%, 60% 30%, 0% 0%; }
-    100% { background-position: 100% 100%, 0% 0%, 80% 40%, 100% 0%, 0% 0%; }
+  /* پس‌زمینه‌ی متحرک — سبک: به‌جای انیمیت کردن background-position روی یه گرادیانت بلورشده‌ی بزرگ
+     (که هر فریم کل صفحه رو مجبور به رسم دوباره می‌کرد و لگ می‌داد)، چند تا «حباب» جدا داریم که فقط
+     transform‌شون انیمیت می‌شه؛ این روی GPU اجرا می‌شه و تقریباً هیچ فشاری به CPU نمی‌ده */
+  .bg-anim { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; background: var(--primary); }
+  .bg-blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.55; will-change: transform; }
+  .bg-blob:nth-child(1) { width: 50vw; height: 50vw; max-width: 480px; max-height: 480px; background: var(--accent); top: -12%; left: -12%; animation: blob1 22s ease-in-out infinite; }
+  .bg-blob:nth-child(2) { width: 45vw; height: 45vw; max-width: 420px; max-height: 420px; background: var(--card); bottom: -14%; right: -10%; animation: blob2 26s ease-in-out infinite; }
+  .bg-blob:nth-child(3) { width: 38vw; height: 38vw; max-width: 360px; max-height: 360px; background: var(--accent-hover); top: 25%; right: 5%; animation: blob3 19s ease-in-out infinite; }
+  @keyframes blob1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(12vw, 10vh); } }
+  @keyframes blob2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-10vw, -8vh); } }
+  @keyframes blob3 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-8vw, 10vh); } }
+  @media (prefers-reduced-motion: reduce) {
+    .bg-blob { animation: none !important; }
   }
   .box { width: 100%; max-width: 380px; position: relative; z-index: 1; }
   .brand { text-align: center; margin-bottom: 24px; }
@@ -95,6 +91,8 @@
   .hint { color: var(--success); font-size: 13px; margin-top: 8px; min-height: 16px; }
   .hidden { display: none !important; }
 
+  .turnstile-wrap { display: flex; justify-content: center; margin-bottom: 10px; }
+
   .sound-toggle {
     position: fixed; top: 16px; left: 16px; width: 38px; height: 38px; border-radius: 50%;
     background: var(--surface); border: 1px solid var(--border); color: var(--subtext);
@@ -109,7 +107,7 @@
 </head>
 <body>
 
-<div class="bg-anim"></div>
+<div class="bg-anim"><div class="bg-blob"></div><div class="bg-blob"></div><div class="bg-blob"></div></div>
 <audio id="bgMusic" src="login.mp3" loop></audio>
 <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" aria-label="قطع/وصل صدا">
   <svg class="icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18 6a9 9 0 0 1 0 12"/></svg>
@@ -130,16 +128,22 @@
     </div>
 
     <div id="loginForm">
-      <input id="loginUsername" placeholder="نام کاربری" />
-      <input id="loginPassword" type="password" placeholder="رمز عبور" />
-      <button class="primary" onclick="login()">ورود</button>
+      <input id="loginUsername" placeholder="نام کاربری" autocomplete="username" maxlength="20" />
+      <input id="loginPassword" type="password" placeholder="رمز عبور" autocomplete="current-password" maxlength="100" />
+      <div class="turnstile-wrap">
+        <div class="cf-turnstile" id="turnstileBox" data-sitekey="0x4AAAAAADzYo0FCb7d3eKh0" data-theme="dark"></div>
+      </div>
+      <button class="primary" id="loginBtn" onclick="login()">ورود</button>
       <div class="error" id="loginError"></div>
     </div>
 
     <div id="registerForm" class="hidden">
-      <input id="regUsername" placeholder="نام کاربری (حداقل ۳ کاراکتر)" />
-      <input id="regPassword" type="password" placeholder="رمز عبور (حداقل ۶ کاراکتر)" />
-      <button class="primary" onclick="register()">ساخت حساب</button>
+      <input id="regUsername" placeholder="نام کاربری (حداقل ۳ کاراکتر)" autocomplete="username" maxlength="20" />
+      <input id="regPassword" type="password" placeholder="رمز عبور (حداقل ۸ کاراکتر، شامل حرف و عدد)" autocomplete="new-password" maxlength="100" />
+      <div class="turnstile-wrap">
+        <div class="cf-turnstile" id="turnstileBoxReg" data-sitekey="0x4AAAAAADzYo0FCb7d3eKh0" data-theme="dark"></div>
+      </div>
+      <button class="primary" id="registerBtn" onclick="register()">ساخت حساب</button>
       <div class="error" id="registerError"></div>
       <div class="hint" id="registerHint"></div>
     </div>
@@ -172,16 +176,35 @@ async function register() {
   const password = document.getElementById("regPassword").value;
   const errEl = document.getElementById("registerError");
   const hintEl = document.getElementById("registerHint");
+  const btn = document.getElementById("registerBtn");
   errEl.textContent = "";
   hintEl.textContent = "";
+
+  if (!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(password)) {
+    errEl.textContent = "رمز عبور باید حداقل ۸ کاراکتر باشه و شامل حداقل یه حرف و یه عدد باشه";
+    return;
+  }
+
+  const turnstileToken = window.turnstile ? turnstile.getResponse("turnstileBoxReg") : "";
+  if (window.turnstile && !turnstileToken) {
+    errEl.textContent = "لطفاً تیک تایید امنیتی رو بزن";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "در حال ساخت حساب...";
   try {
     const res = await fetch(`${WORKER_URL}/api/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password, turnstileToken }),
     });
     const data = await res.json();
-    if (!res.ok) { errEl.textContent = data.error; return; }
+    if (!res.ok) {
+      errEl.textContent = data.error;
+      if (window.turnstile) turnstile.reset("turnstileBoxReg");
+      return;
+    }
     hintEl.textContent = "حساب ساخته شد — حالا وارد شو";
     setTimeout(() => {
       showLogin();
@@ -189,6 +212,10 @@ async function register() {
     }, 900);
   } catch (e) {
     errEl.textContent = "اتصال به سرور برقرار نشد. اینترنتت رو چک کن.";
+    if (window.turnstile) turnstile.reset("turnstileBoxReg");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "ساخت حساب";
   }
 }
 
@@ -196,20 +223,38 @@ async function login() {
   const username = document.getElementById("loginUsername").value.trim();
   const password = document.getElementById("loginPassword").value;
   const errEl = document.getElementById("loginError");
+  const btn = document.getElementById("loginBtn");
   errEl.textContent = "";
+
+  const turnstileToken = window.turnstile ? turnstile.getResponse("turnstileBox") : "";
+  if (window.turnstile && !turnstileToken) {
+    errEl.textContent = "لطفاً تیک تایید امنیتی رو بزن";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "در حال ورود...";
   try {
     const res = await fetch(`${WORKER_URL}/api/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password, turnstileToken }),
     });
     const data = await res.json();
-    if (!res.ok) { errEl.textContent = data.error; return; }
+    if (!res.ok) {
+      errEl.textContent = data.error;
+      if (window.turnstile) turnstile.reset("turnstileBox");
+      return;
+    }
     localStorage.setItem("token", data.token);
     localStorage.setItem("username", data.username);
     window.location.href = "index.html";
   } catch (e) {
     errEl.textContent = "اتصال به سرور برقرار نشد. اینترنتت رو چک کن.";
+    if (window.turnstile) turnstile.reset("turnstileBox");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "ورود";
   }
 }
 
@@ -217,22 +262,42 @@ async function login() {
 const bgMusic = document.getElementById("bgMusic");
 bgMusic.volume = 0.5;
 
+// ترفند رایج برای بیشینه کردن شانس پخش خودکارِ صدادار: مرورگرها پخش خودکارِ بی‌صدا رو همیشه مجاز می‌دونن،
+// پس اول با mute شروع می‌کنیم (این تضمینیه) و بلافاصله سعی می‌کنیم صداش رو باز کنیم. تو خیلی از مرورگرها
+// (مخصوصاً اگه کاربر قبلاً با سایت تعامل داشته) همین باعث می‌شه صدا واقعاً بدون نیاز به کلیک پخش بشه.
+// اگه هیچ‌کدوم جواب نداد (خیلی از مرورگرها این حالت رو هم می‌بندن)، با اولین لمس/کلیک روی صفحه شروع می‌شه.
 function tryAutoplay() {
-  bgMusic.play().catch(() => {
-    // پخش خودکار مسدود شده؛ با اولین لمس/کلیک شروع می‌شه
-    document.addEventListener("click", startOnUserGesture, { once: true });
-    document.addEventListener("touchstart", startOnUserGesture, { once: true });
-  });
+  bgMusic.muted = true;
+  bgMusic.play()
+    .then(() => {
+      // چند میلی‌ثانیه بعد از شروعِ بی‌صدا، سعی می‌کنیم صداش رو باز کنیم
+      setTimeout(() => {
+        if (document.getElementById("soundToggle").classList.contains("muted")) return;
+        bgMusic.muted = false;
+        // بعضی مرورگرها با باز شدن صدا، خودشون پخش رو متوقف می‌کنن؛ اگه این اتفاق افتاد، دوباره تلاش می‌کنیم
+        bgMusic.play().catch(() => {});
+        if (bgMusic.paused) armGestureFallback();
+      }, 300);
+    })
+    .catch(() => {
+      armGestureFallback();
+    });
+}
+function armGestureFallback() {
+  document.addEventListener("click", startOnUserGesture, { once: true });
+  document.addEventListener("touchstart", startOnUserGesture, { once: true });
 }
 function startOnUserGesture() {
   if (document.getElementById("soundToggle").classList.contains("muted")) return;
+  bgMusic.muted = false;
   bgMusic.play().catch(() => {});
 }
 tryAutoplay();
 
 function toggleSound() {
   const btn = document.getElementById("soundToggle");
-  if (bgMusic.paused) {
+  if (bgMusic.paused || bgMusic.muted) {
+    bgMusic.muted = false;
     bgMusic.play().catch(() => {});
     btn.classList.remove("muted");
   } else {
