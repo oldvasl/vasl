@@ -401,6 +401,9 @@
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
     padding: 10px 12px;
   }
+  .audio-cover-wrap {
+    display: flex; align-items: center; gap: 10px; cursor: pointer; flex-shrink: 0;
+  }
   .audio-cover {
     width: 42px; height: 42px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
     background: var(--card); display: flex; align-items: center; justify-content: center;
@@ -1316,12 +1319,14 @@ function buildAudioPlayer(fileId, safeId, thumbFileId, title, performer, postId)
   return `
     <div class="audio-player">
       <audio id="audioEl-${safeId}" src="${WORKER_URL}/api/media/${fileId}" preload="metadata"></audio>
-      <div class="audio-cover" onclick="openFullPlayer('${safeId}')" title="پخش تمام‌صفحه">${coverHtml}</div>
-      <button class="audio-play-btn" id="audioBtn-${safeId}" onclick="toggleAudio('${safeId}')">
-        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
-        <span class="icon-loading"></span>
-      </button>
+      <div class="audio-cover-wrap" onclick="toggleAudio('${safeId}')">
+        <div class="audio-cover" onclick="event.stopPropagation(); openFullPlayer('${safeId}')" title="پخش تمام‌صفحه">${coverHtml}</div>
+        <button class="audio-play-btn" id="audioBtn-${safeId}" onclick="event.stopPropagation(); toggleAudio('${safeId}')">
+          <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+          <span class="icon-loading"></span>
+        </button>
+      </div>
       <div class="audio-body">
         ${metaHtml}
         <div class="audio-bars" id="audioBars-${safeId}">
