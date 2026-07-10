@@ -1582,10 +1582,6 @@ function showMiniPlayer(safeId) {
 function syncNowPlayingUI(safeId, playing) {
   renderMiniPlayer(safeId, playing);
   renderFullPlayer(safeId, playing);
-  const panel = document.getElementById("fullPlayer");
-  if (playing && currentAudio && panel && panel.classList.contains("open")) {
-    connectFullPlayerVisualizer(currentAudio.audioEl);
-  }
 }
 
 function renderMiniPlayer(safeId, playing) {
@@ -1742,7 +1738,7 @@ function updateFullPlayerShuffleRepeatUI() {
 
 // نقطه‌ی ورودی مشترک: از دکمه‌ی فول‌اسکرین تب سگ‌تونز، کلیک رو کاور آهنگ، یا کلیک رو خود مینی‌پلیر
 // safeId اختیاریه؛ اگه ندی همون آهنگی که الان پخش می‌شه (یا اولین آهنگ موجود تو صفحه) باز می‌شه
-async function openFullPlayer(safeId) {
+function openFullPlayer(safeId) {
   if (!safeId && currentAudio) safeId = currentAudio.safeId;
   if (!safeId) {
     const queue = collectAudioQueueFromDOM();
@@ -1751,21 +1747,12 @@ async function openFullPlayer(safeId) {
   if (safeId) ensureTrackPlaying(safeId);
   if (!currentAudio) return; // هیچ آهنگی برای نمایش نیست
 
-  const openedForSafeId = currentAudio.safeId;
   renderFullPlayer(currentAudio.safeId, !currentAudio.audioEl.paused);
 
   document.body.style.overflow = "hidden";
   document.getElementById("fullPlayer").classList.add("open");
   startVisualizerLoop();
   startFullPlayerSeekLoop();
-
-  // اتصال آهنگ به گراف صوتی (برای ویژوالایزر) رو به بعد از اطمینان از فعال‌بودن AudioContext موکول می‌کنیم؛
-  // وگرنه دقیقاً همون لحظه‌ای که خروجی صدا از پخش مستقیم به گراف صوتی منتقل می‌شه ولی context هنوز
-  // «معلق»ه (suspended)، صدا برای یه لحظه (یا کامل) قطع می‌شه
-  await ensureAudioContext();
-  if (currentAudio && currentAudio.safeId === openedForSafeId && document.getElementById("fullPlayer")?.classList.contains("open")) {
-    connectFullPlayerVisualizer(currentAudio.audioEl);
-  }
 }
 
 function closeFullPlayer() {
@@ -1849,45 +1836,17 @@ async function downloadCurrentTrack() {
   }
 }
 
-// ---------- ویژوالایزر صدای واقعی (هماهنگ با رنگ تم) ----------
-let audioCtx = null;
-let analyser = null;
+// ---------- ویژوالایزر انیمیشنی (بدون Web Audio API) ----------
+// نسخه‌ی قبلی برای گرفتن دیتای واقعی فرکانس، پخش‌کننده رو به Web Audio API وصل می‌کرد؛ همین باعث می‌شد
+// خروجی صدا از مسیر مستقیم مرورگر جدا و وارد گراف صوتی بشه و گاهی کاملاً قطع بشه. برای رفع این مشکل،
+// اینجا به‌جاش یه انیمیشن ساختگی (نه بر پایه‌ی دیتای واقعی صدا) رسم می‌شه که با شروع/توقف پخش هماهنگه،
+// بدون اینکه اصلاً به audio element دست بزنه یا مسیر خروجی صداش رو عوض کنه.
 let vizAnimationId = null;
 let vizRunning = false;
-const fullPlayerSourceNodes = {};
-let activeFullPlayerSourceKey = null;
-
-function ensureAudioContext() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 64;
-    analyser.connect(audioCtx.destination);
-  }
-  if (audioCtx.state === "suspended") return audioCtx.resume().catch(() => {});
-  return Promise.resolve();
-}
-
-// هر عنصر <audio> فقط یه‌بار توی کل عمرش می‌تونه createMediaElementSource بشه،
-// برای همین نتیجه‌ش رو با کلید safeId کش می‌کنیم تا با هر بار باز کردن پلیر دوباره نسازیمش
-function connectFullPlayerVisualizer(audioEl) {
-  ensureAudioContext();
-  const key = currentAudio ? currentAudio.safeId : null;
-  if (!key) return;
-
-  if (!fullPlayerSourceNodes[key]) {
-    try {
-      fullPlayerSourceNodes[key] = audioCtx.createMediaElementSource(audioEl);
-    } catch (e) {
-      return; // اگه به هر دلیلی نشد وصل بشه، پخش صدا خودش تحت تأثیر قرار نمی‌گیره
-    }
-  }
-  if (activeFullPlayerSourceKey !== null && activeFullPlayerSourceKey !== key && fullPlayerSourceNodes[activeFullPlayerSourceKey]) {
-    try { fullPlayerSourceNodes[activeFullPlayerSourceKey].disconnect(analyser); } catch (e) {}
-  }
-  try { fullPlayerSourceNodes[key].connect(analyser); } catch (e) {}
-  activeFullPlayerSourceKey = key;
-}
+const VIZ_BAR_COUNT = 32;
+let vizBarLevels = null;
+let vizBarTargets = null;
+let vizLastTargetChange = 0;
 
 function startVisualizerLoop() {
   if (vizRunning) return;
@@ -1904,27 +1863,39 @@ function startVisualizerLoop() {
   resize();
   window.addEventListener("resize", resize);
 
+  if (!vizBarLevels) {
+    vizBarLevels = new Array(VIZ_BAR_COUNT).fill(0.08);
+    vizBarTargets = new Array(VIZ_BAR_COUNT).fill(0.08);
+  }
+  vizLastTargetChange = 0;
+
   const accentColor = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#8B5CF6";
 
-  function draw() {
+  function draw(ts) {
     vizAnimationId = requestAnimationFrame(draw);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (!analyser) return;
 
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    analyser.getByteFrequencyData(dataArray);
+    const isPlaying = !!(currentAudio && !currentAudio.audioEl.paused);
 
-    const barWidth = canvas.width / bufferLength;
+    // هر حدود ۱۲۰ میلی‌ثانیه یه هدف تصادفی تازه برای هر میله انتخاب می‌کنیم؛ حرکت به سمتش نرمه تا یهو نپره
+    if (!vizLastTargetChange || ts - vizLastTargetChange > 120) {
+      vizLastTargetChange = ts;
+      for (let i = 0; i < VIZ_BAR_COUNT; i++) {
+        vizBarTargets[i] = isPlaying ? 0.15 + Math.random() * 0.85 : 0.08;
+      }
+    }
+
+    const barWidth = canvas.width / VIZ_BAR_COUNT;
     ctx.fillStyle = accentColor;
-    for (let i = 0; i < bufferLength; i++) {
-      const v = dataArray[i] / 255;
+    for (let i = 0; i < VIZ_BAR_COUNT; i++) {
+      vizBarLevels[i] += (vizBarTargets[i] - vizBarLevels[i]) * 0.18;
+      const v = vizBarLevels[i];
       const barHeight = Math.max(v * canvas.height, 2);
       ctx.globalAlpha = 0.35 + v * 0.5;
       ctx.fillRect(i * barWidth + 1, canvas.height - barHeight, Math.max(barWidth - 2, 1), barHeight);
     }
   }
-  draw();
+  vizAnimationId = requestAnimationFrame(draw);
 }
 
 function stopVisualizerLoop() {
