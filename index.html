@@ -2218,6 +2218,8 @@ function renderMusicRow(p) {
     title: p.audio_title || "",
     performer: p.audio_performer || "",
     thumbFileId: p.audio_thumb || null,
+    fileId: p.file_id,
+    originalSafeId: safeId,
   };
 
   const coverHtml = p.audio_thumb
