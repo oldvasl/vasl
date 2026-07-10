@@ -1479,6 +1479,16 @@ function requestPlay(safeId) {
   check();
 }
 
+// وقتی از یه آهنگ رد می‌شیم (نه اینکه خودش رو مکث کردیم)، پازش می‌کنیم و به ابتداش برش می‌گردونیم
+// تا دفعه‌ی بعد که بهش برگردیم، از اول پخش بشه نه از همون‌جایی که ولش کرده بودیم
+function pauseAndResetTrack(safeId) {
+  const audioEl = document.getElementById(`audioEl-${safeId}`);
+  if (!audioEl) return;
+  audioEl.pause();
+  try { audioEl.currentTime = 0; } catch (e) {}
+  pauseAudioUI(safeId);
+}
+
 function toggleAudio(safeId) {
   const audioEl = document.getElementById(`audioEl-${safeId}`);
   if (!audioEl) return;
@@ -1498,8 +1508,7 @@ function toggleAudio(safeId) {
 
   if (currentAudio && currentAudio.safeId !== safeId) {
     cancelPendingPlay(currentAudio.safeId);
-    currentAudio.audioEl.pause();
-    pauseAudioUI(currentAudio.safeId);
+    pauseAndResetTrack(currentAudio.safeId);
   }
 
   requestPlay(safeId);
@@ -1529,6 +1538,7 @@ function bindAudioEvents(safeId) {
   });
   audioEl.addEventListener("ended", () => {
     pauseAudioUI(safeId);
+    try { audioEl.currentTime = 0; } catch (e) {}
     if (currentAudio && currentAudio.safeId === safeId) currentAudio = null;
     handleMiniPlayerTrackEnded(safeId);
   });
@@ -1563,8 +1573,7 @@ function ensureTrackPlaying(safeId) {
 
   if (currentAudio && currentAudio.safeId !== safeId) {
     cancelPendingPlay(currentAudio.safeId);
-    currentAudio.audioEl.pause();
-    pauseAudioUI(currentAudio.safeId);
+    pauseAndResetTrack(currentAudio.safeId);
   }
   bindAudioEvents(safeId);
   requestPlay(safeId);
@@ -1650,17 +1659,14 @@ function stepMiniPlayer(dir) {
 
   if (curSafeId && curSafeId !== nextSafeId) {
     cancelPendingPlay(curSafeId);
-    const curAudio = document.getElementById(`audioEl-${curSafeId}`);
-    if (curAudio) curAudio.pause();
-    pauseAudioUI(curSafeId);
+    pauseAndResetTrack(curSafeId);
   }
 
   const audioEl = document.getElementById(`audioEl-${nextSafeId}`);
   if (!audioEl) return;
   if (currentAudio && currentAudio.safeId !== nextSafeId) {
     cancelPendingPlay(currentAudio.safeId);
-    currentAudio.audioEl.pause();
-    pauseAudioUI(currentAudio.safeId);
+    pauseAndResetTrack(currentAudio.safeId);
   }
   requestPlay(nextSafeId);
 }
@@ -1693,9 +1699,7 @@ function closeMiniPlayer(e) {
   const safeId = document.getElementById("miniPlayer")?.dataset.safeId;
   if (safeId) {
     cancelPendingPlay(safeId);
-    const audioEl = document.getElementById(`audioEl-${safeId}`);
-    if (audioEl) audioEl.pause();
-    pauseAudioUI(safeId);
+    pauseAndResetTrack(safeId);
     if (currentAudio && currentAudio.safeId === safeId) currentAudio = null;
   }
   hideMiniPlayer();
