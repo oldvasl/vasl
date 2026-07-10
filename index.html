@@ -1742,9 +1742,7 @@ function updateFullPlayerShuffleRepeatUI() {
 
 // نقطه‌ی ورودی مشترک: از دکمه‌ی فول‌اسکرین تب سگ‌تونز، کلیک رو کاور آهنگ، یا کلیک رو خود مینی‌پلیر
 // safeId اختیاریه؛ اگه ندی همون آهنگی که الان پخش می‌شه (یا اولین آهنگ موجود تو صفحه) باز می‌شه
-function openFullPlayer(safeId) {
-  ensureAudioContext();
-
+async function openFullPlayer(safeId) {
   if (!safeId && currentAudio) safeId = currentAudio.safeId;
   if (!safeId) {
     const queue = collectAudioQueueFromDOM();
@@ -1753,13 +1751,21 @@ function openFullPlayer(safeId) {
   if (safeId) ensureTrackPlaying(safeId);
   if (!currentAudio) return; // هیچ آهنگی برای نمایش نیست
 
-  connectFullPlayerVisualizer(currentAudio.audioEl);
+  const openedForSafeId = currentAudio.safeId;
   renderFullPlayer(currentAudio.safeId, !currentAudio.audioEl.paused);
 
   document.body.style.overflow = "hidden";
   document.getElementById("fullPlayer").classList.add("open");
   startVisualizerLoop();
   startFullPlayerSeekLoop();
+
+  // اتصال آهنگ به گراف صوتی (برای ویژوالایزر) رو به بعد از اطمینان از فعال‌بودن AudioContext موکول می‌کنیم؛
+  // وگرنه دقیقاً همون لحظه‌ای که خروجی صدا از پخش مستقیم به گراف صوتی منتقل می‌شه ولی context هنوز
+  // «معلق»ه (suspended)، صدا برای یه لحظه (یا کامل) قطع می‌شه
+  await ensureAudioContext();
+  if (currentAudio && currentAudio.safeId === openedForSafeId && document.getElementById("fullPlayer")?.classList.contains("open")) {
+    connectFullPlayerVisualizer(currentAudio.audioEl);
+  }
 }
 
 function closeFullPlayer() {
@@ -1858,7 +1864,8 @@ function ensureAudioContext() {
     analyser.fftSize = 64;
     analyser.connect(audioCtx.destination);
   }
-  if (audioCtx.state === "suspended") audioCtx.resume().catch(() => {});
+  if (audioCtx.state === "suspended") return audioCtx.resume().catch(() => {});
+  return Promise.resolve();
 }
 
 // هر عنصر <audio> فقط یه‌بار توی کل عمرش می‌تونه createMediaElementSource بشه،
