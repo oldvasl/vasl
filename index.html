@@ -779,6 +779,95 @@
     .top-nav { max-width: 500px; margin-inline: auto; }
     .surface-card { max-width: 700px; margin-inline: auto; }
   }
+
+  /* ============================================================
+     انیمیشن‌های سراسری سایت — ظریف و مینیمال
+     ============================================================ */
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.94); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes gentlePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.18); }
+  }
+  @keyframes softBounce {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(1.22); }
+    60%  { transform: scale(0.96); }
+    100% { transform: scale(1); }
+  }
+
+  /* تعامل‌پذیرها: یه فیدبک ریز و سریع موقع فشردن/هاور */
+  button, .nav-item, .filter-chip, .action-pill, .load-more-btn,
+  .mini-player-btn, .reels-ctrl-btn, .audio-play-btn, .music-row-play,
+  .grid-item, .theme-swatch, .back-to-top, .comment-item2-iconbtn,
+  .header-avatar, .bell-btn {
+    transition: transform 0.15s ease, opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  }
+  button:active, .nav-item:active, .filter-chip:active, .action-pill:active,
+  .mini-player-btn:active, .reels-ctrl-btn:active, .audio-play-btn:active,
+  .music-row-play:active, .theme-swatch:active {
+    transform: scale(0.93);
+  }
+  @media (hover: hover) {
+    .grid-item:hover { transform: scale(1.02); }
+    .post-card:hover, .text-entry:hover, .music-row:hover, .admin-user-row:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.18); }
+  }
+
+  /* کارت‌ها و آیتم‌های لیست: با ظاهر شدن، یه فید ملایم از پایین */
+  .post-card, .text-entry, .music-row, .grid-item,
+  .comment-item2, .notif-item, .admin-user-row {
+    animation: fadeInUp 0.4s ease;
+  }
+  .post-card, .text-entry, .music-row, .admin-user-row {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  /* سوییچ بین تب‌های بالا (رسانه/متن/موزیک/پروفایل/ادمین) */
+  .view:not(.hidden) { animation: fadeIn 0.25s ease; }
+
+  /* مودال‌ها و اورلی‌ها */
+  .post-modal-overlay:not(.hidden) { animation: fadeIn 0.2s ease; }
+  .post-modal-overlay:not(.hidden) .post-modal-content { animation: popIn 0.25s cubic-bezier(.22,1,.36,1); }
+
+  /* دکمه‌ی لایک/ووت: موقع فعال شدن یه پاپ ریز */
+  .action-pill.active svg { animation: softBounce 0.35s ease; }
+
+  /* نقطه‌ی قرمز اعلان‌های نخونده: یه ضربان ملایم برای جلب توجه */
+  .bell-dot { animation: gentlePulse 1.8s ease-in-out infinite; }
+
+  /* اسپینر بارگذاری دکمه‌ها از قبل چرخشی هستن؛ اینجا فقط ورودشون رو نرم می‌کنیم */
+  .icon-loading { transition: opacity 0.15s ease; }
+
+  /* اینپوت‌ها و تکست‌باکس‌ها: فوکوس نرم */
+  input, textarea, select {
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  }
+
+  /* مینی‌پلیر: کاور موقع پخش/توقف با ترنزیشن نرم‌تر بچرخه (چرخش خودش با انیمیشن جدا هندل می‌شه) */
+  .mini-player { transition: transform 0.2s ease; }
+  .mini-player-cover img { transition: opacity 0.2s ease; }
+
+  /* دکمه‌ی «بازگشت به بالا» با کمی نرمی بیشتر ظاهر/محو بشه (روی ترنزیشن قبلی‌اش می‌شینه) */
+  .back-to-top { transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.15s ease; }
 </style>
 </head>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
@@ -1416,6 +1505,9 @@ window.addEventListener("beforeunload", () => savePlayerState(true));
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) savePlayerState(true);
 });
+// لایه‌ی اطمینانِ اضافه: بعضی مرورگرهای موبایل (به‌خصوص iOS) موقع کشتنِ ناگهانیِ تب هیچ‌کدوم از
+// رویدادهای بالا رو اجرا نمی‌کنن؛ برای همین صرف‌نظر از این رویدادها، هر ۵ ثانیه هم جدا ذخیره می‌شه
+setInterval(() => { if (currentAudio) savePlayerState(true); }, 5000);
 
 function buildAudioPlayer(fileId, safeId, thumbFileId, title, performer, postId) {
   audioMetaRegistry[safeId] = { postId, title: title || "", performer: performer || "", thumbFileId: thumbFileId || null, fileId, originalSafeId: safeId };
