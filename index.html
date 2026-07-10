@@ -312,6 +312,42 @@
   .comments-list { max-height: 320px; overflow-y: auto; }
   .comment-empty { font-size: 12px; color: var(--subtext); padding: 4px 0; }
 
+  /* حباب استیکر داخل کامنت */
+  .comment-item2-sticker { margin-top: 2px; }
+  .comment-item2-sticker img, .comment-item2-sticker video {
+    display: block; height: 88px; width: auto; max-width: 140px; object-fit: contain;
+  }
+
+  /* پاپ‌آپ انتخاب استیکر */
+  .sticker-picker-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 90;
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .sticker-picker-sheet {
+    width: 100%; max-width: 480px; max-height: 60vh; background: var(--card-gradient);
+    border: 1px solid var(--border); border-radius: 16px 16px 0 0; padding: 14px 16px 18px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .sticker-picker-head { display: flex; align-items: center; justify-content: space-between; font-size: 14px; color: var(--text); }
+  .sticker-picker-close { background: none; border: none; color: var(--subtext); cursor: pointer; padding: 2px; display: flex; }
+  .sticker-picker-close svg { width: 18px; height: 18px; }
+  .sticker-upload-tile {
+    display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px dashed var(--border);
+    border-radius: 10px; padding: 9px 12px; font-size: 13px; color: var(--accent-hover); cursor: pointer; flex-shrink: 0;
+  }
+  .sticker-upload-tile svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .sticker-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px;
+    overflow-y: auto; padding-top: 2px;
+  }
+  .sticker-tile {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; overflow: hidden;
+    cursor: pointer; padding: 6px;
+  }
+  .sticker-tile img, .sticker-tile video { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .sticker-tile:active { transform: scale(0.94); }
+
   .comment-item2 { display: flex; gap: 10px; padding: 10px 2px; border-bottom: 1px solid var(--border); }
   .comment-item2:last-child { border-bottom: none; }
   .comment-item2.is-reply { padding: 8px 2px; }
@@ -1142,6 +1178,26 @@
   </button>
   <div class="post-modal-content" id="postModalContent"></div>
 </div>
+
+<!-- پاپ‌آپ انتخاب استیکر برای کامنت -->
+<div id="stickerPickerOverlay" class="sticker-picker-overlay hidden" onclick="if(event.target===this) closeStickerPicker()">
+  <div class="sticker-picker-sheet">
+    <div class="sticker-picker-head">
+      <span>استیکرها</span>
+      <button class="sticker-picker-close" onclick="closeStickerPicker()" aria-label="بستن">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <label class="sticker-upload-tile" id="stickerUploadTile">
+      <input type="file" id="stickerUploadInput" accept="image/*" class="hidden" onchange="onStickerFileChosen()" />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      <span>استیکر من (حداکثر ۱۰ تا)</span>
+    </label>
+    <div class="error" id="stickerPickerError"></div>
+    <div class="sticker-grid" id="stickerGrid"></div>
+  </div>
+</div>
+
 
 <!-- طراحی تمام‌صفحه‌ی پلیر: طراحی دوم خود مینی‌پلیره، همیشه با همون آهنگ همگامه، فقط با کلاس open نمایان می‌شه -->
 <div id="fullPlayer" class="full-player">
@@ -2809,12 +2865,148 @@ function formatRelativeTime(ts) {
   return `${year} سال پیش`;
 }
 
+// ---------- سیستم استیکر ----------
+const STICKER_REPO_API = "https://api.github.com/repos/oldvasl/vasl/contents/stickers?ref=main";
+const STICKER_EXT_RE = /\.(gif|png|jpe?g|webp)$/i;
+
+let stickerTarget = null; // { postId, safeId }
+let defaultStickersCache = null;
+let customStickersCache = null;
+
 function commentEmojiClicked(postId, safeId) {
-  // بعداً تعریف می‌شه
+  if (!getToken()) { alert("اول وارد شو"); return; }
+  stickerTarget = { postId, safeId };
+  document.getElementById("stickerPickerError").textContent = "";
+  document.getElementById("stickerPickerOverlay").classList.remove("hidden");
+  loadStickerPicker();
+}
+
+function closeStickerPicker() {
+  document.getElementById("stickerPickerOverlay").classList.add("hidden");
+  stickerTarget = null;
+}
+
+async function loadStickerPicker() {
+  const grid = document.getElementById("stickerGrid");
+  grid.innerHTML = `<div class="comment-empty">در حال بارگذاری استیکرها...</div>`;
+  try {
+    const [customList, defaultList] = await Promise.all([fetchCustomStickers(), fetchDefaultStickers()]);
+    if (customList.length === 0 && defaultList.length === 0) {
+      grid.innerHTML = `<div class="comment-empty">استیکری موجود نیست</div>`;
+      return;
+    }
+    const customHtml = customList
+      .map((s) => stickerTileHtml("custom", s.id, `${WORKER_URL}/api/media/${s.file_id}`, !!s.is_animated))
+      .join("");
+    const defaultHtml = defaultList
+      .map((s) => stickerTileHtml("default", s.download_url, s.download_url, /\.gif$/i.test(s.name)))
+      .join("");
+    grid.innerHTML = customHtml + defaultHtml;
+  } catch (e) {
+    grid.innerHTML = `<div class="comment-empty">بارگذاری استیکرها ناموفق بود</div>`;
+  }
+}
+
+function stickerTileHtml(kind, id, src, animated) {
+  // برای استیکرهای شخصی (تلگرام) که گیف بودن، تلگرام تبدیل به mp4 بی‌صدا می‌کنه => ویدیو
+  // برای استیکرهای پیش‌فرض که فایل خام گیف هستن، تگ img خودش انیمیشن رو پخش می‌کنه
+  const media = kind === "custom" && animated
+    ? `<video src="${src}" autoplay loop muted playsinline></video>`
+    : `<img src="${src}" loading="lazy" />`;
+  return `<button type="button" class="sticker-tile" onclick="pickSticker('${kind}','${encodeURIComponent(id)}')">${media}</button>`;
+}
+
+async function fetchCustomStickers() {
+  if (customStickersCache) return customStickersCache;
+  const res = await fetch(`${WORKER_URL}/api/stickers`);
+  const data = await res.json();
+  customStickersCache = data.stickers || [];
+  return customStickersCache;
+}
+
+async function fetchDefaultStickers() {
+  if (defaultStickersCache) return defaultStickersCache;
+  const res = await fetch(STICKER_REPO_API);
+  const data = await res.json();
+  defaultStickersCache = Array.isArray(data) ? data.filter((f) => f.type === "file" && STICKER_EXT_RE.test(f.name)) : [];
+  return defaultStickersCache;
+}
+
+async function pickSticker(kind, encodedId) {
+  if (!stickerTarget) return;
+  const id = decodeURIComponent(encodedId);
+  const { postId, safeId } = stickerTarget;
+  closeStickerPicker();
+  const payload = kind === "custom" ? { sticker_id: id } : { sticker_url: id };
+  await sendStickerComment(postId, safeId, payload);
+}
+
+async function sendStickerComment(postId, safeId, payload) {
+  try {
+    const res = await fetch(`${WORKER_URL}/api/comment`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+      body: JSON.stringify({ post_id: postId, parent_id: null, ...payload }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 401) { logout(); return; }
+      alert(data.error || "ارسال استیکر ناموفق بود");
+      return;
+    }
+    loadComments(postId, safeId);
+  } catch (e) {
+    alert("اتصال به سرور برقرار نشد");
+  }
+}
+
+async function onStickerFileChosen() {
+  const input = document.getElementById("stickerUploadInput");
+  const errEl = document.getElementById("stickerPickerError");
+  const file = input.files[0];
+  if (!file) return;
+  errEl.textContent = "";
+
+  if (!/^image\//.test(file.type)) {
+    errEl.textContent = "فقط عکس یا گیف مجازه";
+    input.value = "";
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    errEl.textContent = "حجم استیکر نباید بیشتر از ۵ مگابایت باشه";
+    input.value = "";
+    return;
+  }
+
+  const tile = document.getElementById("stickerUploadTile");
+  tile.style.opacity = "0.6";
+  try {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch(`${WORKER_URL}/api/sticker`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${getToken()}` },
+      body: fd,
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 401) { logout(); return; }
+      errEl.textContent = data.error || "آپلود استیکر ناموفق بود";
+      return;
+    }
+    customStickersCache = null; // لیست شخصی رو تازه بارگذاری کن
+    await loadStickerPicker();
+  } catch (e) {
+    errEl.textContent = "اتصال به سرور برقرار نشد";
+  } finally {
+    tile.style.opacity = "";
+    input.value = "";
+  }
 }
 
 function renderCommentItem(c, isReply, replyToUsername, postId, safeId, repliesCount = 0) {
   commentTextCache[c.id] = c.text;
+  const isSticker = c.type === "sticker";
 
   const initial = c.username ? c.username[0].toUpperCase() : "?";
   const avatarHtml = c.avatar_file_id
@@ -2827,7 +3019,7 @@ function renderCommentItem(c, isReply, replyToUsername, postId, safeId, repliesC
 
   const isOwn = c.username === getUsername();
   const canDelete = isOwn || isAdmin;
-  const editHtml = isOwn
+  const editHtml = isOwn && !isSticker
     ? `<button class="comment-item2-iconbtn" onclick="startEditComment('${c.id}')" title="ویرایش" aria-label="ویرایش">${ICON_EDIT}</button>`
     : "";
   const deleteHtml = canDelete
@@ -2838,6 +3030,10 @@ function renderCommentItem(c, isReply, replyToUsername, postId, safeId, repliesC
   const repliesIconHtml = repliesCount > 0
     ? `<button class="comment-replies-icon-btn" id="repliesToggle-${c.id}" onclick="toggleRepliesBox('${c.id}')">${ICON_MSG}<span id="repliesToggleLabel-${c.id}">${repliesCount}</span></button>`
     : "";
+
+  const bodyHtml = isSticker
+    ? `<div class="comment-item2-sticker">${commentStickerMediaHtml(c)}</div>`
+    : `<div class="comment-item2-text" id="commentText-${c.id}">${escapeHtml(c.text)}</div>`;
 
   return `
     <div class="comment-item2${isReply ? " is-reply" : ""}" id="commentItem-${c.id}">
@@ -2853,7 +3049,7 @@ function renderCommentItem(c, isReply, replyToUsername, postId, safeId, repliesC
           </div>
         </div>
         ${replyToHint}
-        <div class="comment-item2-text" id="commentText-${c.id}">${escapeHtml(c.text)}</div>
+        ${bodyHtml}
         <div class="comment-item2-actions">
           <button class="comment-like-btn${c.liked ? " active" : ""}" id="commentLike-${c.id}" onclick="toggleCommentLike('${c.id}','${postId}','${safeId}')">
             ${ICON_THUMB}<span id="commentLikeCount-${c.id}">${c.likes || ""}</span>
@@ -2867,6 +3063,18 @@ function renderCommentItem(c, isReply, replyToUsername, postId, safeId, repliesC
         </div>
       </div>
     </div>`;
+}
+
+// ---------- ساخت آدرس/تگ رسانه‌ی استیکر داخل یک کامنت ----------
+function commentStickerSrc(c) {
+  return c.sticker_is_external ? c.sticker_src : `${WORKER_URL}/api/media/${c.sticker_src}`;
+}
+function commentStickerMediaHtml(c) {
+  const src = commentStickerSrc(c);
+  if (c.sticker_is_video) {
+    return `<video src="${src}" autoplay loop muted playsinline></video>`;
+  }
+  return `<img src="${src}" loading="lazy" />`;
 }
 
 const ICON_CHEVRON_DOWN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
