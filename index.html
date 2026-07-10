@@ -336,16 +336,25 @@
     border-radius: 10px; padding: 9px 12px; font-size: 13px; color: var(--accent-hover); cursor: pointer; flex-shrink: 0;
   }
   .sticker-upload-tile svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .sticker-name-input {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 8px 12px; font-size: 12.5px; color: var(--text); font-family: inherit; flex-shrink: 0;
+  }
+  .sticker-name-input::placeholder { color: var(--subtext); }
+  .sticker-name-input:focus { outline: none; }
   .sticker-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px;
-    overflow-y: auto; padding-top: 2px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); grid-auto-rows: 72px; gap: 8px;
+    overflow-y: auto; padding-top: 2px; width: 100%; align-content: start;
   }
   .sticker-tile {
+    box-sizing: border-box; width: 100%; height: 72px;
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; overflow: hidden;
-    cursor: pointer; padding: 6px;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+    cursor: pointer; padding: 6px; appearance: none; -webkit-appearance: none; margin: 0;
   }
-  .sticker-tile img, .sticker-tile video { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .sticker-tile img, .sticker-tile video {
+    display: block; width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain;
+  }
   .sticker-tile:active { transform: scale(0.94); }
 
   .comment-item2 { display: flex; gap: 10px; padding: 10px 2px; border-bottom: 1px solid var(--border); }
@@ -1193,6 +1202,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
       <span>استیکر من (حداکثر ۱۰ تا)</span>
     </label>
+    <input type="text" id="stickerNameInput" class="sticker-name-input" placeholder="اسم استیکر (اختیاری، برای سرچ بعداً)" maxlength="40" />
     <div class="error" id="stickerPickerError"></div>
     <div class="sticker-grid" id="stickerGrid"></div>
   </div>
@@ -2896,10 +2906,10 @@ async function loadStickerPicker() {
       return;
     }
     const customHtml = customList
-      .map((s) => stickerTileHtml("custom", s.id, `${WORKER_URL}/api/media/${s.file_id}`, !!s.is_animated))
+      .map((s) => stickerTileHtml("custom", s.id, `${WORKER_URL}/api/media/${s.file_id}`, !!s.is_animated, s.name))
       .join("");
     const defaultHtml = defaultList
-      .map((s) => stickerTileHtml("default", s.download_url, s.download_url, /\.gif$/i.test(s.name)))
+      .map((s) => stickerTileHtml("default", s.download_url, s.download_url, /\.gif$/i.test(s.name), null))
       .join("");
     grid.innerHTML = customHtml + defaultHtml;
   } catch (e) {
@@ -2907,13 +2917,15 @@ async function loadStickerPicker() {
   }
 }
 
-function stickerTileHtml(kind, id, src, animated) {
+function stickerTileHtml(kind, id, src, animated, name) {
   // برای استیکرهای شخصی (تلگرام) که گیف بودن، تلگرام تبدیل به mp4 بی‌صدا می‌کنه => ویدیو
   // برای استیکرهای پیش‌فرض که فایل خام گیف هستن، تگ img خودش انیمیشن رو پخش می‌کنه
   const media = kind === "custom" && animated
     ? `<video src="${src}" autoplay loop muted playsinline></video>`
     : `<img src="${src}" loading="lazy" />`;
-  return `<button type="button" class="sticker-tile" onclick="pickSticker('${kind}','${encodeURIComponent(id)}')">${media}</button>`;
+  const titleAttr = name ? ` title="${escapeHtml(name)}"` : "";
+  const nameAttr = name ? ` data-sticker-name="${escapeHtml(name)}"` : "";
+  return `<button type="button" class="sticker-tile"${titleAttr}${nameAttr} onclick="pickSticker('${kind}','${encodeURIComponent(id)}')">${media}</button>`;
 }
 
 async function fetchCustomStickers() {
@@ -2983,6 +2995,8 @@ async function onStickerFileChosen() {
   try {
     const fd = new FormData();
     fd.append("file", file);
+    const nameInput = document.getElementById("stickerNameInput");
+    if (nameInput && nameInput.value.trim()) fd.append("name", nameInput.value.trim());
     const res = await fetch(`${WORKER_URL}/api/sticker`, {
       method: "POST",
       headers: { Authorization: `Bearer ${getToken()}` },
@@ -2994,6 +3008,7 @@ async function onStickerFileChosen() {
       errEl.textContent = data.error || "آپلود استیکر ناموفق بود";
       return;
     }
+    if (nameInput) nameInput.value = "";
     customStickersCache = null; // لیست شخصی رو تازه بارگذاری کن
     await loadStickerPicker();
   } catch (e) {
