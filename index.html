@@ -1609,6 +1609,71 @@ function clearFile() {
   document.getElementById("attachLabel").classList.remove("hidden");
 }
 
+// ---------- پاکسازی متادیتا قبل از آپلود ----------
+// عکس: با کشیدنش روی canvas و خروجی گرفتن دوباره، همه‌ی EXIF (از جمله موقعیت GPS) به‌طور کامل حذف می‌شه
+async function stripImageExif(file) {
+  try {
+    const bitmap = await createImageBitmap(file);
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(bitmap, 0, 0);
+    const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, outType, 0.92));
+    if (!blob) return file;
+    const newName = file.name.replace(/\.(heic|heif)$/i, outType === "image/png" ? ".png" : ".jpg");
+    return new File([blob], newName, { type: outType, lastModified: Date.now() });
+  } catch (e) {
+    return file; // اگه پاکسازی جواب نداد، همون فایل اصلی رو می‌فرستیم تا کاربر تو ارسال گیر نکنه
+  }
+}
+
+// ویدیو: با ffmpeg.wasm (فقط موقع نیاز، از CDN لود می‌شه) اتم‌های متادیتا حذف می‌شن (بدون افت کیفیت، چون فقط remux می‌شه نه ترنسکود)
+let ffmpegLoadingPromise = null;
+async function getFFmpegInstance(onStatus) {
+  if (!ffmpegLoadingPromise) {
+    ffmpegLoadingPromise = (async () => {
+      onStatus && onStatus("در حال آماده‌سازی پاکسازی ویدیو...");
+      const { FFmpeg } = await import("https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm/index.js");
+      const { toBlobURL } = await import("https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/esm/index.js");
+      const baseURL = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm";
+      const ffmpeg = new FFmpeg();
+      await ffmpeg.load({
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
+        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
+      });
+      return ffmpeg;
+    })();
+  }
+  return ffmpegLoadingPromise;
+}
+
+async function stripVideoMetadata(file, onStatus) {
+  try {
+    const ffmpeg = await getFFmpegInstance(onStatus);
+    const { fetchFile } = await import("https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/esm/index.js");
+
+    onStatus && onStatus("در حال پاکسازی اطلاعات ویدیو...");
+    const ext = (file.name.match(/\.\w+$/) || [".mp4"])[0];
+    const inName = `in${ext}`;
+    const outName = `out${ext}`;
+
+    await ffmpeg.writeFile(inName, await fetchFile(file));
+    // -map_metadata -1: حذف کامل متادیتای container (موقعیت مکانی، مدل دستگاه، تاریخ و...)
+    // -c copy: فقط remux، بدون ترنسکود؛ سریع و بدون افت کیفیت
+    await ffmpeg.exec(["-i", inName, "-map_metadata", "-1", "-c", "copy", outName]);
+    const data = await ffmpeg.readFile(outName);
+    ffmpeg.deleteFile(inName).catch(() => {});
+    ffmpeg.deleteFile(outName).catch(() => {});
+
+    const blob = new Blob([data.buffer], { type: file.type || "video/mp4" });
+    return new File([blob], file.name, { type: file.type || "video/mp4", lastModified: Date.now() });
+  } catch (e) {
+    return file; // اگه پاکسازی جواب نداد، همون فایل اصلی رو می‌فرستیم تا کاربر تو ارسال گیر نکنه
+  }
+}
+
 async function submitPost() {
   const text = document.getElementById("postText").value.trim();
   const errEl = document.getElementById("postError");
@@ -1617,10 +1682,20 @@ async function submitPost() {
 
   if (!text && !selectedFile) { errEl.textContent = "چیزی برای ثبت وارد نکردی"; return; }
 
+  let fileToUpload = selectedFile;
+
+  btn.disabled = true;
+  if (selectedFile && selectedFile.type.startsWith("image/")) {
+    btn.textContent = "در حال پاکسازی اطلاعات عکس...";
+    fileToUpload = await stripImageExif(selectedFile);
+  } else if (selectedFile && selectedFile.type.startsWith("video/")) {
+    fileToUpload = await stripVideoMetadata(selectedFile, (msg) => { btn.textContent = msg; });
+  }
+
   const fd = new FormData();
   fd.append("text", text);
-  if (selectedFile) {
-    fd.append("file", selectedFile);
+  if (fileToUpload) {
+    fd.append("file", fileToUpload);
     if (selectedFile.type.startsWith("audio/")) {
       if (selectedAudioMeta.title) fd.append("audio_title", selectedAudioMeta.title);
       if (selectedAudioMeta.performer) fd.append("audio_performer", selectedAudioMeta.performer);
@@ -1629,7 +1704,6 @@ async function submitPost() {
   }
   const targetView = selectedFile ? "media" : "text";
 
-  btn.disabled = true;
   btn.textContent = "در حال ارسال...";
   try {
     const res = await fetch(`${WORKER_URL}/api/post`, {
@@ -4336,10 +4410,9 @@ async function saveProfile() {
 
   const fd = new FormData();
   fd.append("bio", bio);
-  if (selectedAvatarFile) fd.append("avatar", selectedAvatarFile);
-
   btn.disabled = true;
   btn.textContent = "در حال ذخیره...";
+  if (selectedAvatarFile) fd.append("avatar", await stripImageExif(selectedAvatarFile));
   try {
     const res = await fetch(`${WORKER_URL}/api/profile`, {
       method: "POST",
