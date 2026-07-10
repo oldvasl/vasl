@@ -225,7 +225,17 @@
   .post-card .entry-top { padding: 10px 12px 0; }
   .post-card .entry-text { padding: 6px 12px 0; font-size: 15px; }
   .post-card .entry-media { padding: 8px 0 0; }
-  .post-card .entry-media img, .post-card .entry-media video { width: 100%; display: block; max-height: 320px; object-fit: cover; }
+  .post-card .entry-media img, .post-card .entry-media video {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    min-height: 160px;
+    max-height: 420px;
+    object-fit: contain;
+    margin: 0 auto;
+    background: var(--surface);
+  }
   .post-card .entry-media audio { width: 100%; display: block; }
   .post-card .entry-media.has-audio { padding: 8px 12px 0; }
   .post-card .entry-time { padding: 8px 12px 10px; }
@@ -774,6 +784,7 @@
       max-height: 480px;
       object-fit: contain;
       margin: 0 auto;
+      background: var(--surface);
     }
 
     .top-nav { max-width: 500px; margin-inline: auto; }
