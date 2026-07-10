@@ -108,6 +108,7 @@
 <body>
 
 <div class="bg-anim"><div class="bg-blob"></div><div class="bg-blob"></div><div class="bg-blob"></div></div>
+<div id="debugBanner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:99; background:#EF4444; color:#fff; font-family:monospace; font-size:12px; padding:8px 10px; direction:ltr; text-align:left; word-break:break-all; max-height:40vh; overflow:auto;"></div>
 <audio id="bgMusic" src="login.mp3" loop></audio>
 <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" aria-label="قطع/وصل صدا">
   <svg class="icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18 6a9 9 0 0 1 0 12"/></svg>
@@ -153,6 +154,18 @@
 <script>
 const WORKER_URL = "https://VLC.alipviv8698.workers.dev";
 
+// ---------- نمایش هر خطای جاوااسکریپت روی صفحه (چون رو موبایل به کنسول دسترسی نیست) ----------
+window.addEventListener("error", function (e) {
+  const banner = document.getElementById("debugBanner");
+  banner.style.display = "block";
+  banner.textContent = "خطا: " + (e.message || "") + " — فایل: " + (e.filename || "") + " — خط: " + (e.lineno || "");
+});
+window.addEventListener("unhandledrejection", function (e) {
+  const banner = document.getElementById("debugBanner");
+  banner.style.display = "block";
+  banner.textContent = "خطای Promise: " + (e.reason && e.reason.message ? e.reason.message : String(e.reason));
+});
+
 // اگه از قبل لاگین کرده، مستقیم بره صفحه اصلی
 if (localStorage.getItem("token")) {
   window.location.href = "index.html";
@@ -185,7 +198,13 @@ async function register() {
     return;
   }
 
-  const turnstileToken = window.turnstile ? turnstile.getResponse("turnstileBoxReg") : "";
+  const turnstileToken = (() => {
+    try {
+      return window.turnstile ? turnstile.getResponse("turnstileBoxReg") : "";
+    } catch (e) {
+      return "";
+    }
+  })();
   if (window.turnstile && !turnstileToken) {
     errEl.textContent = "لطفاً تیک تایید امنیتی رو بزن";
     return;
@@ -226,7 +245,13 @@ async function login() {
   const btn = document.getElementById("loginBtn");
   errEl.textContent = "";
 
-  const turnstileToken = window.turnstile ? turnstile.getResponse("turnstileBox") : "";
+  const turnstileToken = (() => {
+    try {
+      return window.turnstile ? turnstile.getResponse("turnstileBox") : "";
+    } catch (e) {
+      return "";
+    }
+  })();
   if (window.turnstile && !turnstileToken) {
     errEl.textContent = "لطفاً تیک تایید امنیتی رو بزن";
     return;
