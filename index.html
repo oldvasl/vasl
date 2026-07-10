@@ -1281,7 +1281,7 @@ async function initAdminStatus() {
     isSuperAdmin = false;
   }
 
-  if (isAdmin) {
+  if (isAdmin && !document.getElementById("navBtn-admin")) {
     const nav = document.querySelector(".top-nav");
     nav.style.gridTemplateColumns = "repeat(6, 1fr)";
     nav.insertAdjacentHTML("beforeend", `
@@ -1292,7 +1292,6 @@ async function initAdminStatus() {
     `);
   }
 }
-initAdminStatus();
 
 window.addEventListener("scroll", () => {
   const btn = document.getElementById("backToTop");
