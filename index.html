@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <script>
@@ -280,59 +280,100 @@
   .text-entry .comments-section { margin-inline-start: 0; }
   .post-card .comments-wrap { padding: 0 12px 10px; }
   .comments-section { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
-  .comments-list { max-height: 260px; overflow-y: auto; }
-  .comment-item {
-    padding: 8px 2px; font-size: 13px; border-bottom: 1px solid var(--border);
+
+  .comment-input-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+    padding: 6px 10px; margin-bottom: 10px;
   }
-  .comment-item:last-child { border-bottom: none; }
-  .comment-item.is-reply {
-    margin-inline-start: 22px;
+  .comment-emoji-btn, .comment-send-btn {
+    background: none; border: none; color: var(--accent-hover); flex-shrink: 0; cursor: pointer;
+    width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;
   }
-  .comment-item b { color: var(--accent-hover); font-weight: 500; }
-  .comment-time { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--subtext); margin-inline-start: 6px; }
+  .comment-emoji-btn svg, .comment-send-btn svg { width: 19px; height: 19px; }
+  .comment-send-btn:hover, .comment-emoji-btn:hover { color: var(--accent); }
+  .comment-input-bar input {
+    flex: 1; min-width: 0; font-family: inherit; font-size: 13.5px; color: var(--text);
+    background: transparent; border: none; padding: 4px 0;
+  }
+  .comment-input-bar input::placeholder { color: var(--subtext); }
+  .comment-input-bar input:focus { outline: none; }
+
+  .comments-list { max-height: 320px; overflow-y: auto; }
   .comment-empty { font-size: 12px; color: var(--subtext); padding: 4px 0; }
-  .comment-reply-link {
-    background: none; border: none; color: var(--accent-hover); font-size: 11px; cursor: pointer;
-    font-family: inherit; padding: 0; margin-top: 4px;
+
+  .comment-item2 { display: flex; gap: 10px; padding: 10px 2px; border-bottom: 1px solid var(--border); }
+  .comment-item2:last-child { border-bottom: none; }
+  .comment-item2.is-reply { padding: 8px 2px; }
+  .comment-item2-body { flex: 1; min-width: 0; }
+  .comment-item2-head { display: flex; align-items: center; gap: 6px; }
+  .comment-item2-name { font-weight: 500; font-size: 14px; color: var(--text); cursor: pointer; }
+  .comment-item2-meta { display: flex; align-items: center; gap: 8px; margin-inline-start: auto; flex-shrink: 0; }
+  .comment-item2-time { font-size: 11px; color: var(--subtext); white-space: nowrap; }
+  .comment-item2-edited { font-size: 10px; color: var(--subtext); }
+  .comment-item2-iconbtn {
+    background: none; border: none; color: var(--subtext); cursor: pointer; padding: 0;
+    width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
+  .comment-item2-iconbtn svg { width: 14px; height: 14px; }
+  .comment-item2-iconbtn:hover { color: var(--text); }
+  .comment-item2-iconbtn.danger:hover { color: var(--error); }
+  .comment-item2-replyhint { font-size: 11px; color: var(--subtext); margin-bottom: 2px; }
+  .comment-item2-text { font-size: 13.5px; color: var(--text); line-height: 1.6; margin-top: 2px; word-break: break-word; }
+  .comment-item2-actions { display: flex; align-items: center; gap: 14px; margin-top: 6px; }
+  .comment-like-btn, .comment-reply-btn {
+    background: none; border: none; color: var(--subtext); cursor: pointer; font-family: inherit; font-size: 12px;
+    display: flex; align-items: center; gap: 4px; padding: 0;
+  }
+  .comment-like-btn svg, .comment-reply-btn svg { width: 15px; height: 15px; }
+  .comment-like-btn:hover, .comment-reply-btn:hover { color: var(--text); }
+  .comment-like-btn.active { color: var(--accent-hover); }
+  .comment-like-btn.active svg { fill: var(--accent-hover); }
+
   .comment-replies-toggle {
     display: flex; align-items: center; gap: 4px;
     background: none; border: none; color: var(--accent-hover); font-size: 12px; cursor: pointer;
-    font-family: inherit; padding: 4px 2px; margin: 0 0 8px 22px;
+    font-family: inherit; padding: 4px 2px; margin: 0 0 8px 42px;
   }
   .comment-replies-toggle:hover { text-decoration: underline; }
   .comment-replies-toggle svg { width: 12px; height: 12px; transition: transform 0.15s; flex-shrink: 0; }
   .comment-replies-toggle.open svg { transform: rotate(180deg); }
   .comment-replies-box {
-    margin-inline-start: 22px; margin-bottom: 8px;
+    margin-inline-start: 38px; margin-bottom: 8px;
     max-height: 220px; overflow-y: auto;
     border-inline-start: 2px solid var(--border); padding-inline-start: 10px;
   }
   .comment-replies-box.hidden { display: none; }
-  .comment-replies-box .comment-item.is-reply { margin-inline-start: 0; }
-  .comment-reply-form { display: none; gap: 6px; margin-top: 6px; }
+
+  .comment-reply-form { display: none; gap: 6px; margin-top: 8px; align-items: center; }
   .comment-reply-form.open { display: flex; }
   .comment-reply-form input {
     flex: 1; font-family: inherit; font-size: 12px; color: var(--text);
-    background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 9px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 7px 12px;
   }
   .comment-reply-form input::placeholder { color: var(--subtext); }
   .comment-reply-form button {
-    background: var(--accent-gradient); color: #fff; border: none; border-radius: 8px; padding: 0 12px;
-    font-family: inherit; font-size: 12px; cursor: pointer;
+    background: var(--accent-gradient); color: #fff; border: none; border-radius: 999px; width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0;
   }
-  .comment-form { display: flex; gap: 6px; margin-top: 8px; }
-  .comment-form input {
+  .comment-reply-form button svg { width: 14px; height: 14px; }
+
+  .comment-edit-form { display: flex; gap: 6px; margin-top: 4px; align-items: center; }
+  .comment-edit-form input {
     flex: 1; font-family: inherit; font-size: 13px; color: var(--text);
-    background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px;
+    background: var(--surface); border: 1px solid var(--accent); border-radius: 999px; padding: 6px 12px;
   }
-  .comment-form input::placeholder { color: var(--subtext); }
-  .comment-form input:focus { outline: none; border-color: var(--accent); }
-  .comment-form button {
-    background: var(--accent-gradient); color: #fff; border: none; border-radius: 8px; padding: 0 14px;
-    font-family: inherit; font-size: 13px; cursor: pointer;
+  .comment-edit-form button {
+    background: none; border: none; font-family: inherit; font-size: 11px; cursor: pointer; padding: 0 4px; flex-shrink: 0;
   }
-  .comment-form button:hover { filter: brightness(1.1); }
+  .comment-edit-save { color: var(--accent-hover); }
+  .comment-edit-cancel { color: var(--subtext); }
+
+  .comment-highlight { animation: comment-flash 1.8s ease; border-radius: 10px; }
+  @keyframes comment-flash {
+    0% { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+    100% { background: transparent; }
+  }
 
   /* صفحه پروفایل */
   .profile-avatar-big {
@@ -383,6 +424,29 @@
   .audio-play-btn .icon-pause { display: none; }
   .audio-play-btn.playing .icon-play { display: none; }
   .audio-play-btn.playing .icon-pause { display: block; }
+
+  /* اسپینر بارگذاری روی هر دکمه‌ی پخشی (پلیر اصلی، ردیف سگ‌تونز، مینی‌پلیر، طراحی تمام‌صفحه):
+     تا وقتی نیمی از فایل بافر نشده، به‌جای آیکون پخش/توقف همین اسپینر نشون داده می‌شه */
+  .icon-loading {
+    display: none; width: 15px; height: 15px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.35); border-top-color: currentColor;
+    animation: audio-spin 0.7s linear infinite;
+  }
+  @keyframes audio-spin { to { transform: rotate(360deg); } }
+  .audio-play-btn.loading .icon-play, .audio-play-btn.loading .icon-pause,
+  .music-row-play.loading .icon-play, .music-row-play.loading .icon-pause,
+  .mini-player-play.loading .icon-play, .mini-player-play.loading .icon-pause,
+  .reels-ctrl-main.loading .icon-play, .reels-ctrl-main.loading .icon-pause {
+    display: none;
+  }
+  .audio-play-btn.loading .icon-loading,
+  .music-row-play.loading .icon-loading,
+  .mini-player-play.loading .icon-loading,
+  .reels-ctrl-main.loading .icon-loading {
+    display: inline-block;
+  }
+  .audio-seek:disabled { opacity: 0.5; cursor: not-allowed; }
+  .reels-seek:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .audio-body { flex: 1; min-width: 0; }
   .audio-bars { display: flex; align-items: flex-end; gap: 3px; height: 18px; margin-bottom: 6px; }
@@ -649,8 +713,9 @@
   .notif-item {
     display: flex; align-items: flex-start; gap: 10px;
     background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-    padding: 12px; margin-bottom: 8px; position: relative;
+    padding: 12px; margin-bottom: 8px; position: relative; cursor: pointer;
   }
+  .notif-item:hover { border-color: var(--accent-hover); }
   .notif-item.is-new { border-color: var(--accent); }
   .notif-icon {
     width: 30px; height: 30px; border-radius: 50%; background: var(--surface); color: var(--accent-hover);
@@ -665,27 +730,21 @@
   .notif-new-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 6px; }
 
   /* حالت دسکتاپ: عرض بیشتر + چیدمان واقعی masonry (سه ستون) برای کارت‌های رسانه */
+  /* masonry: موبایل همه‌چیز تو ستون اول (بقیه مخفی)، دسکتاپ سه ستون مستقل */
+  .masonry-wrap { display: block; }
+  .masonry-col { display: block; }
+  #mediaCol1, #mediaCol2 { display: none; }
+  #mediaFeedFooter { margin-top: 6px; }
+
   @media (min-width: 900px) {
     .wrap { max-width: 1100px; padding-inline: 24px; }
 
-    /* از column-count استفاده می‌کنیم نه grid، چون grid ردیف‌ها رو بین ستون‌ها هم‌تراز می‌کنه
-       و همین باعث می‌شه فاصله‌ی واقعی بین کارت‌های یه ستون بسته به قد کارت‌های ستون‌های دیگه بیشتر از ۵px بشه.
-       با column-count هر ستون کاملاً مستقله و فاصله‌ها همیشه دقیقاً ۵px می‌مونن. */
-    #mediaFeed {
-      column-count: 3;
-      column-gap: 5px;
-    }
-    #mediaFeed .post-card {
-      display: inline-block;
-      width: 100%;
-      break-inside: avoid;
-      -webkit-column-break-inside: avoid;
-      margin: 0 0 5px;
-    }
-    #mediaFeed .empty-state,
-    #mediaFeed .load-more-btn {
-      column-span: all;
-    }
+    .masonry-wrap { display: flex; align-items: flex-start; gap: 5px; }
+    .masonry-col { flex: 1; min-width: 0; display: block; }
+    #mediaCol1, #mediaCol2 { display: block; }
+
+    #mediaFeed .post-card { margin: 0 0 5px; }
+    #mediaFeed .empty-state { padding: 30px 10px; }
 
     /* رسانه با اندازه‌ی طبیعی خودش نمایش داده بشه (نه کراپ‌شده)، فقط با یه سقف/کف منطقی */
     #mediaFeed .entry-media img,
@@ -757,7 +816,14 @@
       <span>رسانه‌ها</span>
       <button class="refresh-btn" onclick="loadFeedView('media', true)">بروزرسانی</button>
     </div>
-    <div id="mediaFeed"></div>
+    <div id="mediaFeed">
+      <div class="masonry-wrap" id="masonryWrap">
+        <div class="masonry-col" id="mediaCol0"></div>
+        <div class="masonry-col" id="mediaCol1"></div>
+        <div class="masonry-col" id="mediaCol2"></div>
+      </div>
+      <div id="mediaFeedFooter"></div>
+    </div>
   </div>
 
   <!-- بخش متن‌ها -->
@@ -940,6 +1006,7 @@
     <button class="mini-player-btn mini-player-play" id="miniPlayerPlayBtn" onclick="miniPlayerToggle(event)" aria-label="پخش/توقف" title="پخش/توقف">
       <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
       <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+      <span class="icon-loading"></span>
     </button>
     <button class="mini-player-btn" onclick="miniPlayerNext(event)" aria-label="بعدی" title="بعدی">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
@@ -980,6 +1047,7 @@
       <button class="reels-ctrl-btn reels-ctrl-main" id="fullPlayerPlayBtn" onclick="fullPlayerToggle(event)" title="پخش/توقف">
         <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+        <span class="icon-loading"></span>
       </button>
       <button class="reels-ctrl-btn" onclick="miniPlayerNext(event)" title="آهنگ بعدی">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
@@ -1259,6 +1327,7 @@ function buildAudioPlayer(fileId, safeId, thumbFileId, title, performer, postId)
       <button class="audio-play-btn" id="audioBtn-${safeId}" onclick="toggleAudio('${safeId}')">
         <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+        <span class="icon-loading"></span>
       </button>
       <div class="audio-body">
         ${metaHtml}
@@ -1293,26 +1362,137 @@ function pauseAudioUI(safeId) {
   document.getElementById(`audioBars-${safeId}`)?.classList.remove("playing");
 }
 
+// ---------- گیت دانلود: تا وقتی حداقل نصف فایل بافر نشده، پخش شروع نمی‌شه و سیکر قفله ----------
+// در همون حین، آهنگ بعدیِ صف هم هم‌زمان شروع به دانلود می‌کنه تا وقتی نوبتش شد معطل نمونه
+const audioLoadState = {}; // safeId -> { pending, cleanup }
+const BUFFER_START_THRESHOLD = 0.5;
+
+function getBufferedFraction(audioEl) {
+  if (!audioEl.duration || !isFinite(audioEl.duration) || audioEl.buffered.length === 0) return 0;
+  let end = 0;
+  for (let i = 0; i < audioEl.buffered.length; i++) end = Math.max(end, audioEl.buffered.end(i));
+  return end / audioEl.duration;
+}
+
+function setAudioLoadingUI(safeId, loading) {
+  document.getElementById(`audioBtn-${safeId}`)?.classList.toggle("loading", loading);
+  const seek = document.getElementById(`audioSeek-${safeId}`);
+  if (seek) seek.disabled = loading;
+  if (document.getElementById("miniPlayer")?.dataset.safeId === safeId) {
+    document.getElementById("miniPlayerPlayBtn")?.classList.toggle("loading", loading);
+  }
+  if (document.getElementById("fullPlayer")?.dataset.safeId === safeId) {
+    document.getElementById("fullPlayerPlayBtn")?.classList.toggle("loading", loading);
+    const fullSeek = document.getElementById("fullPlayerSeek");
+    if (fullSeek) fullSeek.disabled = loading;
+  }
+}
+
+function preloadNextTrack(safeId) {
+  const queue = collectAudioQueueFromDOM();
+  if (queue.length < 2) return;
+  const idx = queue.indexOf(safeId);
+  if (idx === -1) return;
+  const nextSafeId = queue[(idx + 1) % queue.length];
+  const nextAudioEl = document.getElementById(`audioEl-${nextSafeId}`);
+  if (nextAudioEl && nextAudioEl.readyState === 0) {
+    nextAudioEl.preload = "auto";
+    try { nextAudioEl.load(); } catch (e) {}
+  }
+}
+
+function cancelPendingPlay(safeId) {
+  const state = audioLoadState[safeId];
+  if (state) {
+    state.pending = false;
+    state.cleanup && state.cleanup();
+  }
+  setAudioLoadingUI(safeId, false);
+}
+
+function beginPlayback(safeId) {
+  const audioEl = document.getElementById(`audioEl-${safeId}`);
+  if (!audioEl) return;
+  const state = audioLoadState[safeId];
+  if (state) {
+    state.pending = false;
+    state.cleanup && state.cleanup();
+  }
+  setAudioLoadingUI(safeId, false);
+  audioEl.play().catch(() => {});
+  playAudioUI(safeId);
+  showMiniPlayer(safeId);
+}
+
+// نقطه‌ی مشترک شروع پخش: تا نصفِ فایل بافر نشه صبر می‌کنه، بعد خودش پخش رو شروع می‌کنه
+function requestPlay(safeId) {
+  const audioEl = document.getElementById(`audioEl-${safeId}`);
+  if (!audioEl) return;
+
+  currentAudio = { safeId, audioEl };
+  bindAudioEvents(safeId);
+
+  // فوراً کاور/اسمِ آهنگ به‌روز بشه (هنوز پخش نشده) تا کاربر بدون فیدبک نمونه؛ بعداً که آماده شد «پخش» می‌شه
+  miniPlayerState.queue = collectAudioQueueFromDOM();
+  miniPlayerState.index = miniPlayerState.queue.indexOf(safeId);
+  syncNowPlayingUI(safeId, false);
+
+  // اگه قبلاً به‌اندازه‌ی کافی بارگذاری شده (مثلاً قبلاً گوش داده بودیم)، معطل نکن
+  if (audioEl.readyState >= 3 && getBufferedFraction(audioEl) >= BUFFER_START_THRESHOLD) {
+    beginPlayback(safeId);
+    return;
+  }
+
+  const state = (audioLoadState[safeId] = { pending: true });
+  setAudioLoadingUI(safeId, true);
+  if (audioEl.preload !== "auto") audioEl.preload = "auto";
+  if (audioEl.readyState === 0) {
+    try { audioEl.load(); } catch (e) {}
+  }
+
+  preloadNextTrack(safeId);
+
+  const check = () => {
+    if (!state.pending) return;
+    if (getBufferedFraction(audioEl) >= BUFFER_START_THRESHOLD || audioEl.readyState >= 4) {
+      beginPlayback(safeId);
+    }
+  };
+  state.cleanup = () => {
+    audioEl.removeEventListener("progress", check);
+    audioEl.removeEventListener("canplaythrough", check);
+    audioEl.removeEventListener("loadedmetadata", check);
+  };
+  audioEl.addEventListener("progress", check);
+  audioEl.addEventListener("canplaythrough", check);
+  audioEl.addEventListener("loadedmetadata", check);
+  check();
+}
+
 function toggleAudio(safeId) {
   const audioEl = document.getElementById(`audioEl-${safeId}`);
   if (!audioEl) return;
 
-  if (currentAudio && currentAudio.safeId !== safeId) {
-    currentAudio.audioEl.pause();
-    pauseAudioUI(currentAudio.safeId);
-  }
+  const isCurrent = currentAudio && currentAudio.safeId === safeId;
+  const isPending = isCurrent && audioLoadState[safeId] && audioLoadState[safeId].pending;
 
-  if (audioEl.paused) {
-    audioEl.play();
-    currentAudio = { safeId, audioEl };
-    playAudioUI(safeId);
-    showMiniPlayer(safeId);
-  } else {
+  if (isCurrent && (!audioEl.paused || isPending)) {
+    // یا داره پخش می‌شه یا هنوز منتظر بافره؛ کلیک دوباره یعنی توقف/لغو
+    cancelPendingPlay(safeId);
     audioEl.pause();
     pauseAudioUI(safeId);
     currentAudio = null;
     syncNowPlayingUI(safeId, false);
+    return;
   }
+
+  if (currentAudio && currentAudio.safeId !== safeId) {
+    cancelPendingPlay(currentAudio.safeId);
+    currentAudio.audioEl.pause();
+    pauseAudioUI(currentAudio.safeId);
+  }
+
+  requestPlay(safeId);
 }
 
 function seekAudio(safeId, value) {
@@ -1364,21 +1544,20 @@ function collectAudioQueueFromDOM() {
   return [...document.querySelectorAll('audio[id^="audioEl-"]')].map((el) => el.id.replace("audioEl-", ""));
 }
 
-// آماده‌سازی یه آهنگ برای پخش (اگه از قبل همینه که داره پخش می‌شه، کاری نمی‌کنه)
+// آماده‌سازی یه آهنگ برای پخش (اگه از قبل همینه که داره پخش می‌شه یا در حال بافره، کاری نمی‌کنه)
 function ensureTrackPlaying(safeId) {
   const audioEl = document.getElementById(`audioEl-${safeId}`);
   if (!audioEl) return false;
-  if (currentAudio && currentAudio.safeId === safeId && !audioEl.paused) return true;
+  const isPending = audioLoadState[safeId] && audioLoadState[safeId].pending;
+  if (currentAudio && currentAudio.safeId === safeId && (!audioEl.paused || isPending)) return true;
 
   if (currentAudio && currentAudio.safeId !== safeId) {
+    cancelPendingPlay(currentAudio.safeId);
     currentAudio.audioEl.pause();
     pauseAudioUI(currentAudio.safeId);
   }
   bindAudioEvents(safeId);
-  audioEl.play().catch(() => {});
-  currentAudio = { safeId, audioEl };
-  playAudioUI(safeId);
-  showMiniPlayer(safeId);
+  requestPlay(safeId);
   return true;
 }
 
@@ -1464,6 +1643,7 @@ function stepMiniPlayer(dir) {
   miniPlayerState.index = idx;
 
   if (curSafeId && curSafeId !== nextSafeId) {
+    cancelPendingPlay(curSafeId);
     const curAudio = document.getElementById(`audioEl-${curSafeId}`);
     if (curAudio) curAudio.pause();
     pauseAudioUI(curSafeId);
@@ -1472,14 +1652,11 @@ function stepMiniPlayer(dir) {
   const audioEl = document.getElementById(`audioEl-${nextSafeId}`);
   if (!audioEl) return;
   if (currentAudio && currentAudio.safeId !== nextSafeId) {
+    cancelPendingPlay(currentAudio.safeId);
     currentAudio.audioEl.pause();
     pauseAudioUI(currentAudio.safeId);
   }
-  bindAudioEvents(nextSafeId);
-  audioEl.play().catch(() => {});
-  currentAudio = { safeId: nextSafeId, audioEl };
-  playAudioUI(nextSafeId);
-  syncNowPlayingUI(nextSafeId, true);
+  requestPlay(nextSafeId);
 }
 
 function handleMiniPlayerTrackEnded(safeId) {
@@ -1509,6 +1686,7 @@ function closeMiniPlayer(e) {
   e.stopPropagation();
   const safeId = document.getElementById("miniPlayer")?.dataset.safeId;
   if (safeId) {
+    cancelPendingPlay(safeId);
     const audioEl = document.getElementById(`audioEl-${safeId}`);
     if (audioEl) audioEl.pause();
     pauseAudioUI(safeId);
@@ -1748,6 +1926,12 @@ const ICON_COMMENT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 const ICON_DOWNLOAD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>`;
 const ICON_PLAY = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg>`;
 const ICON_MUSIC = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
+const ICON_SMILE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`;
+const ICON_SEND = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`;
+const ICON_EDIT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
+const ICON_TRASH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`;
+const ICON_REPLY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>`;
+const ICON_THUMB = ICON_ARROW_UP;
 
 function renderPost(p, num) {
   const initial = p.username ? p.username[0].toUpperCase() : "?";
@@ -1803,12 +1987,13 @@ function renderPost(p, num) {
 
   const commentsBlock = `
     <div class="comments-section hidden" id="comments-${safeId}">
-      <div class="comments-list" id="commentsList-${safeId}"></div>
-      <div class="comment-form">
-        <input type="text" id="commentInput-${safeId}" placeholder="یه کامنت بنویس..." onkeydown="if(event.key==='Enter') submitComment('${p.id}','${safeId}')" />
-        <button onclick="submitComment('${p.id}','${safeId}')">ارسال</button>
+      <div class="comment-input-bar">
+        <button class="comment-emoji-btn" onclick="commentEmojiClicked('${p.id}','${safeId}')" title="ایموجی" aria-label="ایموجی">${ICON_SMILE}</button>
+        <input type="text" id="commentInput-${safeId}" placeholder="افکارتو بنویس..." onkeydown="if(event.key==='Enter') submitComment('${p.id}','${safeId}')" />
+        <button class="comment-send-btn" onclick="submitComment('${p.id}','${safeId}')" title="ارسال" aria-label="ارسال">${ICON_SEND}</button>
       </div>
       <div class="error" id="commentError-${safeId}"></div>
+      <div class="comments-list" id="commentsList-${safeId}"></div>
     </div>`;
 
   if (!hasMedia) {
@@ -1829,8 +2014,60 @@ function renderPost(p, num) {
   return `<div class="post-card" id="post-${safeId}">${header}${mediaHtml}${textHtml}${timeHtml}<div class="comments-wrap">${actionBar}${commentsBlock}</div></div>`;
 }
 
+function isDesktopMediaLayout() {
+  return window.matchMedia("(min-width: 900px)").matches;
+}
+
+function appendMediaPost(html) {
+  if (!isDesktopMediaLayout()) {
+    document.getElementById("mediaCol0").insertAdjacentHTML("beforeend", html);
+    return;
+  }
+  // همیشه به کوتاه‌ترین ستون (کمترین تعداد فرزند) اضافه می‌شه، نه اینکه کل چیدمان از نو حساب بشه
+  const cols = [0, 1, 2].map((i) => document.getElementById(`mediaCol${i}`));
+  cols.sort((a, b) => a.children.length - b.children.length);
+  cols[0].insertAdjacentHTML("beforeend", html);
+}
+
 async function loadFeedView(kind, reset = true) {
-  const containerId = kind === "media" ? "mediaFeed" : "textFeed";
+  if (kind === "media") {
+    const footerEl = document.getElementById("mediaFeedFooter");
+    if (reset) {
+      feedState.media.page = 1;
+      ["mediaCol0", "mediaCol1", "mediaCol2"].forEach((id) => { document.getElementById(id).innerHTML = ""; });
+      footerEl.innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
+    }
+    try {
+      const res = await fetch(`${WORKER_URL}/api/feed?filter=media&page=${feedState.media.page}&pageSize=${PAGE_SIZE}`, {
+        headers: { "Authorization": `Bearer ${getToken()}` },
+      });
+      const data = await res.json();
+      feedState.media.loaded = true;
+
+      if (reset && (!data.posts || data.posts.length === 0)) {
+        footerEl.innerHTML = `<div class="empty-state">هنوز رسانه‌ای ثبت نشده — اولین نفر باش.</div>`;
+        return;
+      }
+      if (reset) footerEl.innerHTML = "";
+
+      const startIndex = (feedState.media.page - 1) * PAGE_SIZE;
+      data.posts.forEach((p, i) => {
+        appendMediaPost(renderPost(p, data.total - (startIndex + i)));
+      });
+      bindAllAudioPlayers(document.getElementById("mediaFeed"));
+
+      const oldBtn = document.getElementById("loadMoreBtn-media");
+      if (oldBtn) oldBtn.remove();
+      if (data.hasMore) {
+        footerEl.insertAdjacentHTML("beforeend", `<button class="load-more-btn" id="loadMoreBtn-media" onclick="loadMoreFeed('media')">بارگذاری بیشتر</button>`);
+      }
+    } catch (e) {
+      if (reset) footerEl.innerHTML = `<div class="empty-state">فید بارگذاری نشد. اتصال اینترنتت رو چک کن.</div>`;
+    }
+    return;
+  }
+
+  const containerId = "textFeed";
   const feedEl = document.getElementById(containerId);
   if (reset) {
     feedState[kind].page = 1;
@@ -1844,7 +2081,7 @@ async function loadFeedView(kind, reset = true) {
     feedState[kind].loaded = true;
 
     if (reset && (!data.posts || data.posts.length === 0)) {
-      const emptyMsg = kind === "media" ? "هنوز رسانه‌ای ثبت نشده" : "هنوز متنی ثبت نشده";
+      const emptyMsg = "هنوز متنی ثبت نشده";
       feedEl.innerHTML = `<div class="empty-state">${emptyMsg} — اولین نفر باش.</div>`;
       return;
     }
@@ -1901,6 +2138,7 @@ function renderMusicRow(p) {
       <button class="music-row-play" id="audioBtn-${safeId}" onclick="toggleAudio('${safeId}')" title="پخش/توقف" aria-label="پخش/توقف">
         <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+        <span class="icon-loading"></span>
       </button>
     </div>`;
 }
@@ -2346,19 +2584,75 @@ function buildCommentGroups(comments) {
   return { roots, repliesByRoot, byId };
 }
 
+const commentTextCache = {}; // commentId -> آخرین متنِ شناخته‌شده (برای لغوِ ویرایش)
+
+function formatRelativeTime(ts) {
+  const diff = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+  if (diff < 5) return "همین الان";
+  if (diff < 60) return `${diff} ثانیه پیش`;
+  const min = Math.floor(diff / 60);
+  if (min < 60) return `${min} دقیقه پیش`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr} ساعت پیش`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `${day} روز پیش`;
+  const month = Math.floor(day / 30);
+  if (month < 12) return `${month} ماه پیش`;
+  const year = Math.floor(month / 12);
+  return `${year} سال پیش`;
+}
+
+function commentEmojiClicked(postId, safeId) {
+  // بعداً تعریف می‌شه
+}
+
 function renderCommentItem(c, isReply, replyToUsername, postId, safeId) {
+  commentTextCache[c.id] = c.text;
+
+  const initial = c.username ? c.username[0].toUpperCase() : "?";
+  const avatarHtml = c.avatar_file_id
+    ? `<div class="avatar" style="overflow:hidden;"><img src="${WORKER_URL}/api/media/${c.avatar_file_id}" style="width:100%;height:100%;object-fit:cover;" /></div>`
+    : `<div class="avatar" style="background:${avatarColor(c.username || "")}">${initial}</div>`;
+
   const replyToHint = replyToUsername
-    ? ` <span style="color:var(--subtext); font-size:11px;">↩ ${escapeHtml(replyToUsername)}</span>`
+    ? `<div class="comment-item2-replyhint">↩ در پاسخ به ${escapeHtml(replyToUsername)}</div>`
     : "";
+
+  const isOwn = c.username === getUsername();
+  const canDelete = isOwn || isAdmin;
+  const editHtml = isOwn
+    ? `<button class="comment-item2-iconbtn" onclick="startEditComment('${c.id}')" title="ویرایش" aria-label="ویرایش">${ICON_EDIT}</button>`
+    : "";
+  const deleteHtml = canDelete
+    ? `<button class="comment-item2-iconbtn danger" onclick="deleteComment('${c.id}','${postId}','${safeId}')" title="حذف" aria-label="حذف">${ICON_TRASH}</button>`
+    : "";
+  const editedHtml = c.edited ? `<span class="comment-item2-edited">ویرایش‌شده</span>` : "";
+
   return `
-    <div class="comment-item${isReply ? " is-reply" : ""}">
-      <div><b>${escapeHtml(c.username)}</b>${replyToHint}</div>
-      <span>${escapeHtml(c.text)}</span>
-      <div><span class="comment-time">${new Date(c.date).toLocaleString("fa-IR")}</span></div>
-      <button class="comment-reply-link" onclick="toggleReplyForm('${c.id}')">پاسخ</button>
-      <div class="comment-reply-form" id="replyForm-${c.id}">
-        <input type="text" id="replyInput-${c.id}" placeholder="پاسخ به ${escapeHtml(c.username)}..." onkeydown="if(event.key==='Enter') submitComment('${postId}','${safeId}','${c.id}')" />
-        <button onclick="submitComment('${postId}','${safeId}','${c.id}')">ارسال</button>
+    <div class="comment-item2${isReply ? " is-reply" : ""}" id="commentItem-${c.id}">
+      ${avatarHtml}
+      <div class="comment-item2-body">
+        <div class="comment-item2-head">
+          <span class="comment-item2-name" onclick="openProfile('${c.username}')">${escapeHtml(c.username)}</span>
+          <div class="comment-item2-meta">
+            ${editedHtml}
+            <span class="comment-item2-time">${formatRelativeTime(c.date)}</span>
+            ${editHtml}
+            ${deleteHtml}
+          </div>
+        </div>
+        ${replyToHint}
+        <div class="comment-item2-text" id="commentText-${c.id}">${escapeHtml(c.text)}</div>
+        <div class="comment-item2-actions">
+          <button class="comment-like-btn${c.liked ? " active" : ""}" id="commentLike-${c.id}" onclick="toggleCommentLike('${c.id}','${postId}','${safeId}')">
+            ${ICON_THUMB}<span id="commentLikeCount-${c.id}">${c.likes || ""}</span>
+          </button>
+          <button class="comment-reply-btn" onclick="toggleReplyForm('${c.id}')">${ICON_REPLY}</button>
+        </div>
+        <div class="comment-reply-form" id="replyForm-${c.id}">
+          <input type="text" id="replyInput-${c.id}" placeholder="پاسخ به ${escapeHtml(c.username)}..." onkeydown="if(event.key==='Enter') submitComment('${postId}','${safeId}','${c.id}')" />
+          <button onclick="submitComment('${postId}','${safeId}','${c.id}')">${ICON_SEND}</button>
+        </div>
       </div>
     </div>`;
 }
@@ -2374,7 +2668,7 @@ function toggleRepliesBox(rootId) {
   box.classList.toggle("hidden");
   btn.classList.toggle("open", willOpen);
   if (label) {
-    const count = box.querySelectorAll(".comment-item").length;
+    const count = box.querySelectorAll(".comment-item2").length;
     label.textContent = willOpen ? `مخفی کردن پاسخ‌ها` : `نمایش ${count} پاسخ`;
   }
 }
@@ -2389,11 +2683,121 @@ function toggleReplyForm(commentId) {
   }
 }
 
+function startEditComment(commentId) {
+  const textEl = document.getElementById(`commentText-${commentId}`);
+  if (!textEl || textEl.dataset.editing === "1") return;
+  const original = commentTextCache[commentId] || textEl.textContent;
+  textEl.dataset.editing = "1";
+  textEl.innerHTML = `
+    <div class="comment-edit-form">
+      <input type="text" id="editInput-${commentId}" />
+      <button class="comment-edit-save" onclick="saveEditComment('${commentId}')">ذخیره</button>
+      <button class="comment-edit-cancel" onclick="cancelEditComment('${commentId}')">لغو</button>
+    </div>`;
+  const input = document.getElementById(`editInput-${commentId}`);
+  if (input) {
+    input.value = original;
+    input.focus();
+    input.select();
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") saveEditComment(commentId);
+      if (e.key === "Escape") cancelEditComment(commentId);
+    });
+  }
+}
+
+function cancelEditComment(commentId) {
+  const textEl = document.getElementById(`commentText-${commentId}`);
+  if (!textEl) return;
+  textEl.dataset.editing = "0";
+  textEl.textContent = commentTextCache[commentId] || "";
+}
+
+async function saveEditComment(commentId) {
+  const input = document.getElementById(`editInput-${commentId}`);
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  input.disabled = true;
+  try {
+    const res = await fetch(`${WORKER_URL}/api/comment/edit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+      body: JSON.stringify({ comment_id: commentId, text }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 401) { logout(); return; }
+      alert(data.error);
+      return;
+    }
+    commentTextCache[commentId] = text;
+    const textEl = document.getElementById(`commentText-${commentId}`);
+    if (textEl) {
+      textEl.dataset.editing = "0";
+      textEl.textContent = text;
+      const body = textEl.closest(".comment-item2-body");
+      const meta = body ? body.querySelector(".comment-item2-meta") : null;
+      if (meta && !meta.querySelector(".comment-item2-edited")) {
+        meta.insertAdjacentHTML("afterbegin", `<span class="comment-item2-edited">ویرایش‌شده</span>`);
+      }
+    }
+  } catch (e) {
+    alert("اتصال به سرور برقرار نشد");
+  } finally {
+    if (input) input.disabled = false;
+  }
+}
+
+async function toggleCommentLike(commentId, postId, safeId) {
+  try {
+    const res = await fetch(`${WORKER_URL}/api/comment/like`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+      body: JSON.stringify({ comment_id: commentId }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 401) { logout(); return; }
+      alert(data.error);
+      return;
+    }
+    const btn = document.getElementById(`commentLike-${commentId}`);
+    const countEl = document.getElementById(`commentLikeCount-${commentId}`);
+    if (btn) btn.classList.toggle("active", data.liked);
+    if (countEl) countEl.textContent = data.likes || "";
+  } catch (e) {
+    alert("اتصال به سرور برقرار نشد");
+  }
+}
+
+async function deleteComment(commentId, postId, safeId) {
+  if (!confirm("این کامنت حذف بشه؟")) return;
+  try {
+    const res = await fetch(`${WORKER_URL}/api/comment?id=${encodeURIComponent(commentId)}`, {
+      method: "DELETE",
+      headers: { "Authorization": `Bearer ${getToken()}` },
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 401) { logout(); return; }
+      alert(data.error);
+      return;
+    }
+    loadComments(postId, safeId);
+  } catch (e) {
+    alert("اتصال به سرور برقرار نشد");
+  }
+}
+
 async function loadComments(postId, safeId) {
   const listEl = document.getElementById(`commentsList-${safeId}`);
   listEl.innerHTML = `<div class="comment-empty">در حال بارگذاری...</div>`;
   try {
-    const res = await fetch(`${WORKER_URL}/api/comments?post_id=${encodeURIComponent(postId)}`);
+    const headers = {};
+    const token = getToken();
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const res = await fetch(`${WORKER_URL}/api/comments?post_id=${encodeURIComponent(postId)}`, { headers });
     const data = await res.json();
     loadedComments[postId] = true;
     if (!data.comments || data.comments.length === 0) {
@@ -2512,7 +2916,7 @@ function closeNotifications() {
 }
 
 function notifIcon(type) {
-  if (type === "comment") {
+  if (type === "comment" || type === "reply") {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
   }
   if (type === "vote") {
@@ -2521,17 +2925,28 @@ function notifIcon(type) {
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>`;
 }
 
-function renderNotifItem(n) {
+let notifCache = [];
+
+function openPostFromNotification(idx) {
+  const n = notifCache[idx];
+  if (!n || !n.post_id) return;
+  const commentIdToHighlight = (n.type === "comment" || n.type === "reply") ? n.comment_id : null;
+  openPostModal(n.post_id, commentIdToHighlight);
+}
+
+function renderNotifItem(n, idx) {
   let text = "اعلان جدید";
   if (n.type === "comment") {
     text = `<b>${escapeHtml(n.from_username)}</b> روی پستت کامنت گذاشت`;
+  } else if (n.type === "reply") {
+    text = `<b>${escapeHtml(n.from_username)}</b> به کامنتت پاسخ داد`;
   } else if (n.type === "vote") {
     text = `<b>${escapeHtml(n.from_username)}</b> به پستت آپ‌ووت داد`;
   }
   const snippet = n.text ? `<div class="notif-snippet">${escapeHtml(n.text)}</div>` : "";
   const newDot = n.is_new ? `<div class="notif-new-dot"></div>` : "";
   return `
-    <div class="notif-item ${n.is_new ? "is-new" : ""}">
+    <div class="notif-item ${n.is_new ? "is-new" : ""}" onclick="openPostFromNotification(${idx})">
       <div class="notif-icon">${notifIcon(n.type)}</div>
       <div class="notif-body">
         <div class="notif-text">${text}</div>
@@ -2562,8 +2977,10 @@ async function loadNotifications(reset = true) {
     if (reset && (!data.notifications || data.notifications.length === 0)) {
       listEl.innerHTML = `<div class="empty-state">هنوز اعلانی نداری</div>`;
     } else {
-      if (reset) listEl.innerHTML = "";
-      listEl.insertAdjacentHTML("beforeend", data.notifications.map(renderNotifItem).join(""));
+      if (reset) { listEl.innerHTML = ""; notifCache = []; }
+      const startIdx = notifCache.length;
+      notifCache.push(...(data.notifications || []));
+      listEl.insertAdjacentHTML("beforeend", data.notifications.map((n, i) => renderNotifItem(n, startIdx + i)).join(""));
 
       const oldBtn = document.getElementById("loadMoreBtn-notif");
       if (oldBtn) oldBtn.remove();
@@ -2779,13 +3196,57 @@ function renderProfileGridItem(p) {
   return `<div class="grid-item" onclick="openPostModal('${p.id}')">${mediaHtml}${badge}</div>`;
 }
 
-function openPostModal(postId) {
-  const post = profileState.postsCache[postId];
-  if (!post) return;
+async function openPostModal(postId, commentIdToHighlight) {
+  let post = profileState.postsCache[postId];
+  let num = post ? post.__num : null;
   const contentEl = document.getElementById("postModalContent");
-  contentEl.innerHTML = renderPost(post, post.__num);
-  bindAllAudioPlayers(contentEl);
   document.getElementById("postModalOverlay").classList.remove("hidden");
+
+  if (!post) {
+    contentEl.innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
+    try {
+      const res = await fetch(`${WORKER_URL}/api/post?id=${encodeURIComponent(postId)}`, {
+        headers: { "Authorization": `Bearer ${getToken()}` },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        contentEl.innerHTML = `<div class="empty-state">${escapeHtml(data.error || "پست پیدا نشد")}</div>`;
+        return;
+      }
+      post = data.post;
+      num = data.number;
+    } catch (e) {
+      contentEl.innerHTML = `<div class="empty-state">پست بارگذاری نشد</div>`;
+      return;
+    }
+  }
+
+  contentEl.innerHTML = renderPost(post, num);
+  bindAllAudioPlayers(contentEl);
+
+  if (commentIdToHighlight) {
+    const safeId = post.id.replace(/[^a-zA-Z0-9_]/g, "");
+    await openCommentsAndHighlight(post.id, safeId, commentIdToHighlight);
+  }
+}
+
+// باز کردنِ بخش کامنت‌ها و اسکرول+هایلایتِ یه کامنت خاص (برای وقتی از رو اعلان باز می‌شیم)
+async function openCommentsAndHighlight(postId, safeId, commentId) {
+  const section = document.getElementById(`comments-${safeId}`);
+  if (section) section.classList.remove("hidden");
+  await loadComments(postId, safeId);
+  if (!commentId) return;
+
+  const target = document.getElementById(`commentItem-${commentId}`);
+  if (!target) return;
+
+  const repliesBox = target.closest(".comment-replies-box");
+  if (repliesBox && repliesBox.classList.contains("hidden")) {
+    toggleRepliesBox(repliesBox.id.replace("repliesBox-", ""));
+  }
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+  target.classList.add("comment-highlight");
+  setTimeout(() => target.classList.remove("comment-highlight"), 2500);
 }
 
 function closePostModal() {
