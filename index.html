@@ -565,6 +565,17 @@
     filter: blur(40px) brightness(0.45); transform: scale(1.2);
     background-color: var(--primary);
   }
+  /* برای آهنگ‌های بدون کاور: یه گرادیانت متحرک از رنگ‌های خودِ تمِ سایت به‌جای عکس */
+  .full-player .bg-blur.gradient-anim {
+    background-image: linear-gradient(120deg, var(--primary), var(--accent), var(--card), var(--accent-hover), var(--surface));
+    background-size: 300% 300%;
+    animation: bgGradientFlow 16s ease-in-out infinite;
+  }
+  @keyframes bgGradientFlow {
+    0% { background-position: 0% 30%; }
+    50% { background-position: 100% 70%; }
+    100% { background-position: 0% 30%; }
+  }
   .reels-close {
     position: fixed; top: 16px; left: 16px; z-index: 210; width: 38px; height: 38px; border-radius: 50%;
     background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff;
@@ -1316,11 +1327,98 @@ function avatarColor(name) {
 
 // ---------- پلیر اختصاصی موزیک ----------
 let currentAudio = null;
-// safeId -> {postId, title, performer, thumbFileId} — برای مینی‌پلیر/طراحی تمام‌صفحه، تا لازم نباشه دوباره از DOM/سرور بخونیمش
+// safeId -> {postId, title, performer, thumbFileId, fileId, originalSafeId} — برای مینی‌پلیر/طراحی تمام‌صفحه، تا لازم نباشه دوباره از DOM/سرور بخونیمش
 const audioMetaRegistry = {};
 
+// ---------- ماندگاری وضعیت پلیر: با خروج از سایت و بازگشت، از همون‌جا ادامه بده ----------
+const PLAYER_STORAGE_KEY = "dehat_player_state_v1";
+let lastPlayerStateSave = 0;
+
+function savePlayerState(force = false) {
+  try {
+    if (!currentAudio) return; // چیزی این‌بار پخش نشده؛ وضعیتِ ذخیره‌شده‌ی قبلی دست‌نخورده می‌مونه
+    const now = Date.now();
+    if (!force && now - lastPlayerStateSave < 3000) return;
+    lastPlayerStateSave = now;
+
+    const { safeId, audioEl } = currentAudio;
+    const meta = audioMetaRegistry[safeId];
+    if (!meta || !meta.fileId) return;
+
+    const state = {
+      safeId: meta.originalSafeId || safeId,
+      fileId: meta.fileId,
+      thumbFileId: meta.thumbFileId,
+      title: meta.title,
+      performer: meta.performer,
+      postId: meta.postId,
+      currentTime: audioEl.currentTime || 0,
+    };
+    localStorage.setItem(PLAYER_STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {}
+}
+
+function clearPlayerState() {
+  try { localStorage.removeItem(PLAYER_STORAGE_KEY); } catch (e) {}
+}
+
+function loadPlayerState() {
+  try {
+    const raw = localStorage.getItem(PLAYER_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// آهنگِ آخرین‌بار پخش‌شده رو (اگه پستش الان تو صفحه رندر نشده) به‌صورت یه ادیوی پنهان
+// داخل خودِ مینی‌پلیر می‌سازه تا کاربر بتونه با یه ضربه از همون‌جایی که ول کرده بود ادامه بده
+function restorePlayerState() {
+  const state = loadPlayerState();
+  if (!state || !state.safeId || !state.fileId) return;
+
+  const restoredSafeId = "restored_" + state.safeId;
+  if (document.getElementById(`audioEl-${restoredSafeId}`)) return; // قبلاً بازسازی شده
+
+  const container = document.getElementById("miniPlayer");
+  if (!container) return;
+
+  const audioEl = document.createElement("audio");
+  audioEl.id = `audioEl-${restoredSafeId}`;
+  audioEl.src = `${WORKER_URL}/api/media/${state.fileId}`;
+  audioEl.preload = "metadata";
+  audioEl.style.display = "none";
+  container.appendChild(audioEl);
+
+  audioMetaRegistry[restoredSafeId] = {
+    postId: state.postId || null,
+    title: state.title || "",
+    performer: state.performer || "",
+    thumbFileId: state.thumbFileId || null,
+    fileId: state.fileId,
+    originalSafeId: state.safeId,
+  };
+
+  const resumeAt = Math.max(0, state.currentTime || 0);
+  if (resumeAt > 0) {
+    audioEl.addEventListener("loadedmetadata", () => {
+      try { audioEl.currentTime = resumeAt; } catch (e) {}
+    }, { once: true });
+  }
+
+  bindAudioEvents(restoredSafeId);
+  renderMiniPlayer(restoredSafeId, false); // مینی‌پلیر رو در حالت مکث نشون بده؛ با یه ضربه از همون نقطه پلی می‌شه
+}
+
+// هر جور که کاربر از سایت خارج بشه (بستن تب، رفتن به اپ دیگه، رفرش) موقعیتِ فعلی ذخیره بشه
+window.addEventListener("pagehide", () => savePlayerState(true));
+window.addEventListener("beforeunload", () => savePlayerState(true));
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) savePlayerState(true);
+});
+
 function buildAudioPlayer(fileId, safeId, thumbFileId, title, performer, postId) {
-  audioMetaRegistry[safeId] = { postId, title: title || "", performer: performer || "", thumbFileId: thumbFileId || null };
+  audioMetaRegistry[safeId] = { postId, title: title || "", performer: performer || "", thumbFileId: thumbFileId || null, fileId, originalSafeId: safeId };
   const coverHtml = thumbFileId
     ? `<img src="${WORKER_URL}/api/media/${thumbFileId}" alt="" />`
     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
@@ -1432,6 +1530,7 @@ function beginPlayback(safeId) {
   audioEl.play().catch(() => {});
   playAudioUI(safeId);
   showMiniPlayer(safeId);
+  savePlayerState(true);
 }
 
 // نقطه‌ی مشترک شروع پخش: تا نصفِ فایل بافر نشه صبر می‌کنه، بعد خودش پخش رو شروع می‌کنه
@@ -1501,6 +1600,7 @@ function toggleAudio(safeId) {
     cancelPendingPlay(safeId);
     audioEl.pause();
     pauseAudioUI(safeId);
+    savePlayerState(true);
     currentAudio = null;
     syncNowPlayingUI(safeId, false);
     return;
@@ -1531,6 +1631,7 @@ function bindAudioEvents(safeId) {
     const timeEl = document.getElementById(`audioTime-${safeId}`);
     if (seekEl) seekEl.value = (audioEl.currentTime / audioEl.duration) * 100;
     if (timeEl) timeEl.textContent = `${formatTime(audioEl.currentTime)} / ${formatTime(audioEl.duration)}`;
+    savePlayerState();
   });
   audioEl.addEventListener("loadedmetadata", () => {
     const timeEl = document.getElementById(`audioTime-${safeId}`);
@@ -1621,6 +1722,7 @@ function hideMiniPlayer() {
     wrap.classList.add("hidden");
     wrap.dataset.safeId = "";
   }
+  clearPlayerState();
   closeFullPlayer();
 }
 
@@ -1716,10 +1818,12 @@ function renderFullPlayer(safeId, playing) {
   const art = document.getElementById("fullPlayerArt");
   const loaderHtml = `<div class="art-loading"><div class="art-loading-spinner"></div></div>`;
   if (meta.thumbFileId) {
+    bg.classList.remove("gradient-anim");
     bg.style.backgroundImage = `url('${WORKER_URL}/api/media/${meta.thumbFileId}')`;
     art.innerHTML = `<img src="${WORKER_URL}/api/media/${meta.thumbFileId}" alt="" />${loaderHtml}`;
   } else {
-    bg.style.backgroundImage = "none";
+    bg.style.backgroundImage = "";
+    bg.classList.add("gradient-anim");
     art.innerHTML = `<div class="placeholder-icon">${ICON_MUSIC}</div>${loaderHtml}`;
   }
   art.classList.toggle("loading", !!(audioLoadState[safeId] && audioLoadState[safeId].pending));
@@ -1744,6 +1848,7 @@ function updateFullPlayerShuffleRepeatUI() {
 // safeId اختیاریه؛ اگه ندی همون آهنگی که الان پخش می‌شه (یا اولین آهنگ موجود تو صفحه) باز می‌شه
 function openFullPlayer(safeId) {
   if (!safeId && currentAudio) safeId = currentAudio.safeId;
+  if (!safeId) safeId = document.getElementById("miniPlayer")?.dataset.safeId || "";
   if (!safeId) {
     const queue = collectAudioQueueFromDOM();
     if (queue.length > 0) safeId = queue[0];
@@ -3312,6 +3417,7 @@ async function saveProfile() {
   await initAdminStatus();
   syncThemeFromServer();
   switchView("media");
+  restorePlayerState();
 })();
 </script>
 </body>
