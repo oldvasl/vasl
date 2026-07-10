@@ -601,6 +601,17 @@
   .reels-art-wrap img { width: 100%; height: 100%; object-fit: cover; }
   .reels-art-wrap .placeholder-icon { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--card); color: var(--subtext); }
   .reels-art-wrap .placeholder-icon svg { width: 60px; height: 60px; }
+  /* دایره‌ی لودینگ روی کاور آهنگ تو طراحی تمام‌صفحه — تا وقتی گیت دانلود بازه (کمتر از ۷۰٪ بافر) نشون داده می‌شه */
+  .reels-art-wrap .art-loading {
+    display: none; position: absolute; inset: 0; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.35); z-index: 3;
+  }
+  .reels-art-wrap.loading .art-loading { display: flex; }
+  .art-loading-spinner {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff;
+    animation: audio-spin 0.7s linear infinite;
+  }
   @media (max-width: 480px), (max-height: 700px) {
     .reels-art-wrap { width: 150px; height: 150px; border-radius: 16px; }
     .full-player .reels-center { gap: 10px; }
@@ -1363,7 +1374,7 @@ function pauseAudioUI(safeId) {
 // ---------- گیت دانلود: تا وقتی حداقل نصف فایل بافر نشده، پخش شروع نمی‌شه و سیکر قفله ----------
 // در همون حین، آهنگ بعدیِ صف هم هم‌زمان شروع به دانلود می‌کنه تا وقتی نوبتش شد معطل نمونه
 const audioLoadState = {}; // safeId -> { pending, cleanup }
-const BUFFER_START_THRESHOLD = 0.5;
+const BUFFER_START_THRESHOLD = 0.7;
 
 function getBufferedFraction(audioEl) {
   if (!audioEl.duration || !isFinite(audioEl.duration) || audioEl.buffered.length === 0) return 0;
@@ -1381,6 +1392,7 @@ function setAudioLoadingUI(safeId, loading) {
   }
   if (document.getElementById("fullPlayer")?.dataset.safeId === safeId) {
     document.getElementById("fullPlayerPlayBtn")?.classList.toggle("loading", loading);
+    document.getElementById("fullPlayerArt")?.classList.toggle("loading", loading);
     const fullSeek = document.getElementById("fullPlayerSeek");
     if (fullSeek) fullSeek.disabled = loading;
   }
@@ -1702,13 +1714,15 @@ function renderFullPlayer(safeId, playing) {
 
   const bg = document.getElementById("fullPlayerBg");
   const art = document.getElementById("fullPlayerArt");
+  const loaderHtml = `<div class="art-loading"><div class="art-loading-spinner"></div></div>`;
   if (meta.thumbFileId) {
     bg.style.backgroundImage = `url('${WORKER_URL}/api/media/${meta.thumbFileId}')`;
-    art.innerHTML = `<img src="${WORKER_URL}/api/media/${meta.thumbFileId}" alt="" />`;
+    art.innerHTML = `<img src="${WORKER_URL}/api/media/${meta.thumbFileId}" alt="" />${loaderHtml}`;
   } else {
     bg.style.backgroundImage = "none";
-    art.innerHTML = `<div class="placeholder-icon">${ICON_MUSIC}</div>`;
+    art.innerHTML = `<div class="placeholder-icon">${ICON_MUSIC}</div>${loaderHtml}`;
   }
+  art.classList.toggle("loading", !!(audioLoadState[safeId] && audioLoadState[safeId].pending));
 
   document.getElementById("fullPlayerTitle").textContent = meta.title || "بدون‌عنوان";
   document.getElementById("fullPlayerPerformer").textContent = meta.performer || "";
@@ -1792,12 +1806,15 @@ function startFullPlayerSeekLoop() {
     }
     if (currentAudio && currentAudio.audioEl.duration) {
       const audioEl = currentAudio.audioEl;
-      const seek = document.getElementById("fullPlayerSeek");
-      if (seek && !seek.dataset.dragging) seek.value = (audioEl.currentTime / audioEl.duration) * 100;
-      const curEl = document.getElementById("fullPlayerTimeCur");
-      const durEl = document.getElementById("fullPlayerTimeDur");
-      if (curEl) curEl.textContent = formatTime(audioEl.currentTime);
-      if (durEl) durEl.textContent = formatTime(audioEl.duration);
+      const isLoading = !!(audioLoadState[currentAudio.safeId] && audioLoadState[currentAudio.safeId].pending);
+      if (!isLoading) {
+        const seek = document.getElementById("fullPlayerSeek");
+        if (seek && !seek.dataset.dragging) seek.value = (audioEl.currentTime / audioEl.duration) * 100;
+        const curEl = document.getElementById("fullPlayerTimeCur");
+        const durEl = document.getElementById("fullPlayerTimeDur");
+        if (curEl) curEl.textContent = formatTime(audioEl.currentTime);
+        if (durEl) durEl.textContent = formatTime(audioEl.duration);
+      }
     }
     fullPlayerSeekLoopId = requestAnimationFrame(tick);
   };
@@ -2130,7 +2147,7 @@ function renderMusicRow(p) {
     <div class="music-row">
       <audio id="audioEl-${safeId}" src="${WORKER_URL}/api/media/${p.file_id}" preload="none"></audio>
       <div class="music-row-cover" onclick="openFullPlayer('${safeId}')" title="پخش تمام‌صفحه">${coverHtml}</div>
-      <div class="music-row-info" onclick="openFullPlayer('${safeId}')">
+      <div class="music-row-info" onclick="toggleAudio('${safeId}')" title="پخش/توقف">
         <div class="music-row-title">${escapeHtml(titleText)}</div>
         <div class="music-row-sub">${subText}</div>
       </div>
