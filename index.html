@@ -321,25 +321,18 @@
   .comment-item2-replyhint { font-size: 11px; color: var(--subtext); margin-bottom: 2px; }
   .comment-item2-text { font-size: 13.5px; color: var(--text); line-height: 1.6; margin-top: 2px; word-break: break-word; }
   .comment-item2-actions { display: flex; align-items: center; gap: 14px; margin-top: 6px; }
-  .comment-like-btn, .comment-reply-btn {
+  .comment-like-btn, .comment-reply-btn, .comment-replies-icon-btn {
     background: none; border: none; color: var(--subtext); cursor: pointer; font-family: inherit; font-size: 12px;
     display: flex; align-items: center; gap: 4px; padding: 0;
   }
-  .comment-like-btn svg, .comment-reply-btn svg { width: 15px; height: 15px; }
-  .comment-like-btn:hover, .comment-reply-btn:hover { color: var(--text); }
+  .comment-like-btn svg, .comment-reply-btn svg, .comment-replies-icon-btn svg { width: 15px; height: 15px; }
+  .comment-like-btn:hover, .comment-reply-btn:hover, .comment-replies-icon-btn:hover { color: var(--text); }
   .comment-like-btn.active { color: var(--accent-hover); }
   .comment-like-btn.active svg { fill: var(--accent-hover); }
+  .comment-replies-icon-btn.open { color: var(--accent-hover); }
 
-  .comment-replies-toggle {
-    display: flex; align-items: center; gap: 4px;
-    background: none; border: none; color: var(--accent-hover); font-size: 12px; cursor: pointer;
-    font-family: inherit; padding: 4px 2px; margin: 0 0 8px 42px;
-  }
-  .comment-replies-toggle:hover { text-decoration: underline; }
-  .comment-replies-toggle svg { width: 12px; height: 12px; transition: transform 0.15s; flex-shrink: 0; }
-  .comment-replies-toggle.open svg { transform: rotate(180deg); }
   .comment-replies-box {
-    margin-inline-start: 38px; margin-bottom: 8px;
+    margin-inline-start: 38px; margin-top: 8px; margin-bottom: 8px;
     max-height: 220px; overflow-y: auto;
     border-inline-start: 2px solid var(--border); padding-inline-start: 10px;
   }
@@ -1931,6 +1924,7 @@ const ICON_SEND = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const ICON_EDIT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
 const ICON_TRASH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`;
 const ICON_REPLY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>`;
+const ICON_MSG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
 const ICON_THUMB = ICON_ARROW_UP;
 
 function renderPost(p, num) {
@@ -2606,7 +2600,7 @@ function commentEmojiClicked(postId, safeId) {
   // بعداً تعریف می‌شه
 }
 
-function renderCommentItem(c, isReply, replyToUsername, postId, safeId) {
+function renderCommentItem(c, isReply, replyToUsername, postId, safeId, repliesCount = 0) {
   commentTextCache[c.id] = c.text;
 
   const initial = c.username ? c.username[0].toUpperCase() : "?";
@@ -2628,6 +2622,10 @@ function renderCommentItem(c, isReply, replyToUsername, postId, safeId) {
     : "";
   const editedHtml = c.edited ? `<span class="comment-item2-edited">ویرایش‌شده</span>` : "";
 
+  const repliesIconHtml = repliesCount > 0
+    ? `<button class="comment-replies-icon-btn" id="repliesToggle-${c.id}" onclick="toggleRepliesBox('${c.id}')">${ICON_MSG}<span id="repliesToggleLabel-${c.id}">${repliesCount}</span></button>`
+    : "";
+
   return `
     <div class="comment-item2${isReply ? " is-reply" : ""}" id="commentItem-${c.id}">
       ${avatarHtml}
@@ -2648,6 +2646,7 @@ function renderCommentItem(c, isReply, replyToUsername, postId, safeId) {
             ${ICON_THUMB}<span id="commentLikeCount-${c.id}">${c.likes || ""}</span>
           </button>
           <button class="comment-reply-btn" onclick="toggleReplyForm('${c.id}')">${ICON_REPLY}</button>
+          ${repliesIconHtml}
         </div>
         <div class="comment-reply-form" id="replyForm-${c.id}">
           <input type="text" id="replyInput-${c.id}" placeholder="پاسخ به ${escapeHtml(c.username)}..." onkeydown="if(event.key==='Enter') submitComment('${postId}','${safeId}','${c.id}')" />
@@ -2662,15 +2661,9 @@ const ICON_CHEVRON_DOWN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentC
 function toggleRepliesBox(rootId) {
   const box = document.getElementById(`repliesBox-${rootId}`);
   const btn = document.getElementById(`repliesToggle-${rootId}`);
-  const label = document.getElementById(`repliesToggleLabel-${rootId}`);
   if (!box) return;
-  const willOpen = box.classList.contains("hidden");
   box.classList.toggle("hidden");
-  btn.classList.toggle("open", willOpen);
-  if (label) {
-    const count = box.querySelectorAll(".comment-item2").length;
-    label.textContent = willOpen ? `مخفی کردن پاسخ‌ها` : `نمایش ${count} پاسخ`;
-  }
+  if (btn) btn.classList.toggle("open", !box.classList.contains("hidden"));
 }
 
 function toggleReplyForm(commentId) {
@@ -2807,24 +2800,18 @@ async function loadComments(postId, safeId) {
 
     const { roots, repliesByRoot, byId } = buildCommentGroups(data.comments);
     listEl.innerHTML = roots.map((root) => {
-      const rootHtml = renderCommentItem(root, false, null, postId, safeId);
       const replies = (repliesByRoot[root.id] || []).sort((a, b) => a.date - b.date);
+      const rootHtml = renderCommentItem(root, false, null, postId, safeId, replies.length);
       if (replies.length === 0) return rootHtml;
 
       const repliesHtml = replies.map((r) => {
         const parent = r.parent_id ? byId[r.parent_id] : null;
         const replyToUsername = parent && parent.id !== root.id ? parent.username : null;
-        return renderCommentItem(r, true, replyToUsername, postId, safeId);
+        return renderCommentItem(r, true, replyToUsername, postId, safeId, 0);
       }).join("");
 
-      const toggleHtml = `
-        <button class="comment-replies-toggle" id="repliesToggle-${root.id}" onclick="toggleRepliesBox('${root.id}')">
-          ${ICON_CHEVRON_DOWN}
-          <span id="repliesToggleLabel-${root.id}">نمایش ${replies.length} پاسخ</span>
-        </button>
-        <div class="comment-replies-box hidden" id="repliesBox-${root.id}">${repliesHtml}</div>`;
-
-      return rootHtml + toggleHtml;
+      const repliesBoxHtml = `<div class="comment-replies-box hidden" id="repliesBox-${root.id}">${repliesHtml}</div>`;
+      return rootHtml + repliesBoxHtml;
     }).join("");
   } catch (e) {
     listEl.innerHTML = `<div class="comment-empty">کامنت‌ها بارگذاری نشدن</div>`;
