@@ -5,10 +5,13 @@
 (function(){try{var t=localStorage.getItem("theme")||"purple";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();
 </script>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>دهات</title>
 <link rel="manifest" href="manifest.json" />
 <meta name="theme-color" content="#1A0A31" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <link rel="apple-touch-icon" href="icon-192.png" />
 <link rel="icon" type="image/png" href="data:image/png;base64,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" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,6 +19,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root, :root[data-theme="purple"] {
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
     --primary: #1A0A31;
     --surface: #241243;
     --card: #2D1856;
@@ -57,45 +64,48 @@
     --error: #EF4444;
   }
   :root[data-theme="blue"] {
-    /* Navy Mirage */
-    --primary: #0A0F1A;
-    --surface: #101A2B;
-    --card: #1B2E45;
-    --accent: #2F6FE0;
-    --accent-hover: #3B82F6;
+    /* Emerald Chrome */
+    --primary: #000428;
+    --surface: #050B3A;
+    --card: #0A1E52;
+    --accent: #004E92;
+    --accent-hover: #2876BA;
     --text: #FFFFFF;
-    --subtext: #B8C7D9;
-    --border: #1F3350;
+    --subtext: #AFC3E6;
+    --border: #14285C;
     --success: #22C55E;
     --error: #EF4444;
   }
   :root[data-theme="teal"] {
-    /* Deep Teal Silk */
-    --primary: #051A1E;
-    --surface: #0A2529;
-    --card: #103038;
-    --accent: #0FA394;
-    --accent-hover: #14B8A6;
+    /* Royal Charcoal */
+    --primary: #1E1F22;
+    --surface: #1E2023;
+    --card: #2C2D30;
+    --accent: #4C4E51;
+    --accent-hover: #63656A;
     --text: #FFFFFF;
-    --subtext: #B5D9DD;
-    --border: #123C42;
+    --subtext: #9A9BA0;
+    --border: #3A3B3E;
     --success: #22C55E;
     --error: #EF4444;
   }
   :root[data-theme="emerald"] {
     /* Emerald Depth */
-    --primary: #081113;
-    --surface: #0E1C19;
-    --card: #17301F;
-    --accent: #0E9E6D;
-    --accent-hover: #10B981;
+    --primary: #0F2027;
+    --surface: #15262B;
+    --card: #1C3A2C;
+    --accent: #28623A;
+    --accent-hover: #35935A;
     --text: #FFFFFF;
-    --subtext: #B7D9C4;
-    --border: #1D4A2A;
+    --subtext: #B7D6C0;
+    --border: #23492F;
     --success: #22C55E;
     --error: #EF4444;
   }
   * { box-sizing: border-box; }
+  /* حذف باکس آبیِ پیش‌فرض مرورگرهای موبایل (مخصوصاً اندروید کروم) موقع لمس هر المان قابل‌کلیک */
+  * { -webkit-tap-highlight-color: transparent; }
+  html { -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; }
   body {
     font-family: 'Vazirmatn', Tahoma, sans-serif;
@@ -104,7 +114,7 @@
     color: var(--text);
     line-height: 1.7;
   }
-  .wrap { max-width: 560px; margin: 0 auto; padding: 16px 16px 60px; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: calc(16px + var(--safe-top)) calc(16px + var(--safe-right)) calc(60px + var(--safe-bottom)) calc(16px + var(--safe-left)); }
 
   header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .brand { display: flex; align-items: center; gap: 10px; }
@@ -127,7 +137,7 @@
   }
 
   .back-to-top {
-    position: fixed; bottom: 86px; left: 20px; z-index: 60;
+    position: fixed; bottom: calc(86px + var(--safe-bottom)); left: calc(20px + var(--safe-left)); z-index: 60;
     width: 44px; height: 44px; border-radius: 50%;
     background: var(--accent-gradient); color: #fff; border: none;
     display: flex; align-items: center; justify-content: center;
@@ -142,7 +152,7 @@
   /* دکمه‌ی شناور بروزرسانی: دقیقاً هم‌اندازه و هم‌ارتفاع با دکمه‌ی بازگشت به بالا، ولی سمت مقابل (راست)؛
      چون کارش «رفرش‌کردن و برگشتن به بالای فید»ه، همراه با همون دکمه ظاهر/محو می‌شه */
   .refresh-fab {
-    position: fixed; bottom: 86px; right: 20px; z-index: 60;
+    position: fixed; bottom: calc(86px + var(--safe-bottom)); right: calc(20px + var(--safe-right)); z-index: 60;
     width: 44px; height: 44px; border-radius: 50%;
     background: var(--accent-gradient); color: #fff; border: none;
     display: flex; align-items: center; justify-content: center;
@@ -158,7 +168,7 @@
   /* حبابِ کشیدن-برای-رفرش: بالای صفحه، وسط، پنهان تا وقتی کاربر بکشدش پایین */
   @keyframes spin { to { transform: rotate(360deg); } }
   .pull-refresh-bubble {
-    position: fixed; top: 8px; left: 50%; z-index: 70;
+    position: fixed; top: calc(8px + var(--safe-top)); left: 50%; z-index: 70;
     width: 42px; height: 42px; border-radius: 50%;
     background: var(--accent-gradient); color: #fff;
     display: flex; align-items: center; justify-content: center;
@@ -308,16 +318,8 @@
   .post-card .entry-time { padding: 8px 12px 10px; }
   .post-card .entry-doc { margin: 8px 12px 0; }
 
-  /* برچسب عنوان کوتاه پست، بالای مدیا و سمت چپ، حداکثر ۱۵ کاراکتر */
-  .post-title-badge {
-    position: absolute; top: 14px; left: 13px; z-index: 3;
-    max-width: calc(100% - 26px);
-    background: rgba(20, 10, 35, 0.62); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-    color: #fff; font-size: 12px; font-weight: 500; line-height: 1.2;
-    padding: 5px 10px; border-radius: 999px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    pointer-events: none; border: 1px solid rgba(255,255,255,0.15);
-  }
+  /* عنوان کوتاه پست (حداکثر ۱۵ کاراکتر) کنار نام کاربر توی هدر پست نشون داده می‌شه، نه روی مدیا */
+
 
   .entry-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
   .avatar {
@@ -327,6 +329,10 @@
   .entry-name { font-weight: 500; font-size: 15px; }
   .entry-meta { display: flex; align-items: center; gap: 10px; margin-inline-start: auto; }
   .entry-num { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--subtext); }
+  .entry-title {
+    font-size: 12px; font-weight: 500; color: var(--subtext);
+    max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
   .delete-btn { background: none; border: none; color: var(--error); font-size: 11px; cursor: pointer; font-family: inherit; padding: 0; text-decoration: underline; }
   .entry-text { font-size: 16px; white-space: pre-wrap; }
   .entry-doc { display: inline-flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; font-size: 13px; }
@@ -613,9 +619,9 @@
   .theme-swatch[data-theme-value="purple"] { background: linear-gradient(135deg, #1A0A31, #8B5CF6); }
   .theme-swatch[data-theme-value="dark"] { background: linear-gradient(135deg, #1A1210, #B98A5E); }
   .theme-swatch[data-theme-value="red"] { background: linear-gradient(135deg, #170809, #C81E1E); }
-  .theme-swatch[data-theme-value="blue"] { background: linear-gradient(135deg, #0A0F1A, #2F6FE0); }
-  .theme-swatch[data-theme-value="teal"] { background: linear-gradient(135deg, #051A1E, #0FA394); }
-  .theme-swatch[data-theme-value="emerald"] { background: linear-gradient(135deg, #081113, #0E9E6D); }
+  .theme-swatch[data-theme-value="blue"] { background: linear-gradient(135deg, #000428, #004E92); }
+  .theme-swatch[data-theme-value="teal"] { background: linear-gradient(135deg, #1E1F22, #4C4E51); }
+  .theme-swatch[data-theme-value="emerald"] { background: linear-gradient(135deg, #0F2027, #28623A); }
   .back-link { background: none; border: none; color: var(--accent-hover); font-size: 13px; cursor: pointer; font-family: inherit; padding: 0; margin-bottom: 14px; }
   .username-link { cursor: pointer; }
   .username-link:hover { text-decoration: underline; }
@@ -863,13 +869,13 @@
     background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 78%, rgba(0,0,0,0.92) 100%);
   }
   .reels-close {
-    position: fixed; top: 16px; left: 16px; z-index: 210; width: 38px; height: 38px; border-radius: 50%;
+    position: fixed; top: calc(16px + var(--safe-top)); left: calc(16px + var(--safe-left)); z-index: 210; width: 38px; height: 38px; border-radius: 50%;
     background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff;
     display: flex; align-items: center; justify-content: center; cursor: pointer;
   }
   .reels-close svg { width: 18px; height: 18px; }
   .reels-download {
-    position: fixed; top: 16px; right: 16px; z-index: 210; width: 38px; height: 38px; border-radius: 50%;
+    position: fixed; top: calc(16px + var(--safe-top)); right: calc(16px + var(--safe-right)); z-index: 210; width: 38px; height: 38px; border-radius: 50%;
     background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff;
     display: flex; align-items: center; justify-content: center; cursor: pointer;
   }
@@ -944,6 +950,75 @@
     mask-image: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent);
   }
   .audio-cover { cursor: pointer; }
+
+  /* ---------- دکمه‌ی «لیست» و پنل صفِ پخش (Queue) روی طراحی تمام‌صفحه ---------- */
+  .reels-queue-btn {
+    position: fixed; bottom: 66px; left: 50%; transform: translateX(-50%); z-index: 210;
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.18); color: #fff;
+    padding: 8px 16px; border-radius: 999px; font-family: inherit; font-size: 12.5px; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  }
+  .reels-queue-btn svg { width: 15px; height: 15px; }
+  @media (max-width: 480px), (max-height: 700px) {
+    .reels-queue-btn { bottom: 58px; }
+  }
+
+  .queue-panel-backdrop {
+    position: fixed; inset: 0; z-index: 219; background: rgba(0,0,0,0.55);
+    opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+  }
+  .queue-panel-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  .queue-panel {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 220; margin: 0 auto; max-width: 560px;
+    background: var(--surface); border: 1px solid var(--border); border-bottom: none;
+    border-radius: 20px 20px 0 0; box-shadow: 0 -10px 34px rgba(0,0,0,0.45);
+    max-height: 68vh; display: flex; flex-direction: column;
+    transform: translateY(105%); transition: transform 0.34s cubic-bezier(.22,1,.36,1);
+  }
+  .queue-panel.open { transform: translateY(0); }
+  .queue-panel-handle { width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin: 10px auto 2px; flex-shrink: 0; }
+  .queue-panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 16px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .queue-panel-header span { font-size: 14px; font-weight: 700; color: var(--text); }
+  .queue-panel-close {
+    background: none; border: none; color: var(--subtext); cursor: pointer; padding: 4px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .queue-panel-close svg { width: 18px; height: 18px; }
+  .queue-panel-list { overflow-y: auto; padding: 8px 10px calc(18px + var(--safe-bottom)); flex: 1; -webkit-overflow-scrolling: touch; }
+
+  .queue-item {
+    display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 12px; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .queue-item:hover { background: var(--card); }
+  .queue-item.active { background: var(--card); }
+  .queue-item.active .queue-item-title { color: var(--accent-hover); }
+  .queue-item-cover {
+    width: 42px; height: 42px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+    background: var(--card); display: flex; align-items: center; justify-content: center; color: var(--subtext);
+  }
+  .queue-item-cover img { width: 100%; height: 100%; object-fit: cover; }
+  .queue-item-cover svg { width: 18px; height: 18px; }
+  .queue-item-info { min-width: 0; flex: 1; }
+  .queue-item-title { font-size: 13.5px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .queue-item-sub { font-size: 11.5px; color: var(--subtext); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+  .queue-loading-more { text-align: center; padding: 14px; font-size: 12px; color: var(--subtext); }
+
+  /* اکولایزر کوچیک متحرک جلوی آهنگی که همین الان تو صف داره پخش می‌شه */
+  .queue-eq { display: flex; align-items: flex-end; gap: 2px; width: 14px; height: 14px; flex-shrink: 0; }
+  .queue-eq span { width: 3px; background: var(--accent-hover); border-radius: 1px; animation: queueEqBounce 0.9s ease-in-out infinite; }
+  .queue-eq span:nth-child(1) { animation-delay: 0s; }
+  .queue-eq span:nth-child(2) { animation-delay: 0.2s; }
+  .queue-eq span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes queueEqBounce { 0%, 100% { height: 3px; } 50% { height: 14px; } }
+  @media (prefers-reduced-motion: reduce) {
+    .queue-eq span { animation: none; height: 8px; }
+  }
 
   /* فیلتر رسانه/متن داخل پروفایل */
   .profile-filter { display: flex; gap: 8px; margin-bottom: 14px; }
@@ -1288,7 +1363,7 @@
 
     <div class="upload-preview-wrap hidden" id="uploadPreviewWrap">
       <div class="upload-preview-label">پیش‌نمایش پست</div>
-      <div class="surface-card upload-preview-card" id="uploadPreviewCard"></div>
+      <div class="post-card upload-preview-card" id="uploadPreviewCard"></div>
     </div>
   </div>
 
@@ -1345,7 +1420,7 @@
             <button class="theme-swatch" data-theme-value="dark" title="گردویی" onclick="selectTheme('dark')"></button>
             <button class="theme-swatch" data-theme-value="red" title="قرمز تیره" onclick="selectTheme('red')"></button>
             <button class="theme-swatch" data-theme-value="blue" title="آبی تیره" onclick="selectTheme('blue')"></button>
-            <button class="theme-swatch" data-theme-value="teal" title="فیروزه‌ای تیره" onclick="selectTheme('teal')"></button>
+            <button class="theme-swatch" data-theme-value="teal" title="مشکی" onclick="selectTheme('teal')"></button>
             <button class="theme-swatch" data-theme-value="emerald" title="زمردی تیره" onclick="selectTheme('emerald')"></button>
           </div>
         </div>
@@ -1562,6 +1637,23 @@
     <div class="reels-title" id="fullPlayerTitle"></div>
     <div class="reels-performer" id="fullPlayerPerformer"></div>
   </div>
+
+  <button class="reels-queue-btn" onclick="toggleQueuePanel(event)" title="صف پخش" aria-label="صف پخش">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h10M18 15l3 3-3 3"/></svg>
+    <span>لیست</span>
+  </button>
+
+  <div class="queue-panel-backdrop" id="queuePanelBackdrop" onclick="closeQueuePanel()"></div>
+  <div class="queue-panel" id="queuePanel" onclick="event.stopPropagation()">
+    <div class="queue-panel-handle"></div>
+    <div class="queue-panel-header">
+      <span>در صف پخش</span>
+      <button class="queue-panel-close" onclick="closeQueuePanel()" aria-label="بستن">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="queue-panel-list" id="queuePanelList" onscroll="onQueuePanelScroll(event)"></div>
+  </div>
 </div>
 
 <script>
@@ -1649,15 +1741,20 @@ async function enablePushNotifications() {
       });
     }
 
-    await fetch(`${WORKER_URL}/api/push/subscribe`, {
+    const subRes = await fetch(`${WORKER_URL}/api/push/subscribe`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
       body: JSON.stringify(sub.toJSON()),
     });
+    if (!subRes.ok) {
+      let msg = "ثبت اعلان در سرور با خطا مواجه شد";
+      try { const errData = await subRes.json(); if (errData.error) msg = errData.error; } catch (e2) {}
+      throw new Error(msg);
+    }
 
     document.getElementById("pushPromptBox")?.classList.add("hidden");
   } catch (e) {
-    alert("فعال‌سازی نوتیف با خطا مواجه شد. دوباره امتحان کن.");
+    alert(e && e.message ? e.message : "فعال‌سازی نوتیف با خطا مواجه شد. دوباره امتحان کن.");
     if (btn) { btn.disabled = false; btn.textContent = "فعال کن"; }
   }
 }
@@ -2023,27 +2120,26 @@ function updateUploadPreview() {
     ? `<div class="avatar" style="overflow:hidden;">${headerAvatarEl.innerHTML}</div>`
     : `<div class="avatar" style="background:${avatarColor(uname)}">${initial}</div>`;
 
-  const titleBadge = title ? `<div class="post-title-badge">${escapeHtml(title)}</div>` : "";
   const textHtml = text ? `<div class="entry-text">${escapeHtml(text)}</div>` : "";
   const timeHtml = `<div class="entry-time">${new Date().toLocaleString("fa-IR")}</div>`;
   const header = `
     <div class="entry-top">
       ${avatarHtml}
       <span class="entry-name">${escapeHtml(uname)}</span>
-      <div class="entry-meta"><span class="entry-num">پیش‌نمایش</span></div>
+      <div class="entry-meta">${title ? `<span class="entry-title">${escapeHtml(title)}</span>` : ""}</div>
     </div>`;
 
   let mediaHtml = "";
   if (selectedFile) {
     selectedFilePreviewUrl = URL.createObjectURL(selectedFile);
     if (selectedFile.type.startsWith("image/")) {
-      mediaHtml = `<div class="entry-media">${titleBadge}<img src="${selectedFilePreviewUrl}" /></div>`;
+      mediaHtml = `<div class="entry-media"><img src="${selectedFilePreviewUrl}" /></div>`;
     } else if (selectedFile.type.startsWith("video/")) {
-      mediaHtml = `<div class="entry-media">${titleBadge}<video src="${selectedFilePreviewUrl}" controls></video></div>`;
+      mediaHtml = `<div class="entry-media"><video src="${selectedFilePreviewUrl}" controls></video></div>`;
     } else if (selectedFile.type.startsWith("audio/")) {
       const coverUrl = selectedAudioMeta.coverBlob ? URL.createObjectURL(selectedAudioMeta.coverBlob) : "";
       mediaHtml = `
-        <div class="entry-media has-audio">${titleBadge}
+        <div class="entry-media has-audio">
           <div style="display:flex; align-items:center; gap:10px;">
             ${coverUrl ? `<img src="${coverUrl}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;" />` : ""}
             <div style="min-width:0;">
@@ -2054,9 +2150,6 @@ function updateUploadPreview() {
           <audio src="${selectedFilePreviewUrl}" controls style="margin-top:8px;"></audio>
         </div>`;
     }
-  } else if (title) {
-    // اگه مدیایی نیست ولی عنوان هست، بج عنوان رو بالای متن نشون بده تا پیش‌نمایش بی‌معنی نباشه
-    mediaHtml = `<div class="entry-media" style="padding-top:0;">${titleBadge}</div>`;
   }
 
   card.innerHTML = `${header}${mediaHtml}${textHtml}${timeHtml}`;
@@ -2786,6 +2879,7 @@ function syncNowPlayingUI(safeId, playing) {
   renderFullPlayer(safeId, playing);
   updateMediaSessionMetadata(safeId);
   updateMediaSessionPlaybackState(playing);
+  highlightActiveQueueItem(safeId);
   const audioEl = document.getElementById(`audioEl-${safeId}`);
   if (audioEl) updateMediaSessionPositionState(audioEl);
 }
@@ -3040,7 +3134,178 @@ function closeFullPlayer() {
   panel.classList.remove("open");
   document.body.style.overflow = "";
   stopVisualizerLoop();
+  closeQueuePanel();
   // پخش صدا قطع نمی‌شه — چون همون عنصر audio مینی‌پلیره، فقط نمای تمام‌صفحه بسته می‌شه
+}
+
+// ---------- پنل «صف پخش»: ۱۵ آهنگ رندوم بعد از آهنگ فعلی، و با رسیدن به ته لیست ۱۵ تای دیگه ----------
+const queueListState = { items: [], loadingMore: false, initialLoaded: false, exhausted: false };
+
+function toggleQueuePanel(e) {
+  e && e.stopPropagation();
+  const panel = document.getElementById("queuePanel");
+  if (panel && panel.classList.contains("open")) {
+    closeQueuePanel();
+  } else {
+    openQueuePanel();
+  }
+}
+
+function openQueuePanel() {
+  document.getElementById("queuePanel")?.classList.add("open");
+  document.getElementById("queuePanelBackdrop")?.classList.add("open");
+  if (!queueListState.initialLoaded) {
+    queueListState.initialLoaded = true;
+    loadRandomQueueTracks();
+  }
+}
+
+function closeQueuePanel(e) {
+  e && e.stopPropagation();
+  document.getElementById("queuePanel")?.classList.remove("open");
+  document.getElementById("queuePanelBackdrop")?.classList.remove("open");
+}
+
+// مجموعه‌ای پنهان از عنصرهای <audio> برای آهنگ‌های صف که تو فید اصلی رندر نشدن؛
+// موتور پخش فعلی روی وجود واقعیِ audioEl-{safeId} تو DOM حساب می‌کنه، پس همین‌جا می‌سازیمشون
+function ensureQueueAudioPool() {
+  let pool = document.getElementById("queueAudioPool");
+  if (!pool) {
+    pool = document.createElement("div");
+    pool.id = "queueAudioPool";
+    pool.style.display = "none";
+    document.body.appendChild(pool);
+  }
+  return pool;
+}
+
+// شناسه‌ی پست‌هایی که نباید دوباره تو صف بیان: هرچی الان تو لیست هست + آهنگی که همین الان پخش می‌شه
+function collectQueueExcludeIds() {
+  const ids = queueListState.items.map((it) => it.postId);
+  if (currentAudio) {
+    const meta = audioMetaRegistry[currentAudio.safeId];
+    if (meta && meta.postId) ids.push(meta.postId);
+  }
+  return [...new Set(ids)].filter(Boolean);
+}
+
+async function loadRandomQueueTracks() {
+  if (queueListState.loadingMore || queueListState.exhausted) return;
+  const listEl = document.getElementById("queuePanelList");
+  if (!listEl) return;
+  queueListState.loadingMore = true;
+
+  const loadingRow = document.createElement("div");
+  loadingRow.className = "queue-loading-more";
+  loadingRow.id = "queueLoadingRow";
+  loadingRow.textContent = "در حال بارگذاری...";
+  listEl.appendChild(loadingRow);
+
+  try {
+    const exclude = collectQueueExcludeIds();
+    const qs = new URLSearchParams({ filter: "audio", sort: "random", pageSize: "15" });
+    if (exclude.length) qs.set("exclude", exclude.join(","));
+
+    const res = await fetch(`${WORKER_URL}/api/feed?${qs.toString()}`, {
+      headers: { "Authorization": `Bearer ${getToken()}` },
+    });
+    const data = await res.json();
+    document.getElementById("queueLoadingRow")?.remove();
+
+    if (!res.ok || !data.posts || data.posts.length === 0) {
+      queueListState.exhausted = true;
+      if (queueListState.items.length === 0) {
+        listEl.innerHTML = `<div class="empty-state">آهنگ دیگه‌ای برای صف پیدا نشد</div>`;
+      } else {
+        listEl.insertAdjacentHTML("beforeend", `<div class="queue-loading-more">به انتهای آهنگ‌های موجود رسیدی</div>`);
+      }
+      return;
+    }
+
+    const pool = ensureQueueAudioPool();
+    const rowsHtml = data.posts.map((p) => {
+      const safeId = p.id.replace(/[^a-zA-Z0-9_]/g, "");
+      queueListState.items.push({ postId: p.id, safeId });
+
+      if (!audioMetaRegistry[safeId]) {
+        audioMetaRegistry[safeId] = {
+          postId: p.id,
+          title: p.audio_title || "",
+          performer: p.audio_performer || "",
+          thumbFileId: p.audio_thumb || null,
+          fileId: p.file_id,
+          originalSafeId: safeId,
+        };
+      }
+      if (!document.getElementById(`audioEl-${safeId}`)) {
+        const audioEl = document.createElement("audio");
+        audioEl.id = `audioEl-${safeId}`;
+        audioEl.src = `${WORKER_URL}/api/media/${p.file_id}`;
+        audioEl.preload = "none";
+        pool.appendChild(audioEl);
+      }
+
+      return renderQueueItemRow(p, safeId);
+    }).join("");
+
+    listEl.insertAdjacentHTML("beforeend", rowsHtml);
+    if (!data.hasMore) queueListState.exhausted = true;
+  } catch (e) {
+    document.getElementById("queueLoadingRow")?.remove();
+    listEl.insertAdjacentHTML("beforeend", `<div class="queue-loading-more">بارگذاری صف با خطا مواجه شد</div>`);
+  } finally {
+    queueListState.loadingMore = false;
+  }
+}
+
+function renderQueueItemRow(p, safeId) {
+  const coverHtml = p.audio_thumb
+    ? `<img src="${WORKER_URL}/api/media/${p.audio_thumb}" alt="" />`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
+  const titleText = p.audio_title || "بدون‌عنوان";
+  const subParts = [];
+  if (p.audio_performer) subParts.push(escapeHtml(p.audio_performer));
+  subParts.push(escapeHtml(p.username));
+  const isActive = !!(currentAudio && currentAudio.safeId === safeId);
+
+  return `
+    <div class="queue-item${isActive ? " active" : ""}" id="queueItem-${safeId}" onclick="playQueueTrack('${safeId}')">
+      <div class="queue-item-cover">${coverHtml}</div>
+      <div class="queue-item-info">
+        <div class="queue-item-title">${escapeHtml(titleText)}</div>
+        <div class="queue-item-sub">${subParts.join(" — ")}</div>
+      </div>
+      ${isActive ? `<div class="queue-eq"><span></span><span></span><span></span></div>` : ""}
+    </div>`;
+}
+
+function playQueueTrack(safeId) {
+  toggleAudio(safeId);
+}
+
+// وقتی اسکرول لیست صف به نزدیکی ته می‌رسه، ۱۵ تای دیگه رندوم اضافه می‌شه (مثل Queue موزیک‌پلیرها)
+function onQueuePanelScroll(e) {
+  const el = e.target;
+  if (el.scrollTop + el.clientHeight >= el.scrollHeight - 120) {
+    loadRandomQueueTracks();
+  }
+}
+
+// هر بار آهنگِ در حال پخش عوض می‌شه، هایلایت/اکولایزرِ آیتم فعال تو لیست صف هم آپدیت می‌شه
+function highlightActiveQueueItem(safeId) {
+  document.querySelectorAll(".queue-item.active").forEach((el) => {
+    if (el.id !== `queueItem-${safeId}`) {
+      el.classList.remove("active");
+      el.querySelector(".queue-eq")?.remove();
+    }
+  });
+  const item = document.getElementById(`queueItem-${safeId}`);
+  if (item && !item.classList.contains("active")) {
+    item.classList.add("active");
+    if (!item.querySelector(".queue-eq")) {
+      item.insertAdjacentHTML("beforeend", `<div class="queue-eq"><span></span><span></span><span></span></div>`);
+    }
+  }
 }
 
 function fullPlayerToggle(e) {
@@ -3243,19 +3508,19 @@ function renderPost(p, num) {
   const initial = p.username ? p.username[0].toUpperCase() : "?";
   const hasMedia = (p.type === "photo" || p.type === "video" || p.type === "audio" || p.type === "document") && p.file_id;
   const canDelete = p.username === getUsername() || isAdmin;
-  const numStr = String(num).padStart(6, "0");
   const safeId = p.id.replace(/[^a-zA-Z0-9_]/g, "");
 
   const deleteBtn = canDelete ? `<button class="delete-btn" onclick="deletePost('${p.id}','${safeId}')">حذف</button>` : "";
   const avatarHtml = p.avatar_file_id
     ? `<div class="avatar" style="overflow:hidden;"><img src="${WORKER_URL}/api/media/${p.avatar_file_id}" style="width:100%;height:100%;object-fit:cover;" /></div>`
     : `<div class="avatar" style="background:${avatarColor(p.username || "")}">${initial}</div>`;
+  const titleHtml = p.title ? `<span class="entry-title">${escapeHtml(String(p.title).slice(0, 15))}</span>` : "";
   const header = `
     <div class="entry-top">
       ${avatarHtml}
       <span class="entry-name username-link" onclick="openProfile('${jsAttr(p.username)}')">${escapeHtml(p.username)}</span>
       <div class="entry-meta">
-        <span class="entry-num">#${numStr}</span>
+        ${titleHtml}
         ${deleteBtn}
       </div>
     </div>`;
@@ -3307,13 +3572,12 @@ function renderPost(p, num) {
   }
 
   let mediaHtml = "";
-  const titleBadge = p.title ? `<div class="post-title-badge">${escapeHtml(String(p.title).slice(0, 15))}</div>` : "";
   if (p.type === "photo") {
-    mediaHtml = `<div class="entry-media">${titleBadge}<img src="${WORKER_URL}/api/media/${p.file_id}" loading="lazy" /></div>`;
+    mediaHtml = `<div class="entry-media"><img src="${WORKER_URL}/api/media/${p.file_id}" loading="lazy" /></div>`;
   } else if (p.type === "video") {
-    mediaHtml = `<div class="entry-media">${titleBadge}${buildVideoPlayer(p.file_id, safeId)}</div>`;
+    mediaHtml = `<div class="entry-media">${buildVideoPlayer(p.file_id, safeId)}</div>`;
   } else if (p.type === "audio") {
-    mediaHtml = `<div class="entry-media has-audio">${titleBadge}${buildAudioPlayer(p.file_id, safeId, p.audio_thumb, p.audio_title, p.audio_performer, p.id)}</div>`;
+    mediaHtml = `<div class="entry-media has-audio">${buildAudioPlayer(p.file_id, safeId, p.audio_thumb, p.audio_title, p.audio_performer, p.id)}</div>`;
   } else if (p.type === "document") {
     mediaHtml = `<div class="entry-doc">فایل پیوست — <a href="${WORKER_URL}/api/media/${p.file_id}" target="_blank">دانلود</a></div>`;
   }
@@ -5153,6 +5417,26 @@ async function saveProfile() {
     btn.disabled = false;
     btn.textContent = "ذخیره پروفایل";
   }
+}
+
+// ---------- فول‌اسکرین edge-to-edge وقتی به‌عنوان PWA نصب‌شده باز می‌شه ----------
+// فقط وقتی از حالت standalone/fullscreen (یعنی از آیکون روی صفحه‌ی اصلی، نه یه تب عادی مرورگر) بازشده باشه فعال می‌شه.
+// مرورگرها به دلایل امنیتی اجازه نمی‌دن Fullscreen API بدون هیچ لمس/کلیکی از طرف کاربر صدا زده بشه؛ برای همین
+// با اولین لمس/کلیک کاربر (که معمولاً بلافاصله بعد از باز شدن برنامه اتفاق می‌افته) درخواست می‌دیم تا نوار
+// ناوبری سیستم هم مخفی بشه و کل صفحه edge-to-edge نمایش داده بشه.
+function isRunningAsInstalledPwa() {
+  return window.matchMedia("(display-mode: standalone)").matches
+    || window.matchMedia("(display-mode: fullscreen)").matches
+    || window.navigator.standalone === true; // نسخه‌ی قدیمی iOS Safari
+}
+function requestAppFullscreen() {
+  const el = document.documentElement;
+  if (document.fullscreenElement || !el.requestFullscreen) return;
+  el.requestFullscreen().catch(() => {});
+}
+if (isRunningAsInstalledPwa()) {
+  document.addEventListener("click", requestAppFullscreen, { once: true });
+  document.addEventListener("touchstart", requestAppFullscreen, { once: true });
 }
 
 (async () => {
