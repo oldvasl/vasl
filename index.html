@@ -77,17 +77,26 @@
     --error: #EF4444;
   }
   :root[data-theme="teal"] {
-    /* Royal Charcoal */
-    --primary: #1E1F22;
-    --surface: #1E2023;
-    --card: #2C2D30;
-    --accent: #4C4E51;
-    --accent-hover: #63656A;
+    /* Royal Charcoal — پس‌زمینه یه‌درجه روشن‌تر از قبل، کارت‌ها خاکستری مایل‌به‌مشکیِ خنثی‌تر (بدون گرایش آبی) */
+    --primary: #232427;
+    --surface: #202124;
+    --card: #323234;
+    --accent: #55575B;
+    --accent-hover: #6C6E73;
     --text: #FFFFFF;
     --subtext: #9A9BA0;
-    --border: #3A3B3E;
+    --border: #414245;
     --success: #22C55E;
     --error: #EF4444;
+    /* گرادیانِ کارت مخصوص این تم: به‌جای دو رنگ ساده، سه ایست‌رنگ که یه خطِ نورِ مورب (مثل فلزِ برس‌خورده) می‌سازه */
+    --card-gradient: linear-gradient(135deg, #3A3B3E 0%, #2A2B2D 45%, #363739 65%, #262729 100%);
+  }
+  /* لبه‌ی بالایی روشن + لبه‌ی پایینی تیره روی کارت‌ها، حسِ فلزیِ برجسته (embossed metal) می‌ده */
+  :root[data-theme="teal"] .post-card {
+    box-shadow: 0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.3);
+  }
+  :root[data-theme="teal"] .surface-card {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -1px 0 rgba(0,0,0,0.25);
   }
   :root[data-theme="emerald"] {
     /* Emerald Depth */
@@ -2153,9 +2162,20 @@ window.addEventListener("scroll", () => {
     ));
   }
 
+  // فقط ویوهایی که واقعاً یه اکشنِ «رفرش» معنادار دارن (توی refreshCurrentView پیاده‌سازی شدن) اجازه‌ی
+  // pull-to-refresh می‌گیرن؛ قبلاً حباب توی صفحه‌ی آپلود و چت هم فعال می‌شد ولی هیچ داده‌ای رفرش نمی‌شد
+  // (اجرا می‌رفت توی شاخه‌ی default و هیچ کاری نمی‌کرد)، که یه کشیدن-بدون-نتیجه‌ی گمراه‌کننده بود.
+  const REFRESHABLE_VIEW_IDS = new Set([
+    "view-media", "view-text", "view-music", "view-notifications", "view-admin", "view-profile",
+  ]);
+  function activeViewSupportsRefresh() {
+    const activeView = document.querySelector(".view:not(.hidden)");
+    return !!(activeView && REFRESHABLE_VIEW_IDS.has(activeView.id));
+  }
+
   // ---- لمسی (موبایل/PWA) ----
   document.addEventListener("touchstart", (e) => {
-    if (refreshing || !atTop() || isInsideScrollableOverlay(e.target)) return;
+    if (refreshing || !atTop() || isInsideScrollableOverlay(e.target) || !activeViewSupportsRefresh()) return;
     startY = e.touches[0].clientY;
     pulling = true;
     bubble.classList.add("dragging");
@@ -2187,7 +2207,7 @@ window.addEventListener("scroll", () => {
   let wheelAccum = 0;
   let wheelResetTimer = null;
   document.addEventListener("wheel", (e) => {
-    if (refreshing) return;
+    if (refreshing || !activeViewSupportsRefresh()) return;
     if (!atTop() || e.deltaY >= 0) {
       wheelAccum = 0;
       if (!refreshing) setBubbleY(HIDDEN_Y);
@@ -2235,6 +2255,9 @@ async function refreshCurrentView() {
       break;
     case "view-notifications":
       await loadNotifications(true);
+      break;
+    case "view-profile":
+      if (profileState.username) await loadProfile(profileState.username);
       break;
     case "view-admin": {
       const onReports = !document.getElementById("adminReportsSection").classList.contains("hidden");
@@ -3787,21 +3810,34 @@ function startVisualizerLoop() {
   vizRunning = true;
 
   const canvas = document.getElementById("fullPlayerVisualizer");
-  const ctx = canvas.getContext("2d");
-  const dpr = window.devicePixelRatio || 1;
+  const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
+  const dpr = Math.min(window.devicePixelRatio || 1, 2); // بیشتر از ۲ فایده‌ی محسوس نداره ولی هزینه‌ی رندر رو خطی زیاد می‌کنه
 
   function resize() {
     canvas.width = Math.max(canvas.clientWidth, 1) * dpr;
     canvas.height = Math.max(canvas.clientHeight, 1) * dpr;
   }
   resize();
-  vizResizeHandler = resize;
+  // ری‌سایز رو debounce می‌کنیم: موقع کشیدن لبه‌ی پنجره (دسکتاپ) یا چرخش صفحه، ده‌ها ایونت resize پشت‌سرهم
+  // میاد؛ هر بار resize واقعی (تغییر canvas.width/height) باعث پاک‌شدن بافر و افت فریم می‌شد.
+  let resizeRAF = null;
+  function scheduleResize() {
+    if (resizeRAF) return;
+    resizeRAF = requestAnimationFrame(() => { resize(); resizeRAF = null; });
+  }
+  vizResizeHandler = scheduleResize;
   window.addEventListener("resize", vizResizeHandler);
 
   vizLastTs = 0;
 
   const themeAccent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#8B5CF6";
   const themePrimary = getComputedStyle(document.documentElement).getPropertyValue("--primary").trim() || themeAccent;
+
+  // درخشش (glow) قبلاً با ctx.shadowBlur هر فریم رو ۸ بار (به ازای هر باکِت شفافیت) رسم می‌شد؛ shadowBlur
+  // کنواس ۲بعدی روی خیلی از مرورگرها (خصوصاً موبایل) به‌صورت نرم‌افزاری و بدون شتاب GPU حساب می‌شه و
+  // تنهاییش بزرگ‌ترین منبع لگ ویژوالایزر بود. اینجا به‌جاش یه drop-shadow ثابتِ CSS روی خودِ canvas
+  // می‌ذاریم که کامپوزیتور مرورگر (GPU) یه‌بار حسابش می‌کنه، نه هر فریم جاوااسکریپت.
+  canvas.style.filter = "drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent))";
 
   let cachedGradientColors = null;
   let cachedGradient = null;
@@ -3822,6 +3858,7 @@ function startVisualizerLoop() {
   // با چشم غیرمسلح هیچ فرقی با ۶۰fps نداره ولی نصف بار پردازش/رندر رو از گوشی‌های ضعیف‌تر برمی‌داره
   const VIZ_FRAME_INTERVAL = 1000 / 30;
   let vizFrameAcc = 0;
+  const ALPHA_BUCKETS = 6;
 
   function draw(ts) {
     vizAnimationId = requestAnimationFrame(draw);
@@ -3851,15 +3888,13 @@ function startVisualizerLoop() {
     const amplitude = isPlaying ? 1 : 0.22;
     const baseline = isPlaying ? 0.16 : 0.09;
 
-    // میله‌ها رو به‌جای fill جداگانه (که shadowBlur روش خیلی سنگینه، خصوصاً موبایل)، توی چند دسته بر اساس
-    // شفافیت‌شون گروه‌بندی می‌کنیم و هر دسته رو با یه Path واحد fill می‌کنیم؛ همون ظاهر قبلی (شفافیت متغیر
-    // بر اساس ارتفاع میله) حفظ می‌شه ولی تعداد fill از «به تعداد میله‌ها» به «چند دسته‌ی ثابت» می‌رسه.
+    // میله‌ها رو به‌جای fill جداگانه، توی چند دسته بر اساس شفافیت‌شون گروه‌بندی می‌کنیم و هر دسته رو با یه
+    // Path واحد fill می‌کنیم؛ همون ظاهر قبلی (شفافیت متغیر بر اساس ارتفاع میله) حفظ می‌شه ولی تعداد fill از
+    // «به تعداد میله‌ها» به «چند دسته‌ی ثابت» می‌رسه. shadowBlur دیگه اینجا نیست (به CSS filter بالا منتقل شد).
     ctx.fillStyle = gradient;
-    ctx.shadowColor = (currentVizColors && currentVizColors[0]) || themeAccent;
-    ctx.shadowBlur = 10 * dpr;
 
-    const ALPHA_BUCKETS = 8;
-    const buckets = Array.from({ length: ALPHA_BUCKETS }, () => new Path2D());
+    const buckets = new Array(ALPHA_BUCKETS);
+    for (let b = 0; b < ALPHA_BUCKETS; b++) buckets[b] = new Path2D();
     for (let i = 0; i < barCount; i++) {
       const x = i * step;
       const n = vizNoise(i * 0.5 + vizPhase * 40); // نسبت -۱ تا ۱ تقریبی
@@ -3874,7 +3909,6 @@ function startVisualizerLoop() {
       ctx.globalAlpha = b / (ALPHA_BUCKETS - 1);
       ctx.fill(buckets[b]);
     }
-    ctx.shadowBlur = 0;
     ctx.globalAlpha = 1;
   }
   vizAnimationId = requestAnimationFrame(draw);
@@ -3889,6 +3923,7 @@ function stopVisualizerLoop() {
   if (canvas) {
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.style.filter = "";
   }
 }
 
