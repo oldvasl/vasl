@@ -280,6 +280,106 @@
   }
   .title-counter.limit { color: var(--error); }
 
+  /* ---------- کپسول سوییچ حالتِ صفحه‌ی آپلود (رسانه/متن) ---------- */
+  .upload-mode-capsule {
+    position: relative;
+    display: grid; grid-template-columns: 1fr 1fr;
+    width: 124px; margin: 0 auto 16px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+    padding: 4px; gap: 2px;
+  }
+  .upload-mode-indicator {
+    position: absolute; top: 4px; bottom: 4px; left: 0; width: 58px;
+    background: var(--accent-gradient); border-radius: 999px;
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.2s ease;
+    z-index: 0;
+  }
+  .upload-mode-btn {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+    height: 38px; background: none; border: none; color: var(--subtext);
+    font-family: inherit; cursor: pointer; border-radius: 999px;
+    transition: color 0.2s ease;
+  }
+  .upload-mode-btn svg { width: 18px; height: 18px; }
+  .upload-mode-btn.active { color: #fff; }
+  .upload-mode-t { font-size: 15px; font-weight: 800; font-family: ui-monospace, Menlo, monospace; }
+
+  /* ---------- فرم آپلود: ترتیبِ کادرها با flex order عوض می‌شه (حالت رسانه/متن) ---------- */
+  .upload-composer { display: flex; flex-direction: column; }
+  .upload-composer .u-dropzone { order: 1; }
+  .upload-composer .u-title { order: 2; }
+  .upload-composer .u-text { order: 3; }
+  .upload-composer .u-tags { order: 4; }
+  .upload-composer .u-submit { order: 5; }
+  .upload-composer.mode-text .u-dropzone { display: none; }
+  .upload-composer.mode-text .u-text { order: 1; }
+  .upload-composer.mode-text .u-title { order: 2; }
+  .upload-composer.mode-text .u-tags { order: 3; }
+  .upload-composer.mode-text .u-submit { order: 4; }
+  .upload-composer.mode-text textarea#postText { min-height: 150px; }
+
+  /* ---------- کادر آپلود رسانه (دورچین‌دار) ---------- */
+  .media-dropzone {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    border: 2px dashed var(--border); border-radius: var(--radius);
+    background: var(--card); overflow: hidden; min-height: 168px;
+    cursor: pointer; margin-bottom: 12px;
+    transition: border-color 0.15s ease;
+  }
+  .media-dropzone:active { border-color: var(--accent); }
+  .media-dropzone.has-file { border-style: solid; padding: 0; }
+  .media-dropzone-inner {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: var(--subtext); text-align: center; padding: 30px 18px;
+  }
+  .media-dropzone-inner svg { width: 30px; height: 30px; color: var(--accent-hover); }
+  .media-dropzone-inner strong { font-size: 14px; color: var(--text); font-weight: 600; }
+  .media-dropzone-inner span { font-size: 12px; }
+  .media-dropzone.has-file .media-dropzone-inner { display: none; }
+  .media-dropzone-preview { width: 100%; }
+  .media-dropzone-preview.hidden { display: none; }
+  .media-dropzone-preview img,
+  .media-dropzone-preview video {
+    display: block; width: 100%; max-height: 340px; object-fit: contain; background: var(--surface);
+  }
+  .media-dropzone-preview .audio-preview-row {
+    display: flex; align-items: center; gap: 10px; padding: 18px; width: 100%;
+  }
+  .media-dropzone-preview .audio-preview-icon {
+    width: 40px; height: 40px; border-radius: 10px; background: var(--accent-gradient);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .media-dropzone-preview .audio-preview-icon svg { width: 18px; height: 18px; color: #fff; }
+  .media-dropzone-preview .audio-preview-name {
+    font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .media-dropzone-remove {
+    position: absolute; top: 8px; inset-inline-end: 8px; z-index: 2;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(0,0,0,0.55); color: #fff; border: none;
+    display: flex; align-items: center; justify-content: center; font-size: 17px; line-height: 1; cursor: pointer;
+  }
+  .media-dropzone-remove.hidden { display: none; }
+
+  /* ---------- کادر متنِ پست + شمارشگر کاراکتر ---------- */
+  .text-input-wrap { margin-bottom: 10px; }
+  .text-input-wrap textarea { margin-bottom: 2px; }
+  .text-counter { display: block; text-align: left; font-size: 11px; color: var(--subtext); }
+  .text-counter.limit { color: var(--error); }
+
+  /* ---------- کادر تگ‌ها (جدا از توضیحات، صرفاً تزیینی) ---------- */
+  .tags-input-wrap {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 0 12px; margin-bottom: 10px;
+  }
+  .tags-hash { color: var(--accent-hover); font-weight: 700; font-size: 15px; flex-shrink: 0; }
+  .tags-input-wrap input[type="text"] { background: none; border: none; padding: 10px 0; }
+  .tags-input-wrap input[type="text"]:focus { outline: none; }
+
+  .upload-submit-btn.primary { background: var(--accent-hover); }
+
   .upload-preview-wrap { margin-top: 18px; }
   .upload-preview-label { font-size: 13px; color: var(--subtext); margin-bottom: 8px; }
   .upload-preview-card { pointer-events: none; }
@@ -296,6 +396,19 @@
     transition: width 0.15s ease;
   }
   .upload-progress-label { font-size: 12px; color: var(--subtext); margin-top: 6px; text-align: center; }
+
+  .upload-success {
+    display: flex; align-items: center; gap: 8px; margin-top: 12px;
+    padding: 10px 14px; border-radius: 10px;
+    background: rgba(34,197,94,0.12); color: var(--success);
+    font-size: 13px; font-weight: 500;
+    animation: uploadSuccessIn 0.25s ease;
+  }
+  .upload-success svg { width: 18px; height: 18px; flex-shrink: 0; }
+  @keyframes uploadSuccessIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
   .error { color: var(--error); font-size: 13px; margin-top: 8px; min-height: 16px; }
 
@@ -1196,6 +1309,11 @@
 
     .top-nav { max-width: 500px; margin-inline: auto; }
     .surface-card { max-width: 700px; margin-inline: auto; }
+    .upload-mode-capsule { width: 140px; }
+    .upload-mode-btn { height: 42px; }
+    .media-dropzone { min-height: 240px; }
+    .media-dropzone-preview img,
+    .media-dropzone-preview video { max-height: 440px; }
 
     /* تو دسکتاپ، تو تب‌های رسانه/متن/سگ‌تونز، دو دکمه‌ی شناور «اسکرول‌بالا» و «رفرش» به‌جای گوشه‌های
        جدا از هم، یه‌جا وسط پایین صفحه و بالای مینی‌پلیر می‌شینن و درشت‌تر می‌شن — دسترسی راحت‌تر با موس */
@@ -1406,32 +1524,66 @@
 
   <!-- بخش پست جدید -->
   <div id="view-upload" class="view hidden">
-    <div class="surface-card">
-      <div class="title-input-wrap">
+
+    <!-- کپسول سوییچ حالت: رسانه / متن -->
+    <div class="upload-mode-capsule" id="uploadModeCapsule">
+      <span class="upload-mode-indicator" id="uploadModeIndicator"></span>
+      <button type="button" class="upload-mode-btn active" data-mode="media" onclick="setUploadMode('media')" aria-label="پست رسانه‌ای" title="رسانه">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      </button>
+      <button type="button" class="upload-mode-btn" data-mode="text" onclick="setUploadMode('text')" aria-label="پست متنی" title="متن">
+        <span class="upload-mode-t">T</span>
+      </button>
+    </div>
+
+    <div class="surface-card upload-composer mode-media" id="uploadComposer">
+
+      <!-- کادر آپلود رسانه (دورچین‌دار) — فقط تو حالت «رسانه» دیده می‌شه -->
+      <label class="media-dropzone u-dropzone" id="mediaDropzone" for="fileInput">
+        <input type="file" id="fileInput" accept="image/*,video/*,audio/*" class="hidden" onchange="onFileChosen()" />
+        <div class="media-dropzone-inner" id="mediaDropzoneInner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <strong>عکس، ویدیو یا آهنگ اضافه کن</strong>
+          <span>برای انتخاب فایل ضربه بزن</span>
+        </div>
+        <div class="media-dropzone-preview hidden" id="mediaDropzonePreview"></div>
+        <button type="button" class="media-dropzone-remove hidden" id="mediaDropzoneRemove" onclick="onRemoveDropzoneFile(event)" aria-label="حذف فایل">×</button>
+      </label>
+
+      <!-- عنوان -->
+      <div class="title-input-wrap u-title">
         <input type="text" id="postTitle" placeholder="عنوان کوتاه برای پست (اختیاری)" maxlength="15" oninput="onTitleInput()" />
         <span class="title-counter" id="titleCounter">۰/۱۵</span>
       </div>
-      <textarea id="postText" placeholder="چی می‌خوای توی دهات ثبت کنی؟" oninput="updateUploadPreview()"></textarea>
-      <div class="composer-tools">
-        <label class="attach-btn" id="attachLabel">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.5V7a2 2 0 0 0-2-2H9L7 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/><circle cx="17" cy="17" r="4"/><path d="M17 15.5v3M15.5 17h3"/></svg>
-          عکس، ویدیو یا آهنگ
-          <input type="file" id="fileInput" accept="image/*,video/*,audio/*" class="hidden" onchange="onFileChosen()" />
-        </label>
-        <div class="file-chip hidden" id="fileChip">
-          <span id="fileName"></span>
-          <button onclick="clearFile()">×</button>
-        </div>
+
+      <!-- متن/توضیحات -->
+      <div class="text-input-wrap u-text">
+        <textarea id="postText" placeholder="چی می‌خوای توی دهات ثبت کنی؟" maxlength="390" oninput="onPostTextInput()"></textarea>
+        <span class="text-counter" id="textCounter">۰/۳۹۰</span>
       </div>
-      <div class="submit-row">
-        <button class="primary" id="submitBtn" onclick="submitPost()">ثبت در دهات</button>
+
+      <!-- تگ‌ها (تزیینی، جدا از توضیحات) -->
+      <div class="tags-input-wrap u-tags">
+        <span class="tags-hash">#</span>
+        <input type="text" id="postTags" placeholder="تگ (اختیاری)" oninput="updateUploadPreview()" />
       </div>
-      <div class="upload-progress hidden" id="uploadProgressWrap">
-        <div class="upload-progress-track"><div class="upload-progress-fill" id="uploadProgressFill"></div></div>
-        <div class="upload-progress-label" id="uploadProgressLabel">۰٪</div>
+
+      <!-- دکمه ارسال -->
+      <div class="submit-row u-submit">
+        <button class="primary upload-submit-btn" id="submitBtn" onclick="submitPost()">ثبت در دهات</button>
       </div>
-      <div class="error" id="postError"></div>
+
     </div>
+
+    <div class="upload-progress hidden" id="uploadProgressWrap">
+      <div class="upload-progress-track"><div class="upload-progress-fill" id="uploadProgressFill"></div></div>
+      <div class="upload-progress-label" id="uploadProgressLabel">۰٪</div>
+    </div>
+    <div class="upload-success hidden" id="uploadSuccessMsg">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <span>با موفقیت ثبت شد</span>
+    </div>
+    <div class="error" id="postError"></div>
 
     <div class="upload-preview-wrap hidden" id="uploadPreviewWrap">
       <div class="upload-preview-label">پیش‌نمایش پست</div>
@@ -2131,18 +2283,54 @@ function switchView(name, forceReload = false) {
   if (name === "admin" && (forceReload || !feedState.admin.loaded)) {
     loadAdminFeed(true);
   }
+  if (name === "upload" && typeof positionUploadModeIndicator === "function") {
+    // تازه نمایان شده، پس یه فریم صبر می‌کنیم تا ابعادش قابل اندازه‌گیری باشه
+    requestAnimationFrame(positionUploadModeIndicator);
+  }
 }
 
 let selectedFile = null;
 let selectedAudioMeta = { title: "", performer: "", coverBlob: null };
 let selectedFilePreviewUrl = null;
+let dzPreviewUrl = null;
+let uploadMode = "media";
+
+// ---------- کپسول سوییچ حالت آپلود: رسانه / متن ----------
+function setUploadMode(mode) {
+  uploadMode = mode;
+  const btnMedia = document.querySelector('.upload-mode-btn[data-mode="media"]');
+  const btnText = document.querySelector('.upload-mode-btn[data-mode="text"]');
+  const composer = document.getElementById("uploadComposer");
+  if (btnMedia) btnMedia.classList.toggle("active", mode === "media");
+  if (btnText) btnText.classList.toggle("active", mode === "text");
+  if (composer) composer.classList.toggle("mode-text", mode === "text");
+
+  // تو حالت متنی نمی‌شه فایل ضمیمه کرد، پس اگه قبلاً فایلی انتخاب شده بود پاکش می‌کنیم
+  if (mode === "text" && selectedFile) clearFile();
+
+  const textEl = document.getElementById("postText");
+  if (textEl) textEl.placeholder = mode === "text" ? "چی می‌خوای توی دهات ثبت کنی؟" : "توضیحاتی برای رسانه‌ات بنویس (اختیاری)";
+
+  positionUploadModeIndicator();
+  updateUploadPreview();
+}
+
+function positionUploadModeIndicator() {
+  const capsule = document.getElementById("uploadModeCapsule");
+  const indicator = document.getElementById("uploadModeIndicator");
+  const activeBtn = document.querySelector(`.upload-mode-btn[data-mode="${uploadMode}"]`);
+  if (!capsule || !indicator || !activeBtn) return;
+  const capsuleRect = capsule.getBoundingClientRect();
+  const btnRect = activeBtn.getBoundingClientRect();
+  if (!capsuleRect.width || !btnRect.width) return; // نما هنوز مخفیه، فاصله‌ای برای اندازه‌گیری نیست
+  indicator.style.width = `${btnRect.width}px`;
+  indicator.style.transform = `translateX(${btnRect.left - capsuleRect.left}px)`;
+}
 
 function onFileChosen() {
   const input = document.getElementById("fileInput");
   selectedFile = input.files[0] || null;
-  document.getElementById("fileChip").classList.toggle("hidden", !selectedFile);
-  document.getElementById("attachLabel").classList.toggle("hidden", !!selectedFile);
-  if (selectedFile) document.getElementById("fileName").textContent = selectedFile.name;
+  renderMediaDropzone();
 
   selectedAudioMeta = { title: "", performer: "", coverBlob: null };
   if (selectedFile && selectedFile.type.startsWith("audio/") && window.jsmediatags) {
@@ -2166,12 +2354,57 @@ function onFileChosen() {
   }
   updateUploadPreview();
 }
+
+// پیش‌نمایشِ داخلِ خودِ کادرِ دورچین‌دار (جایگزینِ متن راهنما وقتی فایلی انتخاب شد)
+function renderMediaDropzone() {
+  const dz = document.getElementById("mediaDropzone");
+  const previewBox = document.getElementById("mediaDropzonePreview");
+  const removeBtn = document.getElementById("mediaDropzoneRemove");
+  if (!dz || !previewBox || !removeBtn) return;
+
+  if (dzPreviewUrl) { URL.revokeObjectURL(dzPreviewUrl); dzPreviewUrl = null; }
+
+  if (!selectedFile) {
+    dz.classList.remove("has-file");
+    previewBox.classList.add("hidden");
+    previewBox.innerHTML = "";
+    removeBtn.classList.add("hidden");
+    return;
+  }
+
+  dz.classList.add("has-file");
+  removeBtn.classList.remove("hidden");
+  dzPreviewUrl = URL.createObjectURL(selectedFile);
+
+  let html = "";
+  if (selectedFile.type.startsWith("image/")) {
+    html = `<img src="${dzPreviewUrl}" alt="" />`;
+  } else if (selectedFile.type.startsWith("video/")) {
+    html = `<video src="${dzPreviewUrl}" muted playsinline></video>`;
+  } else if (selectedFile.type.startsWith("audio/")) {
+    html = `
+      <div class="audio-preview-row">
+        <div class="audio-preview-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+        <div class="audio-preview-name">${escapeHtml(selectedFile.name)}</div>
+      </div>`;
+  }
+  previewBox.innerHTML = html;
+  previewBox.classList.remove("hidden");
+}
+
+function onRemoveDropzoneFile(evt) {
+  // چون کادر خودش یه <label for="fileInput">‌ـه، باید جلوی باز شدنِ دوباره‌ی انتخاب‌گر فایل رو بگیریم
+  evt.preventDefault();
+  evt.stopPropagation();
+  clearFile();
+}
+
 function clearFile() {
   selectedFile = null;
   selectedAudioMeta = { title: "", performer: "", coverBlob: null };
-  document.getElementById("fileInput").value = "";
-  document.getElementById("fileChip").classList.add("hidden");
-  document.getElementById("attachLabel").classList.remove("hidden");
+  const input = document.getElementById("fileInput");
+  if (input) input.value = "";
+  renderMediaDropzone();
   updateUploadPreview();
 }
 
@@ -2184,14 +2417,27 @@ function onTitleInput() {
   updateUploadPreview();
 }
 
+// ---------- کادر متن/توضیحات پست (حداکثر ۳۹۰ کاراکتر) ----------
+function onPostTextInput() {
+  const val = document.getElementById("postText").value;
+  const counterEl = document.getElementById("textCounter");
+  if (counterEl) {
+    counterEl.textContent = `${toPersianDigits(val.length)}/۳۹۰`;
+    counterEl.classList.toggle("limit", val.length >= 390);
+  }
+  updateUploadPreview();
+}
+
 // ---------- پیش‌نمایش زنده‌ی پست، دقیقاً هم‌شکل کارتی که بعد از ثبت توی فید دیده می‌شه ----------
 function updateUploadPreview() {
   const wrap = document.getElementById("uploadPreviewWrap");
   const card = document.getElementById("uploadPreviewCard");
   const title = document.getElementById("postTitle").value.trim().slice(0, 15);
   const text = document.getElementById("postText").value.trim();
+  const tagsInput = document.getElementById("postTags");
+  const tagsRaw = tagsInput ? tagsInput.value.trim() : "";
 
-  if (!text && !selectedFile && !title) {
+  if (!text && !selectedFile && !title && !tagsRaw) {
     wrap.classList.add("hidden");
     card.innerHTML = "";
     return;
@@ -2239,7 +2485,18 @@ function updateUploadPreview() {
     }
   }
 
-  card.innerHTML = `${header}${mediaHtml}${textHtml}${timeHtml}`;
+  // تگ‌ها صرفاً تزیینی‌ان و به سرور ارسال نمی‌شن؛ فقط تو پیش‌نمایش به‌شکل چیپ نشون داده می‌شن
+  let tagsHtml = "";
+  if (tagsRaw) {
+    const tagList = tagsRaw.split(/[\s,،]+/).filter(Boolean).slice(0, 6);
+    if (tagList.length) {
+      tagsHtml = `<div class="entry-tags" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">${tagList
+        .map((t) => `<span style="font-size:11px; color:var(--accent-hover); background:rgba(139,92,246,0.12); border:1px solid var(--border); border-radius:999px; padding:3px 10px;">#${escapeHtml(t)}</span>`)
+        .join("")}</div>`;
+    }
+  }
+
+  card.innerHTML = `${header}${mediaHtml}${textHtml}${tagsHtml}${timeHtml}`;
 }
 
 // ---------- پاکسازی متادیتا قبل از آپلود ----------
@@ -2393,13 +2650,21 @@ async function submitPost() {
   // از اینجا به بعد، پست با موفقیت روی سرور ثبت شده؛ حتی اگه توی ریست‌کردن فرم یا سوییچ‌کردن نما
   // خطایی پیش بیاد، دیگه نباید به کاربر پیغام «خطا» نشون داده بشه — چون آپلود واقعاً موفق بوده
   errEl.textContent = "";
-  progressFill.style.width = "100%";
-  progressLabel.textContent = "تموم شد ✓";
-  await new Promise((r) => setTimeout(r, 350));
+  const successMsg = document.getElementById("uploadSuccessMsg");
+  if (successMsg) successMsg.classList.remove("hidden");
+
+  // پیش‌نمایش و پیام موفقیت رو ۲ ثانیه نگه می‌داریم تا کاربر ببینتش، بعد کل فرم (متن، عنوان، فایل،
+  // پیش‌نمایش) رو برای پست بعدی از صفر ریست می‌کنیم
+  await new Promise((r) => setTimeout(r, 2000));
+
+  if (successMsg) successMsg.classList.add("hidden");
   try {
     document.getElementById("postText").value = "";
     document.getElementById("postTitle").value = "";
+    const tagsEl = document.getElementById("postTags");
+    if (tagsEl) tagsEl.value = "";
     onTitleInput();
+    onPostTextInput();
     clearFile();
     switchView(targetView, true);
   } catch (e) {
@@ -3435,22 +3700,29 @@ function toggleFullPlayerRepeat(e) {
 let fullPlayerSeekLoopId = null;
 function startFullPlayerSeekLoop() {
   if (fullPlayerSeekLoopId) return;
+  // رفرنس‌های DOM رو یه‌بار می‌گیریم، نه هر فریم (getElementById هر فریم روی موبایل هزینه‌ی محسوسی داره)
+  const panel = document.getElementById("fullPlayer");
+  const seek = document.getElementById("fullPlayerSeek");
+  const curEl = document.getElementById("fullPlayerTimeCur");
+  const durEl = document.getElementById("fullPlayerTimeDur");
+  let lastTextSecond = -1; // متن زمان فقط وقتی عدد ثانیه واقعاً عوض بشه آپدیت می‌شه، نه هر فریم
   const tick = () => {
-    const panel = document.getElementById("fullPlayer");
     if (!panel || !panel.classList.contains("open")) {
       fullPlayerSeekLoopId = null;
+      lastTextSecond = -1;
       return;
     }
     if (currentAudio && currentAudio.audioEl.duration) {
       const audioEl = currentAudio.audioEl;
       const isLoading = !!(audioLoadState[currentAudio.safeId] && audioLoadState[currentAudio.safeId].pending);
       if (!isLoading) {
-        const seek = document.getElementById("fullPlayerSeek");
         if (seek && !seek.dataset.dragging) seek.value = (audioEl.currentTime / audioEl.duration) * 100;
-        const curEl = document.getElementById("fullPlayerTimeCur");
-        const durEl = document.getElementById("fullPlayerTimeDur");
-        if (curEl) curEl.textContent = formatTime(audioEl.currentTime);
-        if (durEl) durEl.textContent = formatTime(audioEl.duration);
+        const curSecond = Math.floor(audioEl.currentTime);
+        if (curSecond !== lastTextSecond) {
+          lastTextSecond = curSecond;
+          if (curEl) curEl.textContent = formatTime(audioEl.currentTime);
+          if (durEl) durEl.textContent = formatTime(audioEl.duration);
+        }
       }
     }
     fullPlayerSeekLoopId = requestAnimationFrame(tick);
@@ -3543,14 +3815,24 @@ function startVisualizerLoop() {
     return g;
   }
 
+  // فریم‌ریت رسم رو به حدود ۳۰ در ثانیه محدود می‌کنیم؛ چون این یه موج نویزِ کندِ ساختگیه (نه دیتای واقعی صدا)،
+  // با چشم غیرمسلح هیچ فرقی با ۶۰fps نداره ولی نصف بار پردازش/رندر رو از گوشی‌های ضعیف‌تر برمی‌داره
+  const VIZ_FRAME_INTERVAL = 1000 / 30;
+  let vizFrameAcc = 0;
+
   function draw(ts) {
     vizAnimationId = requestAnimationFrame(draw);
     if (!canvas.width || !canvas.height) return;
+
+    const dt = vizLastTs ? Math.min(ts - vizLastTs, 100) : 16;
+    vizLastTs = ts;
+    vizFrameAcc += dt;
+    if (vizFrameAcc < VIZ_FRAME_INTERVAL) return; // این فریم رو رد کن، هنوز وقتش نشده
+    vizFrameAcc = 0;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const isPlaying = !!(currentAudio && !currentAudio.audioEl.paused);
-    const dt = vizLastTs ? Math.min(ts - vizLastTs, 100) : 16;
-    vizLastTs = ts;
 
     // موقع پخش، فاز سریع‌تر و با دامنه‌ی بیشتر جابه‌جا می‌شه (حس ریتم)؛ موقع مکث، یه نفسِ خیلی آروم (breathing)
     const speed = isPlaying ? 0.0026 : 0.0006;
@@ -3566,22 +3848,31 @@ function startVisualizerLoop() {
     const amplitude = isPlaying ? 1 : 0.22;
     const baseline = isPlaying ? 0.16 : 0.09;
 
+    // میله‌ها رو به‌جای fill جداگانه (که shadowBlur روش خیلی سنگینه، خصوصاً موبایل)، توی چند دسته بر اساس
+    // شفافیت‌شون گروه‌بندی می‌کنیم و هر دسته رو با یه Path واحد fill می‌کنیم؛ همون ظاهر قبلی (شفافیت متغیر
+    // بر اساس ارتفاع میله) حفظ می‌شه ولی تعداد fill از «به تعداد میله‌ها» به «چند دسته‌ی ثابت» می‌رسه.
     ctx.fillStyle = gradient;
     ctx.shadowColor = (currentVizColors && currentVizColors[0]) || themeAccent;
     ctx.shadowBlur = 10 * dpr;
 
+    const ALPHA_BUCKETS = 8;
+    const buckets = Array.from({ length: ALPHA_BUCKETS }, () => new Path2D());
     for (let i = 0; i < barCount; i++) {
       const x = i * step;
       const n = vizNoise(i * 0.5 + vizPhase * 40); // نسبت -۱ تا ۱ تقریبی
       const v = Math.max(baseline + (n * 0.5 + 0.5) * amplitude * 0.85, 0.04);
       const barHeight = Math.max(v * canvas.height, radius * 2);
       const y = canvas.height - barHeight;
-      ctx.globalAlpha = 0.5 + v * 0.5;
-      ctx.beginPath();
-      ctx.roundRect(x, y, barWidth, barHeight, radius);
-      ctx.fill();
+      const alpha = 0.5 + v * 0.5;
+      const bucketIdx = Math.min(ALPHA_BUCKETS - 1, Math.max(0, Math.round(alpha * (ALPHA_BUCKETS - 1))));
+      buckets[bucketIdx].roundRect(x, y, barWidth, barHeight, radius);
+    }
+    for (let b = 0; b < ALPHA_BUCKETS; b++) {
+      ctx.globalAlpha = b / (ALPHA_BUCKETS - 1);
+      ctx.fill(buckets[b]);
     }
     ctx.shadowBlur = 0;
+    ctx.globalAlpha = 1;
   }
   vizAnimationId = requestAnimationFrame(draw);
 }
