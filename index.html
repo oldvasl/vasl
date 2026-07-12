@@ -1333,13 +1333,25 @@
   /* فیلتر رسانه/متن داخل پروفایل */
   .profile-filter { display: flex; gap: 8px; margin-bottom: 14px; }
 
-  /* ---------- چت: تب‌ها، لیست گفتگوها، دکمه‌ی شناورِ گفتگوی جدید ---------- */
-  .chat-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
-  .chat-tab {
-    flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    padding: 10px; font-size: 13.5px; font-weight: 600; color: var(--subtext); cursor: pointer; font-family: inherit;
+  /* ---------- چت: تب‌ها (کپسولِ متحرک)، لیست گفتگوها، دکمه‌ی شناورِ گفتگوی جدید ---------- */
+  .chat-tabs {
+    display: flex; gap: 4px; margin-bottom: 14px; position: relative; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 14px; padding: 4px;
   }
-  .chat-tab.active { background: var(--accent-gradient); color: #fff; border-color: transparent; }
+  .chat-tabs-capsule {
+    position: absolute; top: 4px; bottom: 4px; width: calc(50% - 4px); border-radius: 10px;
+    background: var(--accent-gradient); transition: transform 0.32s cubic-bezier(.22,1,.36,1); z-index: 0;
+  }
+  html[dir="rtl"] .chat-tabs-capsule { right: 4px; }
+  html[dir="rtl"] .chat-tabs-capsule.pos-1 { transform: translateX(calc(-100% - 4px)); }
+  html:not([dir="rtl"]) .chat-tabs-capsule { left: 4px; }
+  html:not([dir="rtl"]) .chat-tabs-capsule.pos-1 { transform: translateX(calc(100% + 4px)); }
+  .chat-tab {
+    flex: 1; position: relative; z-index: 1; background: none; border: none; border-radius: 10px;
+    padding: 10px; font-size: 13.5px; font-weight: 600; color: var(--subtext); cursor: pointer; font-family: inherit;
+    transition: color 0.25s;
+  }
+  .chat-tab.active { color: #fff; }
   .chat-list { display: flex; flex-direction: column; gap: 4px; padding-bottom: 70px; }
   .chat-list.hidden { display: none; }
   .chat-list-empty { text-align: center; padding: 50px 20px; font-size: 14px; color: var(--subtext); }
@@ -1348,13 +1360,21 @@
     background: var(--surface); border: 1px solid var(--border); transition: background 0.15s;
   }
   .chat-list-item:hover { background: var(--card); }
+  .chat-avatar-wrap { position: relative; flex-shrink: 0; }
   .chat-avatar {
     width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center;
-    justify-content: center; color: #fff; font-size: 17px; font-weight: 700;
+    justify-content: center; color: #fff; font-size: 17px; font-weight: 700; overflow: hidden; background-size: cover; background-position: center;
   }
+  .chat-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .chat-online-dot {
+    position: absolute; bottom: 0; left: 0; width: 12px; height: 12px; border-radius: 50%;
+    background: var(--success); border: 2px solid var(--surface); display: none;
+  }
+  .chat-avatar-wrap.online .chat-online-dot { display: block; }
   .chat-item-info { min-width: 0; flex: 1; }
   .chat-item-name { font-size: 14.5px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .chat-item-preview { font-size: 12.5px; color: var(--subtext); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .chat-item-name .chat-item-member-count { font-weight: 400; color: var(--subtext); font-size: 12px; margin-inline-start: 4px; }
+  .chat-item-preview { font-size: 12.5px; color: var(--subtext); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; display: flex; align-items: center; gap: 3px; }
   .chat-unread-badge {
     background: var(--accent-gradient); color: #fff; font-size: 11px; font-weight: 700; min-width: 20px; height: 20px;
     border-radius: 10px; display: flex; align-items: center; justify-content: center; padding: 0 6px; flex-shrink: 0;
@@ -1366,6 +1386,15 @@
     box-shadow: 0 6px 18px rgba(0,0,0,0.35);
   }
   .chat-fab svg { width: 24px; height: 24px; }
+
+  /* ---------- نشان پیام جدید روی دکمه‌ی چتِ نوار ناوبری ---------- */
+  .nav-item { position: relative; }
+  .nav-chat-badge {
+    position: absolute; top: 2px; inset-inline-end: 14px; min-width: 16px; height: 16px; border-radius: 8px;
+    background: #EF4444; border: 2px solid var(--surface); display: none; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: #fff; padding: 0 3px;
+  }
+  .nav-chat-badge.show { display: flex; }
 
   /* ---------- چت: صفحه‌ی مکالمه (کل‌صفحه) ---------- */
   .chat-conversation {
@@ -1384,13 +1413,24 @@
   }
   .chat-conv-back svg { width: 18px; height: 18px; transform: scaleX(-1); }
   html[dir="rtl"] .chat-conv-back svg { transform: none; }
+  .chat-conv-avatar-wrap { position: relative; flex-shrink: 0; cursor: pointer; }
   .chat-conv-avatar {
     width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center;
-    justify-content: center; color: #fff; font-size: 14px; font-weight: 700;
+    justify-content: center; color: #fff; font-size: 14px; font-weight: 700; overflow: hidden;
   }
+  .chat-conv-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .chat-conv-titles { min-width: 0; flex: 1; display: flex; flex-direction: column; cursor: pointer; }
   .chat-conv-title { font-size: 15px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat-conv-subtitle { font-size: 11.5px; color: var(--subtext); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat-conv-subtitle.online { color: var(--success); }
+  .chat-conv-header-actions { display: flex; align-items: center; gap: 6px; margin-inline-start: auto; flex-shrink: 0; }
+  .chat-conv-icon-btn {
+    background: var(--card); border: 1px solid var(--border); color: var(--subtext); cursor: pointer; width: 32px; height: 32px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .chat-conv-icon-btn svg { width: 16px; height: 16px; }
   .chat-conv-block-btn {
-    margin-inline-start: auto; background: var(--card); border: 1px solid var(--border); color: var(--subtext);
+    background: var(--card); border: 1px solid var(--border); color: var(--subtext);
     font-size: 11.5px; font-family: inherit; cursor: pointer; border-radius: 14px; padding: 6px 12px; flex-shrink: 0;
   }
   .chat-conv-block-btn.is-blocked { color: #EF4444; border-color: #EF4444; }
@@ -1401,23 +1441,57 @@
     -webkit-overflow-scrolling: touch;
   }
   .chat-loading { text-align: center; padding: 30px; font-size: 13px; color: var(--subtext); }
-  .chat-bubble-row { display: flex; }
+  .chat-load-more { text-align: center; padding: 6px; font-size: 12px; color: var(--subtext); }
+  .chat-bubble-row { display: flex; align-items: flex-end; gap: 6px; }
   .chat-bubble-row.mine { justify-content: flex-start; }
   .chat-bubble-row.theirs { justify-content: flex-end; }
+  .chat-bubble-wrap { display: flex; flex-direction: column; max-width: 78%; }
+  .chat-bubble-row.mine .chat-bubble-wrap { align-items: flex-start; }
+  .chat-bubble-row.theirs .chat-bubble-wrap { align-items: flex-end; }
   .chat-bubble {
-    max-width: 78%; border-radius: 16px; padding: 8px 12px; font-size: 13.5px; line-height: 1.6;
+    max-width: 100%; border-radius: 16px; padding: 8px 12px; font-size: 13.5px; line-height: 1.6; position: relative;
   }
   .chat-bubble-row.mine .chat-bubble { background: var(--accent-gradient); color: #fff; border-bottom-left-radius: 4px; }
   .chat-bubble-row.theirs .chat-bubble { background: var(--card); color: var(--text); border-bottom-right-radius: 4px; }
   .chat-bubble.chat-bubble-sticker-wrap { background: none; padding: 0; border-radius: 0; }
+  .chat-bubble.chat-bubble-deleted { opacity: 0.6; font-style: italic; }
   .chat-bubble-sticker { width: 110px; height: 110px; object-fit: contain; display: block; }
   .chat-bubble-text { white-space: pre-line; word-break: break-word; }
   .chat-bubble-image { max-width: 100%; border-radius: 10px; display: block; margin-bottom: 4px; }
   .chat-bubble-audio { width: 220px; max-width: 100%; margin-bottom: 4px; }
+  .chat-bubble-meta { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--subtext); margin-top: 3px; padding: 0 4px; }
+  .chat-bubble-edited-tag { opacity: 0.8; }
+  .chat-receipt { width: 14px; height: 14px; }
+  .chat-receipt.read path { stroke: var(--accent); }
+  .chat-bubble-sender-name { font-size: 11px; font-weight: 700; color: var(--accent-hover); margin-bottom: 3px; }
+  .chat-bubble-long-press { user-select: none; -webkit-touch-callout: none; }
+
+  /* ---------- چت: منوی زمینه‌ای ویرایش/حذف پیام ---------- */
+  .chat-msg-menu-backdrop {
+    position: fixed; inset: 0; z-index: 340; background: rgba(0,0,0,0.35); display: flex; align-items: flex-end; justify-content: center;
+  }
+  .chat-msg-menu {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px 16px 0 0; width: 100%; max-width: 480px;
+    padding: 8px; padding-bottom: calc(8px + var(--safe-bottom));
+  }
+  .chat-msg-menu-item {
+    display: flex; align-items: center; gap: 10px; width: 100%; background: none; border: none; color: var(--text);
+    font-family: inherit; font-size: 14px; padding: 13px 14px; border-radius: 10px; cursor: pointer; text-align: right;
+  }
+  .chat-msg-menu-item:hover { background: var(--card); }
+  .chat-msg-menu-item.danger { color: #EF4444; }
+  .chat-msg-menu-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+
   .chat-conv-composer {
     display: flex; align-items: flex-end; gap: 6px; padding: 10px 12px calc(10px + var(--safe-bottom));
     border-top: 1px solid var(--border); background: var(--surface); flex-shrink: 0;
   }
+  .chat-edit-banner {
+    display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--card); border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--subtext); flex-shrink: 0;
+  }
+  .chat-edit-banner.hidden { display: none; }
+  .chat-edit-banner-cancel { margin-inline-start: auto; background: none; border: none; color: var(--accent-hover); cursor: pointer; font-family: inherit; font-size: 12px; }
   .chat-attach-btn {
     background: none; border: none; color: var(--subtext); cursor: pointer; width: 34px; height: 34px;
     border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -1433,6 +1507,121 @@
     display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
   }
   .chat-send-btn svg { width: 17px; height: 17px; }
+
+  /* ---------- چت: کارتِ گروه به‌سبکِ کامیونیتی‌های دیسکورد ---------- */
+  .chat-group-card {
+    display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; cursor: pointer;
+    background: var(--card-gradient); border: 1px solid var(--border); transition: transform 0.15s, background 0.15s;
+  }
+  .chat-group-card:active { transform: scale(0.98); }
+  .chat-group-icon {
+    width: 52px; height: 52px; border-radius: 16px; flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; color: #fff; font-size: 19px; font-weight: 800; background: var(--accent-gradient);
+  }
+  .chat-group-info { min-width: 0; flex: 1; }
+  .chat-group-name { font-size: 14.5px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat-group-meta { font-size: 12px; color: var(--subtext); display: flex; align-items: center; gap: 5px; margin-top: 3px; }
+  .chat-group-meta svg { width: 12px; height: 12px; }
+  .chat-group-preview { font-size: 12px; color: var(--subtext); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+
+  /* ---------- چت: پنل مدیریت اعضای گروه (به‌سبک صفحه‌ی اعضای دیسکورد) ---------- */
+  .chat-members-panel {
+    position: fixed; inset: 0; z-index: 300; background: var(--bg, var(--surface)); display: flex; flex-direction: column;
+    transform: translateX(105%); pointer-events: none; transition: transform 0.28s cubic-bezier(.22,1,.36,1);
+  }
+  .chat-members-panel.open { transform: translateX(0); pointer-events: auto; }
+  .chat-members-header {
+    display: flex; align-items: center; gap: 10px; padding: calc(12px + var(--safe-top)) 16px 12px;
+    border-bottom: 1px solid var(--border); flex-shrink: 0; background: var(--surface);
+  }
+  .chat-members-title { font-size: 15px; font-weight: 700; color: var(--text); }
+  .chat-members-body { flex: 1; overflow-y: auto; padding: 14px 16px calc(90px + var(--safe-bottom)); }
+  .chat-members-section-title { font-size: 12px; color: var(--subtext); margin: 14px 4px 8px; font-weight: 600; }
+  .chat-member-row { display: flex; align-items: center; gap: 12px; padding: 9px 6px; border-radius: 12px; }
+  .chat-member-row:hover { background: var(--surface); }
+  .chat-member-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .chat-member-role { font-size: 11px; color: var(--accent-hover); margin-inline-start: 6px; }
+  .chat-member-status { font-size: 11.5px; color: var(--subtext); margin-top: 1px; }
+  .chat-member-status.online { color: var(--success); }
+  .chat-member-actions { margin-inline-start: auto; display: flex; gap: 6px; }
+  .chat-member-action-btn {
+    background: var(--card); border: 1px solid var(--border); color: var(--subtext); cursor: pointer; width: 30px; height: 30px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .chat-member-action-btn svg { width: 14px; height: 14px; }
+  .chat-member-action-btn.danger { color: #EF4444; border-color: #EF4444; }
+  .chat-members-footer {
+    position: fixed; bottom: 0; inset-inline: 0; padding: 12px 16px calc(12px + var(--safe-bottom)); background: var(--surface);
+    border-top: 1px solid var(--border); display: flex; gap: 8px; z-index: 301;
+  }
+  .chat-members-leave-btn {
+    flex: 1; background: var(--card); border: 1px solid #EF4444; color: #EF4444; font-family: inherit; font-size: 13.5px;
+    font-weight: 600; padding: 11px; border-radius: 12px; cursor: pointer;
+  }
+  .chat-members-add-btn {
+    flex: 1; background: var(--accent-gradient); border: none; color: #fff; font-family: inherit; font-size: 13.5px;
+    font-weight: 600; padding: 11px; border-radius: 12px; cursor: pointer;
+  }
+
+  /* ---------- چت: جستجوی کاربر (اتوکامپلیت برای شروع چت / ساخت گروه / افزودن عضو) ---------- */
+  .user-search-modal-backdrop {
+    position: fixed; inset: 0; z-index: 320; background: rgba(0,0,0,0.45); display: flex; align-items: flex-end; justify-content: center;
+  }
+  .user-search-modal {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 18px 18px 0 0; width: 100%; max-width: 480px;
+    max-height: 82vh; display: flex; flex-direction: column; padding-bottom: var(--safe-bottom);
+  }
+  .user-search-modal-header { padding: 16px 16px 10px; flex-shrink: 0; }
+  .user-search-modal-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+  .user-search-input-wrap { position: relative; }
+  .user-search-input {
+    width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 38px 10px 14px;
+    font-size: 13.5px; font-family: inherit; color: var(--text);
+  }
+  .user-search-input-wrap svg {
+    position: absolute; inset-inline-end: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--subtext);
+  }
+  .user-search-group-title-input {
+    width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px;
+    font-size: 13.5px; font-family: inherit; color: var(--text); margin-top: 8px; display: none;
+  }
+  .user-search-group-title-input.show { display: block; }
+  .user-search-selected { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .user-search-chip {
+    display: flex; align-items: center; gap: 5px; background: var(--accent-gradient); color: #fff; font-size: 12px;
+    padding: 5px 8px 5px 10px; border-radius: 14px;
+  }
+  .user-search-chip button { background: none; border: none; color: #fff; cursor: pointer; display: flex; padding: 0; }
+  .user-search-chip button svg { width: 12px; height: 12px; }
+  .user-search-results { flex: 1; overflow-y: auto; padding: 6px 10px 14px; }
+  .user-search-empty { text-align: center; padding: 30px 16px; font-size: 13px; color: var(--subtext); }
+  .user-search-result-item {
+    display: flex; align-items: center; gap: 12px; padding: 9px 8px; border-radius: 12px; cursor: pointer;
+  }
+  .user-search-result-item:hover { background: var(--card); }
+  .user-search-result-item.selected { background: color-mix(in srgb, var(--accent) 20%, transparent); }
+  .user-search-result-name { font-size: 13.5px; font-weight: 600; color: var(--text); flex: 1; }
+  .user-search-confirm-btn {
+    margin: 8px 16px calc(10px + var(--safe-bottom)); background: var(--accent-gradient); border: none; color: #fff;
+    font-family: inherit; font-size: 14px; font-weight: 700; padding: 12px; border-radius: 12px; cursor: pointer; flex-shrink: 0;
+  }
+  .user-search-confirm-btn:disabled { opacity: 0.5; cursor: default; }
+
+  /* ---------- سیستم توستِ خطا/موفقیت (جایگزین alert) ---------- */
+  .toast-stack {
+    position: fixed; top: calc(14px + var(--safe-top)); inset-inline: 0; z-index: 999; display: flex; flex-direction: column;
+    align-items: center; gap: 8px; pointer-events: none; padding: 0 16px;
+  }
+  .toast-item {
+    pointer-events: auto; max-width: 420px; width: 100%; background: var(--card); border: 1px solid var(--border);
+    color: var(--text); font-size: 13px; padding: 12px 16px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    display: flex; align-items: center; gap: 10px; transform: translateY(-16px); opacity: 0; transition: transform 0.25s, opacity 0.25s;
+  }
+  .toast-item.show { transform: translateY(0); opacity: 1; }
+  .toast-item.error { border-color: #EF4444; }
+  .toast-item.error .toast-dot { background: #EF4444; }
+  .toast-item.success .toast-dot { background: var(--success); }
+  .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
   .filter-chip {
     background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
     padding: 6px 14px; font-size: 12px; color: var(--subtext); cursor: pointer; font-family: inherit;
@@ -1737,6 +1926,7 @@
     <button class="nav-item" id="navBtn-chat" onclick="switchView('chat')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       <span>چت</span>
+      <span class="nav-chat-badge" id="navChatBadge"></span>
     </button>
   </nav>
 
@@ -1892,6 +2082,7 @@
   <!-- بخش چت خصوصی/گروهی -->
   <div id="view-chat" class="view hidden">
     <div class="chat-tabs">
+      <div class="chat-tabs-capsule pos-0" id="chatTabsCapsule"></div>
       <button class="chat-tab active" id="chatTab-direct" onclick="switchChatTab('direct')">خصوصی</button>
       <button class="chat-tab" id="chatTab-group" onclick="switchChatTab('group')">گروه‌ها</button>
     </div>
@@ -1908,12 +2099,26 @@
       <button class="chat-conv-back" onclick="closeChatConversation()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </button>
-      <div class="chat-conv-avatar" id="chatConvAvatar"></div>
-      <span class="chat-conv-title" id="chatConvTitle"></span>
-      <button class="chat-conv-block-btn hidden" id="chatBlockBtn" onclick="toggleChatBlock()">مسدودکردن</button>
+      <div class="chat-conv-avatar-wrap" id="chatConvAvatarWrap" onclick="onChatHeaderClick()">
+        <div class="chat-conv-avatar" id="chatConvAvatar"></div>
+      </div>
+      <div class="chat-conv-titles" onclick="onChatHeaderClick()">
+        <span class="chat-conv-title" id="chatConvTitle"></span>
+        <span class="chat-conv-subtitle" id="chatConvSubtitle"></span>
+      </div>
+      <div class="chat-conv-header-actions">
+        <button class="chat-conv-icon-btn hidden" id="chatMembersBtn" title="اعضای گروه" onclick="openChatMembersPanel()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </button>
+        <button class="chat-conv-block-btn hidden" id="chatBlockBtn" onclick="toggleChatBlock()">مسدودکردن</button>
+      </div>
     </div>
     <div class="chat-conv-messages" id="chatConvMessages"></div>
     <div class="chat-conv-blocked-notice hidden" id="chatBlockedNotice">این کاربر رو مسدود کردی؛ برای ارسال پیام، اول رفعِ مسدودی کن</div>
+    <div class="chat-edit-banner hidden" id="chatEditBanner">
+      <span>در حال ویرایش پیام</span>
+      <button class="chat-edit-banner-cancel" onclick="cancelEditChatMessage()">انصراف</button>
+    </div>
     <div class="chat-conv-composer" id="chatConvComposer">
       <button class="chat-attach-btn" title="عکس" onclick="document.getElementById('chatImageInput').click()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
@@ -1932,6 +2137,24 @@
       </button>
     </div>
   </div>
+
+  <!-- پنل اعضای گروه -->
+  <div id="chatMembersPanel" class="chat-members-panel">
+    <div class="chat-members-header">
+      <button class="chat-conv-back" onclick="closeChatMembersPanel()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <span class="chat-members-title" id="chatMembersTitle">اعضای گروه</span>
+    </div>
+    <div class="chat-members-body" id="chatMembersBody"></div>
+    <div class="chat-members-footer">
+      <button class="chat-members-leave-btn" onclick="leaveChatGroup()">خروج از گروه</button>
+      <button class="chat-members-add-btn hidden" id="chatMembersAddBtn" onclick="openAddMembersModal()">افزودن عضو</button>
+    </div>
+  </div>
+
+  <!-- توست‌های خطا/موفقیت -->
+  <div class="toast-stack" id="toastStack"></div>
 
   <!-- صفحه پروفایل -->
   <div id="view-profile" class="view hidden">
@@ -3276,6 +3499,29 @@ function avatarColor(name) {
   return palette[sum % palette.length];
 }
 
+// ---------- سیستم توستِ خطا/موفقیت (جایگزین alert) ----------
+function toast(message, type = "info") {
+  const stack = document.getElementById("toastStack");
+  if (!stack) { console.log(message); return; }
+  const el = document.createElement("div");
+  el.className = `toast-item ${type}`;
+  el.innerHTML = `<span class="toast-dot"></span><span>${escapeHtml(message)}</span>`;
+  stack.appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+  setTimeout(() => {
+    el.classList.remove("show");
+    setTimeout(() => el.remove(), 300);
+  }, 3200);
+}
+
+// آواتارِ یک کاربر رو یا به‌صورت عکس (اگه avatar_file_id داشته باشه) یا حرف اول با رنگِ ثابت می‌سازه
+function avatarInnerHtml(avatarFileId, name) {
+  if (avatarFileId) {
+    return `<img src="${WORKER_URL}/api/media/${avatarFileId}" alt="" loading="lazy" />`;
+  }
+  return escapeHtml((name || "؟").trim().charAt(0).toUpperCase());
+}
+
 // ---------- چت: حالت کلی ----------
 // چون سرویسِ ما WebSocket/Durable Object نداره (فقط دشبورد کلادفلر بدون CLI)، «آنی‌بودن» با پولینگِ
 // سبک هر ۲.۵ ثانیه شبیه‌سازی می‌شه؛ فقط وقتی صفحه‌ی مکالمه بازه و تب مرورگر هم فعاله
@@ -3283,9 +3529,16 @@ const chatState = {
   tab: "direct",
   conversations: { direct: [], group: [] },
   loaded: false,
-  active: null, // آبجکتِ گفتگوی بازشده از chatState.conversations
+  active: null, // آبجکتِ گفتگویی که الان بازه (از لیستِ chatState.conversations)
   messages: [],
   newestLoadedAt: 0,
+  oldestLoadedAt: null,
+  hasMoreOlder: false,
+  loadingOlder: false,
+  otherReadAt: 0, // last_read_at طرفِ مقابل (فقط چت دونفره) — برای تیکِ دوبل
+  otherPresence: null, // { online, lastActiveAt } طرفِ مقابل (فقط چت دونفره)
+  editingMessageId: null,
+  membersData: null, // { conversation, myRole, members } آخرین چیزی که از /api/chat/members گرفتیم
   pollTimer: null,
 };
 
@@ -3295,33 +3548,51 @@ function switchChatTab(tab) {
   document.getElementById("chatTab-group").classList.toggle("active", tab === "group");
   document.getElementById("chatList-direct").classList.toggle("hidden", tab !== "direct");
   document.getElementById("chatList-group").classList.toggle("hidden", tab !== "group");
+  document.getElementById("chatTabsCapsule")?.classList.toggle("pos-1", tab === "group");
 }
 
 async function loadChatConversationsList() {
+  if (!getToken()) return;
   try {
     const res = await fetch(`${WORKER_URL}/api/chat/list`, { headers: { Authorization: `Bearer ${getToken()}` } });
     const data = await res.json();
     if (!res.ok) return;
-    chatState.conversations = { direct: [], group: [] };
-    for (const c of data.conversations || []) {
-      if (!chatState.conversations[c.type]) chatState.conversations[c.type] = [];
-      chatState.conversations[c.type].push(c);
-    }
+    chatState.conversations.direct = (data.conversations || []).filter((c) => c.type === "direct");
+    chatState.conversations.group = (data.conversations || []).filter((c) => c.type === "group");
     chatState.loaded = true;
     renderChatList("direct");
     renderChatList("group");
+    updateNavChatBadge();
   } catch (e) {
-    console.error("خطای گرفتن لیست گفتگوها:", e);
+    // پولینگِ بعدی دوباره امتحان می‌کنه
+  }
+}
+
+function updateNavChatBadge() {
+  const badge = document.getElementById("navChatBadge");
+  if (!badge) return;
+  const all = [...(chatState.conversations.direct || []), ...(chatState.conversations.group || [])];
+  const total = all.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+  if (total > 0) {
+    badge.textContent = total > 99 ? "۹۹+" : String(total);
+    badge.classList.add("show");
+  } else {
+    badge.classList.remove("show");
   }
 }
 
 function findChatConversationById(id) {
-  return [...(chatState.conversations.direct || []), ...(chatState.conversations.group || [])].find((c) => c.id === id);
+  return (
+    chatState.conversations.direct.find((c) => c.id === id) ||
+    chatState.conversations.group.find((c) => c.id === id) ||
+    (chatState.active && chatState.active.id === id ? chatState.active : null)
+  );
 }
 
 function chatPreviewText(conv) {
   if (!conv.lastMessage) return "هنوز پیامی نیست، شروع کن";
   const lm = conv.lastMessage;
+  if (lm.deleted) return "پیام حذف شد";
   const prefix = lm.sender === getUsername() ? "شما: " : "";
   if (lm.msgType === "text") return prefix + (lm.text || "");
   if (lm.msgType === "image") return prefix + "📷 عکس";
@@ -3334,60 +3605,145 @@ function renderChatList(type) {
   if (!el) return;
   const items = chatState.conversations[type] || [];
   if (items.length === 0) {
-    el.innerHTML = `<div class="chat-list-empty">${type === "direct" ? "هنوز گفتگوی خصوصی‌ای نداری؛ با دکمه‌ی پایین یکی شروع کن" : "هنوز عضو هیچ گروهی نیستی"}</div>`;
+    el.innerHTML = `<div class="chat-list-empty">${
+      type === "direct" ? "هنوز گفتگوی خصوصی‌ای نداری؛ با دکمه‌ی پایین یکی شروع کن" : "هنوز عضو هیچ گروهی نیستی"
+    }</div>`;
     return;
   }
-  el.innerHTML = items
-    .map((c) => {
-      const displayName = escapeHtml(c.title || "کاربر حذف‌شده");
-      const initial = (c.title || "؟").trim().charAt(0).toUpperCase();
-      const color = avatarColor(c.title || c.id);
-      const badge = c.unreadCount > 0 ? `<span class="chat-unread-badge">${c.unreadCount > 99 ? "۹۹+" : c.unreadCount}</span>` : "";
-      return `
+  if (type === "direct") {
+    el.innerHTML = items
+      .map((c) => {
+        const displayName = escapeHtml(c.title || "کاربر حذف‌شده");
+        const color = avatarColor(c.title || c.id);
+        const badge = c.unreadCount > 0 ? `<span class="chat-unread-badge">${c.unreadCount > 99 ? "۹۹+" : c.unreadCount}</span>` : "";
+        return `
         <div class="chat-list-item" onclick="openChatConversation('${c.id}')">
-          <div class="chat-avatar" style="background:${color}">${escapeHtml(initial)}</div>
+          <div class="chat-avatar-wrap${c.online ? " online" : ""}">
+            <div class="chat-avatar" style="background:${color}">${avatarInnerHtml(c.avatarFileId, c.title)}</div>
+            <span class="chat-online-dot"></span>
+          </div>
           <div class="chat-item-info">
             <div class="chat-item-name">${displayName}</div>
             <div class="chat-item-preview">${escapeHtml(chatPreviewText(c))}</div>
           </div>
           ${badge}
         </div>`;
-    })
-    .join("");
+      })
+      .join("");
+  } else {
+    el.innerHTML = items
+      .map((c) => {
+        const displayName = escapeHtml(c.title || "گروه");
+        const initial = (c.title || "؟").trim().charAt(0).toUpperCase();
+        const badge = c.unreadCount > 0 ? `<span class="chat-unread-badge">${c.unreadCount > 99 ? "۹۹+" : c.unreadCount}</span>` : "";
+        return `
+        <div class="chat-group-card" onclick="openChatConversation('${c.id}')">
+          <div class="chat-group-icon">${escapeHtml(initial)}</div>
+          <div class="chat-group-info">
+            <div class="chat-group-name">${displayName}</div>
+            <div class="chat-group-meta">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              ${c.memberCount || 0} عضو
+            </div>
+            <div class="chat-group-preview">${escapeHtml(chatPreviewText(c))}</div>
+          </div>
+          ${badge}
+        </div>`;
+      })
+      .join("");
+  }
 }
 
-// ---------- چت: باز/بسته کردنِ صفحه‌ی مکالمه ----------
+// ---------- چت: باز/بسته‌کردنِ صفحه‌ی مکالمه ----------
 async function openChatConversation(conversationId) {
   const conv = findChatConversationById(conversationId);
   if (!conv) return;
+
   chatState.active = conv;
   chatState.messages = [];
   chatState.newestLoadedAt = 0;
+  chatState.oldestLoadedAt = null;
+  chatState.hasMoreOlder = false;
+  chatState.loadingOlder = false;
+  chatState.otherReadAt = 0;
+  chatState.otherPresence = null;
+  chatState.membersData = null;
+  cancelEditChatMessage();
 
-  document.getElementById("chatConvTitle").textContent = conv.title || "گفتگو";
-  const avatarEl = document.getElementById("chatConvAvatar");
-  avatarEl.textContent = (conv.title || "؟").trim().charAt(0).toUpperCase();
-  avatarEl.style.background = avatarColor(conv.title || conv.id);
+  updateChatConvHeader(conv);
   updateChatBlockUI(conv);
+  document.getElementById("chatMembersBtn").classList.toggle("hidden", conv.type !== "group");
+  document.getElementById("chatMembersAddBtn").classList.add("hidden");
 
   document.getElementById("chatConvMessages").innerHTML = `<div class="chat-loading">در حال بارگذاری...</div>`;
   document.getElementById("chatConversation").classList.add("open");
-  document.body.style.overflow = "hidden";
+
+  const messagesEl = document.getElementById("chatConvMessages");
+  messagesEl.onscroll = () => {
+    if (messagesEl.scrollTop < 80) loadOlderChatMessages();
+  };
+
+  if (conv.type === "group") loadChatMembers(conversationId);
 
   await loadInitialChatMessages(conversationId);
   markChatRead(conversationId);
   startChatPolling(conversationId);
 }
 
-function closeChatConversation() {
-  document.getElementById("chatConversation").classList.remove("open");
-  document.body.style.overflow = "";
-  stopChatPolling();
-  chatState.active = null;
-  loadChatConversationsList(); // برای آپدیت پیش‌نمایش/بجِ نخوانده تو لیست بعد از برگشت
+function updateChatConvHeader(conv) {
+  document.getElementById("chatConvTitle").textContent = conv.title || "گفتگو";
+  const avatarEl = document.getElementById("chatConvAvatar");
+  if (conv.type === "direct") {
+    avatarEl.style.background = avatarColor(conv.title || conv.id);
+    avatarEl.innerHTML = avatarInnerHtml(conv.avatarFileId, conv.title);
+  } else {
+    avatarEl.style.background = avatarColor(conv.title || conv.id);
+    avatarEl.innerHTML = escapeHtml((conv.title || "؟").trim().charAt(0).toUpperCase());
+  }
+  updateChatConvSubtitle();
 }
 
-// ---------- چت: مسدودکردن/رفعِ مسدودی (فقط تو گفتگوهای دونفره) ----------
+function updateChatConvSubtitle() {
+  const conv = chatState.active;
+  const el = document.getElementById("chatConvSubtitle");
+  if (!conv || !el) return;
+  if (conv.type === "direct") {
+    const presence = chatState.otherPresence;
+    if (presence && presence.online) {
+      el.textContent = "آنلاین";
+      el.classList.add("online");
+    } else if (presence && presence.lastActiveAt) {
+      el.textContent = `بازدید ${formatRelativeTime(presence.lastActiveAt)}`;
+      el.classList.remove("online");
+    } else {
+      el.textContent = "";
+      el.classList.remove("online");
+    }
+  } else {
+    el.textContent = conv.memberCount ? `${conv.memberCount} عضو` : "";
+    el.classList.remove("online");
+  }
+}
+
+function onChatHeaderClick() {
+  const conv = chatState.active;
+  if (!conv) return;
+  if (conv.type === "direct") {
+    if (conv.otherUsername) openProfile(conv.otherUsername);
+  } else {
+    openChatMembersPanel();
+  }
+}
+
+function closeChatConversation() {
+  document.getElementById("chatConversation").classList.remove("open");
+  closeChatMembersPanel();
+  stopChatPolling();
+  chatState.active = null;
+  cancelEditChatMessage();
+  loadChatConversationsList();
+}
+
 function updateChatBlockUI(conv) {
   const btn = document.getElementById("chatBlockBtn");
   const composer = document.getElementById("chatConvComposer");
@@ -3408,60 +3764,107 @@ function updateChatBlockUI(conv) {
 async function toggleChatBlock() {
   const conv = chatState.active;
   if (!conv || conv.type !== "direct" || !conv.otherUsername) return;
-
-  const willBlock = !conv.blockedByMe;
-  if (willBlock) {
-    const sure = confirm(`مطمئنی می‌خوای ${conv.otherUsername} رو مسدود کنی؟ دیگه نمی‌تونید به هم پیام بدید.`);
-    if (!sure) return;
-  }
-
   try {
-    const res = await fetch(`${WORKER_URL}/api/chat/${willBlock ? "block" : "unblock"}`, {
+    const res = await fetch(`${WORKER_URL}/api/chat/block`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
-      body: JSON.stringify({ username: conv.otherUsername }),
+      body: JSON.stringify({ username: conv.otherUsername, block: !conv.blockedByMe }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "خطا");
-    conv.blockedByMe = willBlock;
+    conv.blockedByMe = !conv.blockedByMe;
     updateChatBlockUI(conv);
   } catch (e) {
-    alert(e.message || "عملیات ناموفق بود");
+    toast(e.message || "عملیات ناموفق بود", "error");
   }
 }
 
+// ---------- چت: بارگذاریِ اولیه و صفحه‌بندیِ رو-به-بالای پیام‌های قدیمی‌تر (اسکرول به بالا) ----------
 async function loadInitialChatMessages(conversationId) {
   try {
     const res = await fetch(`${WORKER_URL}/api/chat/messages?conversation=${encodeURIComponent(conversationId)}`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "خطا");
+    if (!res.ok) throw new Error(data.error || "خطا در بارگذاریِ پیام‌ها");
     chatState.messages = data.messages || [];
-    chatState.newestLoadedAt = chatState.messages.length
-      ? chatState.messages[chatState.messages.length - 1].createdAt
-      : Date.now();
+    chatState.hasMoreOlder = !!data.hasMore;
+    chatState.oldestLoadedAt = chatState.messages.length ? chatState.messages[0].createdAt : null;
+    chatState.newestLoadedAt = chatState.messages.length ? chatState.messages[chatState.messages.length - 1].createdAt : 0;
+    chatState.otherReadAt = data.otherReadAt || 0;
+    chatState.otherPresence = data.otherPresence || null;
+    updateChatConvSubtitle();
     renderChatMessages();
   } catch (e) {
-    document.getElementById("chatConvMessages").innerHTML = `<div class="chat-loading">مشکلی پیش اومد، دوباره امتحان کن</div>`;
+    document.getElementById("chatConvMessages").innerHTML = `<div class="chat-loading">${escapeHtml(e.message || "خطا در بارگذاری")}</div>`;
   }
 }
 
-function renderChatMessages() {
+async function loadOlderChatMessages() {
+  if (!chatState.active || chatState.loadingOlder || !chatState.hasMoreOlder) return;
+  chatState.loadingOlder = true;
   const el = document.getElementById("chatConvMessages");
+  const oldScrollHeight = el.scrollHeight;
+  const oldScrollTop = el.scrollTop;
+  renderChatMessages(); // برای نشون‌دادنِ «در حال بارگذاری...» بالای لیست
+  try {
+    const before = chatState.oldestLoadedAt || Date.now();
+    const res = await fetch(
+      `${WORKER_URL}/api/chat/messages?conversation=${encodeURIComponent(chatState.active.id)}&before=${before}`,
+      { headers: { Authorization: `Bearer ${getToken()}` } }
+    );
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "خطا");
+    const older = data.messages || [];
+    chatState.hasMoreOlder = !!data.hasMore;
+    if (older.length) {
+      chatState.messages = [...older, ...chatState.messages];
+      chatState.oldestLoadedAt = older[0].createdAt;
+      chatState.loadingOlder = false;
+      renderChatMessages({ preserveScrollFrom: { oldScrollHeight, oldScrollTop } });
+      return;
+    }
+  } catch (e) {
+    // بی‌خیال، دفعه‌ی بعدی که اسکرول کرد دوباره امتحان می‌شه
+  }
+  chatState.loadingOlder = false;
+  renderChatMessages();
+}
+
+function chatReceiptIcon(read) {
+  return `<svg class="chat-receipt${read ? " read" : ""}" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 8l4 4L14 3"/><path d="M8 8l4 4L21 3"/></svg>`;
+}
+
+function renderChatMessages(opts = {}) {
+  const el = document.getElementById("chatConvMessages");
+  if (!el) return;
   const myUsername = getUsername();
   if (chatState.messages.length === 0) {
     el.innerHTML = `<div class="chat-loading">هنوز پیامی رد و بدل نشده؛ اولین پیام رو بفرست</div>`;
     return;
   }
-  el.innerHTML = chatState.messages.map((m) => renderChatBubble(m, myUsername)).join("");
-  el.scrollTop = el.scrollHeight;
+  const loadMoreHtml = chatState.hasMoreOlder
+    ? `<div class="chat-load-more">${chatState.loadingOlder ? "در حال بارگذاری..." : "برای دیدن پیام‌های قدیمی‌تر اسکرول کن"}</div>`
+    : "";
+  el.innerHTML = loadMoreHtml + chatState.messages.map((m) => renderChatBubble(m, myUsername)).join("");
+  if (opts.preserveScrollFrom) {
+    const { oldScrollHeight, oldScrollTop } = opts.preserveScrollFrom;
+    el.scrollTop = el.scrollHeight - oldScrollHeight + oldScrollTop;
+  } else {
+    el.scrollTop = el.scrollHeight;
+  }
 }
 
 function renderChatBubble(m, myUsername) {
   const mine = m.sender === myUsername;
+  const isGroup = chatState.active && chatState.active.type === "group";
+  const iAmModerator = isGroup && chatState.active.myRole && chatState.active.myRole !== "member";
+  const clickable = !m.deleted && (mine || iAmModerator);
+
   let bodyHtml = "";
-  if (m.msgType === "sticker") {
+  if (m.deleted) {
+    bodyHtml = `<div class="chat-bubble-text">این پیام حذف شد</div>`;
+  } else if (m.msgType === "sticker") {
     const src = m.isExternal ? m.fileId : `${WORKER_URL}/api/media/${m.fileId}`;
     bodyHtml = `<img class="chat-bubble-sticker" src="${src}" alt="استیکر" loading="lazy" />`;
   } else if (m.msgType === "image") {
@@ -3473,23 +3876,124 @@ function renderChatBubble(m, myUsername) {
   } else {
     bodyHtml = `<div class="chat-bubble-text">${escapeHtml(m.text || "")}</div>`;
   }
-  return `<div class="chat-bubble-row ${mine ? "mine" : "theirs"}"><div class="chat-bubble${m.msgType === "sticker" ? " chat-bubble-sticker-wrap" : ""}">${bodyHtml}</div></div>`;
+
+  const senderNameHtml = isGroup && !mine && !m.deleted ? `<div class="chat-bubble-sender-name">${escapeHtml(m.sender)}</div>` : "";
+
+  let metaHtml = "";
+  if (!m.deleted) {
+    const timeText = formatRelativeTime(m.createdAt);
+    const editedTag = m.editedAt ? `<span class="chat-bubble-edited-tag">· ویرایش‌شده</span>` : "";
+    let receiptHtml = "";
+    if (mine && !isGroup) {
+      const read = !!chatState.otherReadAt && m.createdAt <= chatState.otherReadAt;
+      receiptHtml = chatReceiptIcon(read);
+    }
+    metaHtml = `<div class="chat-bubble-meta">${editedTag}<span>${timeText}</span>${receiptHtml}</div>`;
+  }
+
+  const clickAttr = clickable ? ` onclick="openChatMessageMenu('${m.id}')"` : "";
+  const bubbleClass = `chat-bubble${m.msgType === "sticker" && !m.deleted ? " chat-bubble-sticker-wrap" : ""}${
+    m.deleted ? " chat-bubble-deleted" : ""
+  }${clickable ? " chat-bubble-long-press" : ""}`;
+
+  return `<div class="chat-bubble-row ${mine ? "mine" : "theirs"}">
+    <div class="chat-bubble-wrap">
+      ${senderNameHtml}
+      <div class="${bubbleClass}"${clickAttr}>${bodyHtml}</div>
+      ${metaHtml}
+    </div>
+  </div>`;
 }
 
-async function markChatRead(conversationId) {
+// ---------- چت: منوی ویرایش/حذف پیام ----------
+function openChatMessageMenu(messageId) {
+  const m = chatState.messages.find((x) => x.id === messageId);
+  if (!m || m.deleted) return;
+  const myUsername = getUsername();
+  const mine = m.sender === myUsername;
+  let canDelete = mine;
+  const canEdit = mine && m.msgType === "text";
+  if (!mine && chatState.active && chatState.active.type === "group" && chatState.active.myRole) {
+    canDelete = chatState.active.myRole === "owner" || chatState.active.myRole === "admin";
+  }
+  if (!canDelete && !canEdit) return;
+
+  document.getElementById("chatMsgMenuBackdrop")?.remove();
+  const backdrop = document.createElement("div");
+  backdrop.className = "chat-msg-menu-backdrop";
+  backdrop.id = "chatMsgMenuBackdrop";
+  backdrop.onclick = (e) => {
+    if (e.target === backdrop) backdrop.remove();
+  };
+  backdrop.innerHTML = `
+    <div class="chat-msg-menu">
+      ${
+        canEdit
+          ? `<button class="chat-msg-menu-item" onclick="document.getElementById('chatMsgMenuBackdrop').remove(); startEditChatMessage('${messageId}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        ویرایش پیام
+      </button>`
+          : ""
+      }
+      ${
+        canDelete
+          ? `<button class="chat-msg-menu-item danger" onclick="document.getElementById('chatMsgMenuBackdrop').remove(); deleteChatMessageConfirm('${messageId}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg>
+        حذف پیام
+      </button>`
+          : ""
+      }
+    </div>`;
+  document.body.appendChild(backdrop);
+}
+
+function startEditChatMessage(messageId) {
+  const m = chatState.messages.find((x) => x.id === messageId);
+  if (!m || m.msgType !== "text") return;
+  chatState.editingMessageId = messageId;
+  const input = document.getElementById("chatComposerInput");
+  input.value = m.text || "";
+  autoGrowChatInput(input);
+  input.focus();
+  document.getElementById("chatEditBanner").classList.remove("hidden");
+}
+
+function cancelEditChatMessage() {
+  chatState.editingMessageId = null;
+  document.getElementById("chatEditBanner")?.classList.add("hidden");
+  const input = document.getElementById("chatComposerInput");
+  if (input) {
+    input.value = "";
+    autoGrowChatInput(input);
+  }
+}
+
+async function deleteChatMessageConfirm(messageId) {
+  if (!chatState.active) return;
+  if (!confirm("این پیام حذف بشه؟")) return;
   try {
-    await fetch(`${WORKER_URL}/api/chat/read`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
-      body: JSON.stringify({ conversationId }),
-    });
-  } catch (e) {}
+    const res = await fetch(
+      `${WORKER_URL}/api/chat/message?conversation=${encodeURIComponent(chatState.active.id)}&message=${encodeURIComponent(messageId)}`,
+      { method: "DELETE", headers: { Authorization: `Bearer ${getToken()}` } }
+    );
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "خطا");
+    const m = chatState.messages.find((x) => x.id === messageId);
+    if (m) {
+      m.deleted = true;
+      m.text = null;
+      m.fileId = null;
+    }
+    renderChatMessages();
+  } catch (e) {
+    toast(e.message || "حذف پیام ناموفق بود", "error");
+  }
 }
 
-// ---------- چت: پولینگِ پیام‌های تازه ----------
+// ---------- چت: پولینگِ پیام‌های جدید (هر ۲.۵ ثانیه، فقط وقتی مکالمه بازه) ----------
 function startChatPolling(conversationId) {
   stopChatPolling();
-  chatState.pollTimer = setInterval(() => pollChatMessages(conversationId), 2500);
+  chatState.pollTimer = setInterval(() => pollChatMessages(conversationId), 5000);
 }
 function stopChatPolling() {
   if (chatState.pollTimer) {
@@ -3497,13 +4001,6 @@ function stopChatPolling() {
     chatState.pollTimer = null;
   }
 }
-// وقتی تبِ مرورگر مخفی می‌شه (کاربر رفته سراغ اپ/تبِ دیگه)، پولینگ رو متوقف می‌کنیم تا درخواستِ بی‌مورد
-// به سرور نره؛ به‌محض برگشتن، اگه هنوز تو یه مکالمه‌ایم، دوباره از سر گرفته می‌شه
-document.addEventListener("visibilitychange", () => {
-  if (!chatState.active) return;
-  if (document.hidden) stopChatPolling();
-  else startChatPolling(chatState.active.id);
-});
 
 async function pollChatMessages(conversationId) {
   if (!chatState.active || chatState.active.id !== conversationId) return;
@@ -3513,20 +4010,40 @@ async function pollChatMessages(conversationId) {
       { headers: { Authorization: `Bearer ${getToken()}` } }
     );
     const data = await res.json();
-    if (!res.ok || !data.messages || data.messages.length === 0) return;
-    chatState.messages.push(...data.messages);
-    chatState.newestLoadedAt = data.messages[data.messages.length - 1].createdAt;
-    renderChatMessages();
-    markChatRead(conversationId);
+    if (!res.ok) return;
+    const otherReadChanged = (data.otherReadAt || 0) !== chatState.otherReadAt;
+    chatState.otherReadAt = data.otherReadAt || 0;
+    chatState.otherPresence = data.otherPresence || null;
+    updateChatConvSubtitle();
+    if (data.messages && data.messages.length) {
+      chatState.messages.push(...data.messages);
+      chatState.newestLoadedAt = data.messages[data.messages.length - 1].createdAt;
+      renderChatMessages();
+      markChatRead(conversationId);
+    } else if (otherReadChanged) {
+      renderChatMessages();
+    }
   } catch (e) {
-    // خطای موقتِ شبکه؛ دور بعدیِ پولینگ دوباره امتحان می‌کنه
+    // نادیده بگیر، دورِ بعدیِ پولینگ دوباره امتحان می‌کنه
   }
 }
 
-// ---------- چت: ارسال پیام/رسانه ----------
+async function markChatRead(conversationId) {
+  try {
+    await fetch(`${WORKER_URL}/api/chat/read`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ conversationId }),
+    });
+  } catch (e) {
+    // مهم نیست، دفعه‌ی بعد دوباره سعی می‌شه
+  }
+}
+
+// ---------- چت: نوشتنِ پیام ----------
 function autoGrowChatInput(el) {
   el.style.height = "auto";
-  el.style.height = Math.min(el.scrollHeight, 120) + "px";
+  el.style.height = Math.min(120, el.scrollHeight) + "px";
 }
 
 function handleChatComposerKeydown(e) {
@@ -3540,9 +4057,36 @@ async function sendChatMessage() {
   const input = document.getElementById("chatComposerInput");
   const text = input.value.trim();
   if (!text || !chatState.active) return;
+
+  if (chatState.editingMessageId) {
+    await submitEditChatMessage(chatState.editingMessageId, text);
+    return;
+  }
+
   input.value = "";
   autoGrowChatInput(input);
   await submitChatMessage({ msgType: "text", text });
+}
+
+async function submitEditChatMessage(messageId, text) {
+  try {
+    const res = await fetch(`${WORKER_URL}/api/chat/message/edit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ conversationId: chatState.active.id, messageId, text }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "ویرایش ناموفق بود");
+    const m = chatState.messages.find((x) => x.id === messageId);
+    if (m) {
+      m.text = data.text;
+      m.editedAt = data.editedAt;
+    }
+    cancelEditChatMessage();
+    renderChatMessages();
+  } catch (e) {
+    toast(e.message || "ویرایش ناموفق بود", "error");
+  }
 }
 
 async function submitChatMessage(payload) {
@@ -3554,57 +4098,243 @@ async function submitChatMessage(payload) {
       body: JSON.stringify({ conversationId: chatState.active.id, ...payload }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "ارسال ناموفق بود");
+    if (!res.ok) throw new Error(data.error || "ارسال پیام ناموفق بود");
     chatState.messages.push(data.message);
     chatState.newestLoadedAt = data.message.createdAt;
     renderChatMessages();
   } catch (e) {
-    alert(e.message || "ارسال پیام ناموفق بود");
+    toast(e.message || "ارسال پیام ناموفق بود", "error");
   }
 }
 
 async function onChatImageChosen(event) {
   const file = event.target.files[0];
   event.target.value = "";
-  if (file) await uploadAndSendChatMedia(file, "image");
+  if (!file || !chatState.active) return;
+  await uploadAndSendChatMedia(file, "image");
 }
+
 async function onChatAudioChosen(event) {
   const file = event.target.files[0];
   event.target.value = "";
-  if (file) await uploadAndSendChatMedia(file, "audio");
+  if (!file || !chatState.active) return;
+  await uploadAndSendChatMedia(file, "audio");
 }
 
-async function uploadAndSendChatMedia(file, kind) {
-  if (!chatState.active) return;
-  const form = new FormData();
-  form.append("file", file);
-  form.append("kind", kind);
+async function uploadAndSendChatMedia(file, msgType) {
   try {
+    const fd = new FormData();
+    fd.append("file", file);
     const res = await fetch(`${WORKER_URL}/api/chat/upload`, {
       method: "POST",
       headers: { Authorization: `Bearer ${getToken()}` },
-      body: form,
+      body: fd,
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "آپلود ناموفق بود");
-    await submitChatMessage({ msgType: kind, fileId: data.fileId });
+    await submitChatMessage({ msgType, fileId: data.fileId });
   } catch (e) {
-    alert(e.message || "آپلود ناموفق بود");
+    toast(e.message || "آپلود ناموفق بود", "error");
   }
 }
 
-// ---------- چت: شروعِ گفتگوی دونفره‌ی جدید / ساختِ گروه ----------
-// فعلاً ساده و بر پایه‌ی prompt؛ اگه بعداً خواستی یه فرم/جستجوی کاربرِ درست‌وحسابی جایگزینش می‌کنیم
+// نکته: chatStickerClicked پایین‌تر در فایل (کنار پیکرِ استیکر) تعریف شده، همون‌جا استفاده می‌شه
+
+// ---------- چت: پنل مدیریت اعضای گروه ----------
+async function loadChatMembers(conversationId) {
+  try {
+    const res = await fetch(`${WORKER_URL}/api/chat/members?conversation=${encodeURIComponent(conversationId)}`, {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "خطا");
+    chatState.membersData = data;
+    if (chatState.active && chatState.active.id === conversationId) {
+      chatState.active.myRole = data.myRole;
+      document.getElementById("chatMembersAddBtn")?.classList.toggle("hidden", !(data.myRole === "owner" || data.myRole === "admin"));
+      if (document.getElementById("chatMembersPanel")?.classList.contains("open")) renderChatMembersPanel();
+    }
+  } catch (e) {
+    // دفعه‌ی بعد دوباره امتحان می‌شه
+  }
+}
+
+function openChatMembersPanel() {
+  if (!chatState.active || chatState.active.type !== "group") return;
+  document.getElementById("chatMembersTitle").textContent = chatState.active.title || "اعضای گروه";
+  document.getElementById("chatMembersPanel").classList.add("open");
+  if (chatState.membersData) {
+    renderChatMembersPanel();
+  } else {
+    document.getElementById("chatMembersBody").innerHTML = `<div class="chat-loading">در حال بارگذاری...</div>`;
+    loadChatMembers(chatState.active.id);
+  }
+}
+
+function closeChatMembersPanel() {
+  document.getElementById("chatMembersPanel")?.classList.remove("open");
+}
+
+function roleLabel(role) {
+  if (role === "owner") return "مالک";
+  if (role === "admin") return "ادمین";
+  return "";
+}
+
+function renderChatMembersPanel() {
+  const body = document.getElementById("chatMembersBody");
+  const data = chatState.membersData;
+  if (!body || !data) return;
+  const myUsername = getUsername();
+  const myRole = data.myRole;
+  body.innerHTML =
+    `<div class="chat-members-section-title">${data.members.length} عضو</div>` +
+    data.members
+      .map((m) => {
+        const roleText = roleLabel(m.role);
+        const statusText = m.online ? "آنلاین" : m.lastActiveAt ? `بازدید ${formatRelativeTime(m.lastActiveAt)}` : "";
+        let actions = "";
+        if (m.username !== myUsername) {
+          if (myRole === "owner" && m.role !== "owner") {
+            const toAdmin = m.role !== "admin";
+            actions += `<button class="chat-member-action-btn" title="${toAdmin ? "ارتقا به ادمین" : "عزل از ادمین"}" onclick="setMemberRoleApi('${m.username}', '${
+              toAdmin ? "admin" : "member"
+            }')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.9 6.3 6.9.9-5 4.9 1.2 6.9L12 17.7 5.9 21l1.2-6.9-5-4.9 6.9-.9L12 2z"/></svg>
+            </button>`;
+          }
+          if ((myRole === "owner" || myRole === "admin") && m.role !== "owner" && !(myRole === "admin" && m.role === "admin")) {
+            actions += `<button class="chat-member-action-btn danger" title="حذف از گروه" onclick="removeMemberApi('${m.username}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>`;
+          }
+        }
+        return `
+        <div class="chat-member-row">
+          <div class="chat-avatar-wrap${m.online ? " online" : ""}">
+            <div class="chat-avatar" style="width:40px;height:40px;font-size:14px;background:${avatarColor(m.username)}" onclick="openProfile('${m.username}')">${avatarInnerHtml(
+          m.avatarFileId,
+          m.username
+        )}</div>
+            <span class="chat-online-dot"></span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="chat-member-name">${escapeHtml(m.username)}${roleText ? `<span class="chat-member-role">${roleText}</span>` : ""}</div>
+            <div class="chat-member-status${m.online ? " online" : ""}">${statusText}</div>
+          </div>
+          <div class="chat-member-actions">${actions}</div>
+        </div>`;
+      })
+      .join("");
+}
+
+async function removeMemberApi(username) {
+  if (!chatState.active) return;
+  if (!confirm(`${username} از گروه حذف بشه؟`)) return;
+  try {
+    const res = await fetch(`${WORKER_URL}/api/chat/members/remove`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ conversationId: chatState.active.id, username }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "خطا");
+    toast("عضو حذف شد", "success");
+    loadChatMembers(chatState.active.id);
+  } catch (e) {
+    toast(e.message || "حذف عضو ناموفق بود", "error");
+  }
+}
+
+async function setMemberRoleApi(username, role) {
+  if (!chatState.active) return;
+  try {
+    const res = await fetch(`${WORKER_URL}/api/chat/members/role`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ conversationId: chatState.active.id, username, role }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "خطا");
+    toast("نقش عضو به‌روز شد", "success");
+    loadChatMembers(chatState.active.id);
+  } catch (e) {
+    toast(e.message || "تغییر نقش ناموفق بود", "error");
+  }
+}
+
+function openAddMembersModal() {
+  if (!chatState.active || !chatState.membersData) return;
+  const existing = chatState.membersData.members.map((m) => m.username);
+  openUserSearchModal({
+    title: "افزودن عضو به گروه",
+    multi: true,
+    confirmLabel: "افزودن",
+    excludeUsernames: existing,
+    onConfirm: async (usernames) => {
+      await addMembersApi(usernames);
+    },
+  });
+}
+
+async function addMembersApi(usernames) {
+  if (!chatState.active) return;
+  try {
+    const res = await fetch(`${WORKER_URL}/api/chat/members/add`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ conversationId: chatState.active.id, members: usernames }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "خطا");
+    toast("اعضای جدید اضافه شدن", "success");
+    loadChatMembers(chatState.active.id);
+    loadChatConversationsList();
+  } catch (e) {
+    toast(e.message || "افزودن عضو ناموفق بود", "error");
+  }
+}
+
+async function leaveChatGroup() {
+  if (!chatState.active || chatState.active.type !== "group") return;
+  if (!confirm("مطمئنی می‌خوای از این گروه خارج بشی؟")) return;
+  try {
+    const res = await fetch(`${WORKER_URL}/api/chat/leave`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ conversationId: chatState.active.id }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "خطا");
+    closeChatMembersPanel();
+    closeChatConversation();
+    toast("از گروه خارج شدی", "success");
+  } catch (e) {
+    toast(e.message || "خروج از گروه ناموفق بود", "error");
+  }
+}
+
+// ---------- چت: شروعِ گفتگوی جدید / ساختِ گروه (با جستجوی کاربر به‌جای prompt) ----------
 function onChatFabClick() {
   if (chatState.tab === "direct") {
-    const username = (prompt("یوزرنیمِ طرفی که می‌خوای باهاش چت کنی رو بنویس:") || "").trim();
-    if (username) startDirectChat(username);
+    openUserSearchModal({
+      title: "شروع گفتگوی جدید",
+      multi: false,
+      confirmLabel: "شروع گفتگو",
+      onConfirm: async (username) => {
+        await startDirectChat(username);
+      },
+    });
   } else {
-    const title = (prompt("اسمِ گروه:") || "").trim();
-    if (!title) return;
-    const membersRaw = prompt("یوزرنیمِ اعضا رو با ویرگول جدا کن:") || "";
-    const members = membersRaw.split(",").map((s) => s.trim()).filter(Boolean);
-    if (members.length) createChatGroup(title, members);
+    openUserSearchModal({
+      title: "ساخت گروه جدید",
+      multi: true,
+      showTitleField: true,
+      confirmLabel: "ساخت گروه",
+      onConfirm: async ({ title, members }) => {
+        await createChatGroup(title, members);
+      },
+    });
   }
 }
 
@@ -3620,7 +4350,7 @@ async function startDirectChat(username) {
     await loadChatConversationsList();
     openChatConversation(data.conversationId);
   } catch (e) {
-    alert(e.message || "شروع گفتگو ناموفق بود");
+    toast(e.message || "شروع گفتگو ناموفق بود", "error");
   }
 }
 
@@ -3636,10 +4366,158 @@ async function createChatGroup(title, members) {
     await loadChatConversationsList();
     openChatConversation(data.conversationId);
   } catch (e) {
-    alert(e.message || "ساخت گروه ناموفق بود");
+    toast(e.message || "ساخت گروه ناموفق بود", "error");
   }
 }
 
+// ---------- جستجوی کاربر (اتوکامپلیت، به‌جای prompt خام) — یه مودالِ عمومی که هم برای «شروع
+// گفتگوی جدید»، هم «ساخت گروه» و هم «افزودن عضو» استفاده می‌شه ----------
+let userSearchState = null;
+
+function closeUserSearchModal() {
+  document.getElementById("userSearchBackdrop")?.remove();
+  userSearchState = null;
+}
+
+function openUserSearchModal(opts) {
+  closeUserSearchModal();
+  userSearchState = {
+    multi: !!opts.multi,
+    showTitleField: !!opts.showTitleField,
+    excludeUsernames: new Set((opts.excludeUsernames || []).concat([getUsername()])),
+    selected: new Map(), // username -> avatarFileId
+    onConfirm: opts.onConfirm,
+    searchTimer: null,
+  };
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "user-search-modal-backdrop";
+  backdrop.id = "userSearchBackdrop";
+  backdrop.onclick = (e) => {
+    if (e.target === backdrop) closeUserSearchModal();
+  };
+  backdrop.innerHTML = `
+    <div class="user-search-modal">
+      <div class="user-search-modal-header">
+        <div class="user-search-modal-title">${escapeHtml(opts.title || "انتخاب کاربر")}</div>
+        <input type="text" class="user-search-group-title-input${opts.showTitleField ? " show" : ""}" id="userSearchTitleInput"
+          placeholder="اسم گروه" maxlength="60" oninput="updateUserSearchConfirmState()" />
+        <div class="user-search-input-wrap">
+          <input type="text" class="user-search-input" id="userSearchQueryInput" placeholder="جستجوی یوزرنیم..." autocomplete="off" />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </div>
+        <div class="user-search-selected" id="userSearchSelected"></div>
+      </div>
+      <div class="user-search-results" id="userSearchResults">
+        <div class="user-search-empty">اسمِ کاربر رو تایپ کن</div>
+      </div>
+      <button class="user-search-confirm-btn" id="userSearchConfirmBtn" onclick="confirmUserSearchModal()" disabled>${escapeHtml(
+        opts.confirmLabel || "تایید"
+      )}</button>
+    </div>`;
+  document.body.appendChild(backdrop);
+
+  document.getElementById("userSearchQueryInput").addEventListener("input", (e) => {
+    clearTimeout(userSearchState.searchTimer);
+    const q = e.target.value.trim();
+    userSearchState.searchTimer = setTimeout(() => runUserSearchQuery(q), 300);
+  });
+  updateUserSearchConfirmState();
+}
+
+async function runUserSearchQuery(q) {
+  const resultsEl = document.getElementById("userSearchResults");
+  if (!resultsEl || !userSearchState) return;
+  if (!q) {
+    resultsEl.innerHTML = `<div class="user-search-empty">اسمِ کاربر رو تایپ کن</div>`;
+    return;
+  }
+  resultsEl.innerHTML = `<div class="user-search-empty">در حال جستجو...</div>`;
+  try {
+    const res = await fetch(`${WORKER_URL}/api/users/search?q=${encodeURIComponent(q)}`, {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    const data = await res.json();
+    if (!userSearchState) return;
+    const users = (data.users || []).filter((u) => !userSearchState.excludeUsernames.has(u.username));
+    if (users.length === 0) {
+      resultsEl.innerHTML = `<div class="user-search-empty">کاربری پیدا نشد</div>`;
+      return;
+    }
+    resultsEl.innerHTML = users
+      .map((u) => {
+        const selected = userSearchState.selected.has(u.username);
+        const avatarArg = u.avatar_file_id ? `'${u.avatar_file_id}'` : "null";
+        return `
+        <div class="user-search-result-item${selected ? " selected" : ""}" onclick="toggleUserSearchSelect('${u.username}', ${avatarArg})">
+          <div class="chat-avatar" style="width:36px;height:36px;font-size:13px;background:${avatarColor(u.username)}">${avatarInnerHtml(
+          u.avatar_file_id,
+          u.username
+        )}</div>
+          <span class="user-search-result-name">${escapeHtml(u.username)}</span>
+        </div>`;
+      })
+      .join("");
+  } catch (e) {
+    resultsEl.innerHTML = `<div class="user-search-empty">خطا در جستجو</div>`;
+  }
+}
+
+function toggleUserSearchSelect(username, avatarFileId) {
+  if (!userSearchState) return;
+  if (userSearchState.selected.has(username)) {
+    userSearchState.selected.delete(username);
+  } else {
+    if (!userSearchState.multi) userSearchState.selected.clear();
+    userSearchState.selected.set(username, avatarFileId);
+  }
+  renderUserSearchSelectedChips();
+  const q = document.getElementById("userSearchQueryInput")?.value.trim();
+  if (q) runUserSearchQuery(q);
+  updateUserSearchConfirmState();
+}
+
+function renderUserSearchSelectedChips() {
+  const el = document.getElementById("userSearchSelected");
+  if (!el || !userSearchState) return;
+  el.innerHTML = [...userSearchState.selected.keys()]
+    .map(
+      (u) => `<span class="user-search-chip">${escapeHtml(u)}<button onclick="toggleUserSearchSelect('${u}', null)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button></span>`
+    )
+    .join("");
+}
+
+function updateUserSearchConfirmState() {
+  const btn = document.getElementById("userSearchConfirmBtn");
+  if (!btn || !userSearchState) return;
+  const hasTitle = !userSearchState.showTitleField || document.getElementById("userSearchTitleInput")?.value.trim();
+  btn.disabled = userSearchState.selected.size === 0 || !hasTitle;
+}
+
+async function confirmUserSearchModal() {
+  if (!userSearchState) return;
+  const usernames = [...userSearchState.selected.keys()];
+  if (usernames.length === 0) return;
+  const title = userSearchState.showTitleField ? document.getElementById("userSearchTitleInput")?.value.trim() || "" : null;
+  const multi = userSearchState.multi;
+  const showTitleField = userSearchState.showTitleField;
+  const onConfirm = userSearchState.onConfirm;
+  closeUserSearchModal();
+  await onConfirm(showTitleField ? { title, members: usernames } : multi ? usernames : usernames[0]);
+}
+
+// ---------- شروع پولینگِ سبکِ بجِ چتِ نوار ناوبری (مستقل از باز بودنِ صفحه‌ی چت) ----------
+function startGlobalChatBadgePolling() {
+  if (!getToken()) return;
+  loadChatConversationsList();
+  setInterval(() => {
+    if (getToken() && !document.getElementById("chatConversation")?.classList.contains("open")) {
+      loadChatConversationsList();
+    }
+  }, 5000);
+}
 // ---------- پلیر اختصاصی موزیک ----------
 let currentAudio = null;
 // safeId -> {postId, title, performer, thumbFileId, fileId, originalSafeId} — برای مینی‌پلیر/طراحی تمام‌صفحه، تا لازم نباشه دوباره از DOM/سرور بخونیمش
@@ -7046,6 +7924,7 @@ document.addEventListener("visibilitychange", () => {
   syncThemeFromServer();
   switchView("media");
   restorePlayerState();
+  startGlobalChatBadgePolling();
   const minSplashTime = 500; // حداقل زمان نمایش اسپلش، تا حتی رو گوشی‌های سریع هم چشمک نزنه
   const elapsed = Date.now() - splashStart;
   setTimeout(hideAppSplash, Math.max(0, minSplashTime - elapsed));
