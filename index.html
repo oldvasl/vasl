@@ -1161,6 +1161,9 @@
   .reels-download svg { width: 18px; height: 18px; }
   .reels-seek-wrap {
     display: flex; align-items: center; gap: 8px; width: 260px; max-width: 80vw;
+    /* سیک‌بار پلیر تمام‌صفحه همیشه چپ‌به‌راست باشه، صرف‌نظر از راست‌چین بودن کل صفحه؛
+       وگرنه با تغییر آهنگ و باز شدن دوباره‌ی تمام‌صفحه، جهت کشیدنش باگ می‌زنه */
+    direction: ltr;
   }
   .reels-seek {
     flex: 1; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px;
@@ -1174,7 +1177,7 @@
   .reels-seek-time { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: rgba(255,255,255,0.75); flex-shrink: 0; white-space: nowrap; }
   .full-player .reels-center {
     position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 18px;
+    align-items: center; justify-content: center; gap: 14px;
   }
   .reels-art-wrap {
     position: relative; width: 220px; height: 220px; border-radius: 20px; overflow: hidden;
@@ -1196,7 +1199,8 @@
   }
   @media (max-width: 480px), (max-height: 700px) {
     .reels-art-wrap { width: 150px; height: 150px; border-radius: 16px; }
-    .full-player .reels-center { gap: 10px; }
+    .reels-art-wrap:has(~ .reels-feeling.visible) { width: 128px; height: 128px; }
+    .full-player .reels-center { gap: 8px; }
     .reels-ctrl-btn { width: 36px; height: 36px; }
     .reels-ctrl-btn svg { width: 16px; height: 16px; }
     .reels-ctrl-btn.reels-ctrl-main { width: 46px; height: 46px; }
@@ -1222,9 +1226,14 @@
   .reels-ctrl-btn.reels-ctrl-main.playing .icon-pause { display: block; }
   .reels-ctrl-btn.reels-toggle.active { background: var(--accent-gradient); border-color: transparent; }
   .reels-feeling {
-    max-width: 260px; text-align: center; color: rgba(255,255,255,0.92);
-    font-size: 13px; line-height: 1.7; white-space: pre-line; z-index: 2;
+    max-width: 280px; text-align: center; color: rgba(255,255,255,0.92);
+    font-size: 17px; line-height: 1.6; white-space: pre-line; z-index: 2;
     display: none;
+  }
+  /* وقتی «حس من» نمایش داده می‌شه (متن بزرگ‌تر جا بیشتری می‌گیره)، کاور آهنگ یه‌کم کوچیک‌تر می‌شه
+     تا با جابجاییِ فضا، بقیه‌ی المان‌های پلیر تمام‌صفحه (کنترل‌ها، سیک‌بار) باهاش تداخل پیدا نکنن */
+  .reels-art-wrap:has(~ .reels-feeling.visible) {
+    width: 190px; height: 190px;
   }
   .reels-feeling.visible { display: block; }
   .reels-feeling .rf-cursor {
@@ -3821,7 +3830,6 @@ function renderFullPlayer(safeId, playing) {
   const meta = audioMetaRegistry[safeId];
   if (!meta) return;
   const panel = document.getElementById("fullPlayer");
-  const prevSafeId = panel.dataset.safeId;
   panel.dataset.safeId = safeId;
 
   const bg = document.getElementById("fullPlayerBg");
@@ -3845,13 +3853,22 @@ function renderFullPlayer(safeId, playing) {
   document.getElementById("fullPlayerTitle").textContent = meta.title || "بدون‌عنوان";
   document.getElementById("fullPlayerPerformer").textContent = meta.performer || "";
 
-  // «حس من» فقط وقتی آهنگ واقعاً عوض شده (نه صرفاً پخش/توقف) دوباره از اول تایپ می‌شه
-  if (prevSafeId !== safeId) {
-    renderFullPlayerFeeling(meta.feeling || "");
-  }
+  // «حس من» فقط وقتی داخل نمای تمام‌صفحه‌ایم تایپ می‌شه؛ اگه آهنگ بیرون از تمام‌صفحه
+  // پخش/عوض بشه (مثلاً از فید رسانه یا مینی‌پلیر)، تایپ شروع نمی‌شه و می‌مونه برای وقتی که واقعاً باز بشه
+  updateFullPlayerFeeling(safeId, meta.feeling || "");
 
   updateFullPlayerPlayState(playing);
   updateFullPlayerShuffleRepeatUI();
+}
+
+// safeId ای که «حس من»‌ش همین الان (داخل نمای تمام‌صفحه) تایپ/نمایش داده شده
+let fullPlayerFeelingShownFor = null;
+function updateFullPlayerFeeling(safeId, feelingText) {
+  const panel = document.getElementById("fullPlayer");
+  if (!panel || !panel.classList.contains("open")) return; // بیرون از تمام‌صفحه‌ایم، فعلاً کاری نکن
+  if (fullPlayerFeelingShownFor === safeId) return; // برای همین آهنگ قبلاً (داخل تمام‌صفحه) تایپ شده
+  fullPlayerFeelingShownFor = safeId;
+  renderFullPlayerFeeling(feelingText);
 }
 
 // ---------- «حس من»: نمایشِ تایپ‌شونده‌ی متنِ ذخیره‌شده‌ی آهنگ، بینِ کاور و کنترل‌های پلیر تمام‌صفحه ----------
@@ -3975,10 +3992,13 @@ function openFullPlayer(safeId) {
   if (safeId) ensureTrackPlaying(safeId);
   if (!currentAudio) return; // هیچ آهنگی برای نمایش نیست
 
-  renderFullPlayer(currentAudio.safeId, !currentAudio.audioEl.paused);
-
+  // کلاس «open» باید قبل از renderFullPlayer اضافه بشه، وگرنه تابع تایپ «حس من» فکر می‌کنه
+  // هنوز بیرون تمام‌صفحه‌ایم و تایپ رو شروع نمی‌کنه
   document.body.style.overflow = "hidden";
   document.getElementById("fullPlayer").classList.add("open");
+
+  renderFullPlayer(currentAudio.safeId, !currentAudio.audioEl.paused);
+
   startVisualizerLoop();
   startFullPlayerSeekLoop();
 }
