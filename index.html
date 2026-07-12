@@ -234,8 +234,10 @@
     position: sticky; top: 0; z-index: 50;
     display: flex; align-items: center; gap: 4px;
     background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
-    padding: 5px; margin-bottom: 18px;
+    padding: 5px; margin: 0 auto 18px;
+    width: max-content; max-width: 100%;
     overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+    transition: width 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .top-nav::-webkit-scrollbar { display: none; }
   .nav-item {
@@ -1867,7 +1869,7 @@
       background: var(--surface);
     }
 
-    .top-nav { max-width: 500px; margin-inline: auto; }
+    .top-nav { max-width: 500px; }
     .surface-card { max-width: 700px; margin-inline: auto; }
     .upload-mode-capsule { width: 140px; }
     .upload-mode-btn { height: 42px; }
@@ -2786,6 +2788,7 @@ async function initAdminStatus() {
         <span class="nav-label">مدیریت</span>
       </button>
     `);
+    if (typeof positionTopNavIndicator === "function") requestAnimationFrame(positionTopNavIndicator);
   }
 }
 
@@ -3008,13 +3011,22 @@ function switchView(name, forceReload = false) {
 // ---------- کپسول ناوبری بالای صفحه: پس‌زمینه‌ی مشترکِ متحرک، دقیقاً هم‌اندازه‌ی دکمه‌ی فعال ----------
 // برخلاف الگوی upload-mode-indicator (که فقط عرضش با اسکیل عوض می‌شه)، اینجا خودِ دکمه هم موقع فعال‌شدن
 // (با ظاهرشدنِ اسمِ تب) عریض‌تر می‌شه؛ برای همین یه دنبال‌کردنِ چندفریمی لازمه تا کپسول هم‌زمان با کش‌اومدنِ
-// متن، خودش رو با انیمیشن به عرض/موقعیتِ جدید برسونه، نه اینکه یهو بپره
+// متن، خودش رو با انیمیشن به عرض/موقعیتِ جدید برسونه، نه اینکه یهو بپره.
+// خودِ کپسولِ بیرونی (نوار) هم دقیقاً فیتِ محتواشه (بدون فضای خالیِ کنارش)؛ چون این عرض با تغییرِ عرضِ
+// دکمه‌ی فعال (کش‌اومدنِ اسم تب) عوض می‌شه، عرضش رو صریحاً با پیکسل ست می‌کنیم تا با ترنزیشنِ CSS انیمیت بشه
+// (روی مقدارهای اسمی مثل max-content مرورگرها معمولاً نمی‌تونن به‌درستی انیمیشن بدن)
 let topNavFollowRaf = null;
 function positionTopNavIndicator() {
   const nav = document.getElementById("topNav");
   const indicator = document.getElementById("topNavIndicator");
   const activeBtn = nav?.querySelector(".nav-item.active");
   if (!nav || !indicator || !activeBtn) return;
+
+  // عرضِ طبیعیِ محتوا (بدون احتساب کلیپِ اسکرول) همیشه از scrollWidth درست درمیاد،
+  // چه نوار الان اسکرول‌پذیر باشه چه نه؛ همینو به‌عنوان عرضِ هدفِ خودِ کپسول بیرونی ست می‌کنیم
+  const targetWidth = nav.scrollWidth;
+  if (targetWidth > 0) nav.style.width = `${targetWidth}px`;
+
   const navRect = nav.getBoundingClientRect();
   const btnRect = activeBtn.getBoundingClientRect();
   if (!navRect.width || !btnRect.width) return; // نوار هنوز مخفیه، فاصله‌ای برای اندازه‌گیری نیست
@@ -4734,6 +4746,8 @@ async function createChatGroup(title, members, avatarFile) {
     openChatConversation(data.conversationId);
   } catch (e) {
     toast(e.message || "ساخت گروه ناموفق بود", "error");
+  } finally {
+    createGroupAvatarFile = null;
   }
 }
 
@@ -4744,7 +4758,6 @@ let userSearchState = null;
 function closeUserSearchModal() {
   document.getElementById("userSearchBackdrop")?.remove();
   document.getElementById("createGroupBackdrop")?.remove();
-  createGroupAvatarFile = null;
   userSearchState = null;
 }
 
