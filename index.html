@@ -301,11 +301,11 @@
   }
   .title-counter.limit { color: var(--error); }
 
-  /* ---------- کپسول سوییچ حالتِ صفحه‌ی آپلود (رسانه/متن) ---------- */
+  /* ---------- کپسول سوییچ حالتِ صفحه‌ی آپلود (رسانه/متن/موسیقی) ---------- */
   .upload-mode-capsule {
     position: relative;
-    display: grid; grid-template-columns: 1fr 1fr;
-    width: 124px; margin: 0 auto 16px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    width: 184px; margin: 0 auto 16px;
     background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
     padding: 4px; gap: 2px;
   }
@@ -326,13 +326,16 @@
   .upload-mode-btn.active { color: #fff; }
   .upload-mode-t { font-size: 15px; font-weight: 800; font-family: ui-monospace, Menlo, monospace; }
 
-  /* ---------- فرم آپلود: ترتیبِ کادرها با flex order عوض می‌شه (حالت رسانه/متن) ---------- */
+  /* ---------- فرم آپلود: ترتیبِ کادرها با flex order عوض می‌شه (حالت رسانه/متن/موسیقی) ---------- */
   .upload-composer { display: flex; flex-direction: column; }
   .upload-composer .u-dropzone { order: 1; }
   .upload-composer .u-title { order: 2; }
   .upload-composer .u-text { order: 3; }
   .upload-composer .u-tags { order: 4; }
   .upload-composer .u-submit { order: 5; }
+  .upload-composer .u-music-dropzone,
+  .upload-composer .u-title-cover-row,
+  .upload-composer .u-feeling { display: none; }
   .upload-composer.mode-text .u-dropzone { display: none; }
   .upload-composer.mode-text .u-text { order: 1; }
   .upload-composer.mode-text .u-title { order: 2; }
@@ -340,13 +343,24 @@
   .upload-composer.mode-text .u-submit { order: 4; }
   .upload-composer.mode-text textarea#postText { min-height: 150px; }
 
+  /* حالت موسیقی: فقط کادر آپلود موسیقی + چرخ‌گرام + عنوان/کاور دلخواه + حس‌من + توضیحات + تگ‌ها دیده می‌شن */
+  .upload-composer.mode-music .u-dropzone { display: none; }
+  .upload-composer.mode-music .u-music-dropzone { order: 1; }
+  .upload-composer.mode-music .music-dropzone.u-music-dropzone { display: flex; }
+  .upload-composer.mode-music .u-title-cover-row { order: 2; display: flex; }
+  .upload-composer.mode-music .u-title { display: none; }
+  .upload-composer.mode-music .u-feeling { order: 3; display: block; }
+  .upload-composer.mode-music .u-text { order: 4; }
+  .upload-composer.mode-music .u-tags { order: 5; }
+  .upload-composer.mode-music .u-submit { order: 6; }
+
   /* ---------- کادر آپلود رسانه (دورچین‌دار) ---------- */
   .media-dropzone {
     position: relative; display: flex; align-items: center; justify-content: center;
     border: 2px dashed var(--border); border-radius: var(--radius);
     background: var(--card); overflow: hidden; min-height: 168px;
     cursor: pointer; margin-bottom: 12px;
-    transition: border-color 0.15s ease;
+    transition: border-color 0.15s ease, opacity 0.25s ease, max-height 0.3s ease;
   }
   .media-dropzone:active { border-color: var(--accent); }
   .media-dropzone.has-file { border-style: solid; padding: 0; }
@@ -383,6 +397,97 @@
   }
   .media-dropzone-remove.hidden { display: none; }
 
+  /* ---------- کادر آپلود موسیقی (فقط تو حالت «موسیقی») ---------- */
+  .music-dropzone {
+    position: relative; display: flex; align-items: center; justify-content: center; gap: 10px;
+    border: 2px dashed var(--border); border-radius: var(--radius);
+    background: var(--card); min-height: 76px; cursor: pointer; margin-bottom: 18px;
+    transition: opacity 0.25s ease, max-height 0.3s ease, margin 0.3s ease, border-color 0.15s ease;
+    overflow: hidden;
+  }
+  .music-dropzone:active { border-color: var(--accent); }
+  .music-dropzone-plus {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+    background: var(--accent-gradient); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 300; line-height: 1;
+  }
+  .music-dropzone-icon { width: 22px; height: 22px; color: var(--accent-hover); flex-shrink: 0; }
+  .music-dropzone-text { display: flex; flex-direction: column; gap: 1px; }
+  .music-dropzone-text strong { font-size: 13px; color: var(--text); font-weight: 600; }
+  .music-dropzone-text span { font-size: 11px; color: var(--subtext); }
+  .music-dropzone.has-file {
+    opacity: 0; max-height: 0; margin: 0; border: none; pointer-events: none;
+  }
+
+  /* ---------- چرخ‌گرامِ در حال چرخش: بعد از انتخاب آهنگ، جای کادر آپلود رو می‌گیره ---------- */
+  .vinyl-spin-wrap {
+    display: none; align-items: center; justify-content: center; margin-bottom: 18px;
+    animation: fadeIn 0.35s ease;
+  }
+  .music-dropzone.has-file + .vinyl-spin-wrap { display: flex; }
+  .vinyl-spin {
+    width: 108px; height: 108px; border-radius: 50%; overflow: hidden; position: relative;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    border: 3px solid var(--card);
+    animation: vinylRotate 6s linear infinite;
+  }
+  .vinyl-spin img { width: 100%; height: 100%; object-fit: cover; }
+  .vinyl-spin .placeholder-icon {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    background: var(--accent-gradient); color: #fff;
+  }
+  .vinyl-spin .placeholder-icon svg { width: 34px; height: 34px; }
+  .vinyl-spin::after {
+    content: ""; position: absolute; inset: 0; margin: auto; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--card); border: 2px solid rgba(255,255,255,0.3);
+  }
+  @keyframes vinylRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .vinyl-spin { animation: none; }
+  }
+
+  /* ---------- ردیفِ «عنوان» (کوتاه‌تر) + «کاور دلخواه» (کادر مربعی) ---------- */
+  .title-cover-row { display: none; align-items: stretch; gap: 10px; margin-bottom: 12px; }
+  .title-cover-row .title-input-wrap { flex: 1; margin-bottom: 0; min-width: 0; }
+  .cover-pick-box {
+    flex-shrink: 0; width: 64px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .cover-pick-square {
+    width: 64px; height: 44px; border: 2px dashed var(--border); border-radius: 10px;
+    background: var(--card); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; overflow: hidden; position: relative; transition: border-color 0.15s ease;
+  }
+  .cover-pick-square:active { border-color: var(--accent); }
+  .cover-pick-square span { font-size: 20px; color: var(--subtext); font-weight: 300; line-height: 1; }
+  .cover-pick-square img { width: 100%; height: 100%; object-fit: cover; }
+  .cover-pick-box label { font-size: 10px; color: var(--subtext); white-space: nowrap; }
+
+  /* ---------- کادر «حس من» (۴ خط × ۱۰ کاراکتر، وسط‌چین) ---------- */
+  .feeling-wrap { display: none; margin-bottom: 12px; }
+  .feeling-box-head {
+    display: flex; align-items: center; justify-content: center; gap: 5px; margin-bottom: 6px; position: relative;
+  }
+  .feeling-box-head span { font-size: 13px; color: var(--subtext); font-weight: 600; }
+  .feeling-info-btn {
+    width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--subtext); color: var(--subtext);
+    background: none; font-size: 10px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; padding: 0; flex-shrink: 0; position: absolute; inset-inline-start: calc(50% + 34px);
+  }
+  .feeling-textarea {
+    width: 148px; height: 100px; margin: 0 auto; display: block;
+    text-align: center; resize: none; line-height: 25px; font-size: 13px;
+    padding: 6px 8px;
+  }
+  .feeling-popup {
+    display: none; position: absolute; z-index: 20; top: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    width: 220px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px; font-size: 12px; line-height: 1.8; color: var(--text); box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+  .feeling-popup.open { display: block; animation: fadeIn 0.18s ease; }
+
+
+
   /* ---------- کادر متنِ پست + شمارشگر کاراکتر ---------- */
   .text-input-wrap { margin-bottom: 10px; }
   .text-input-wrap textarea { margin-bottom: 2px; }
@@ -401,7 +506,8 @@
 
   .upload-submit-btn.primary { background: var(--accent-hover); }
 
-  .upload-preview-wrap { margin-top: 18px; }
+  .upload-preview-wrap { margin-top: 18px; transition: opacity 0.3s ease; opacity: 1; }
+  .upload-preview-wrap.fading-out { opacity: 0; }
   .upload-preview-label { font-size: 13px; color: var(--subtext); margin-bottom: 8px; }
   .upload-preview-card { pointer-events: none; }
   .upload-preview-card .action-bar,
@@ -1110,6 +1216,17 @@
   .reels-ctrl-btn.reels-ctrl-main.playing .icon-play { display: none; }
   .reels-ctrl-btn.reels-ctrl-main.playing .icon-pause { display: block; }
   .reels-ctrl-btn.reels-toggle.active { background: var(--accent-gradient); border-color: transparent; }
+  .reels-feeling {
+    max-width: 260px; text-align: center; color: rgba(255,255,255,0.92);
+    font-size: 13px; line-height: 1.7; white-space: pre-line; z-index: 2;
+    display: none;
+  }
+  .reels-feeling.visible { display: block; }
+  .reels-feeling .rf-cursor {
+    display: inline-block; width: 2px; height: 13px; background: rgba(255,255,255,0.85);
+    margin-inline-start: 2px; vertical-align: -2px; animation: rfBlink 0.9s step-end infinite;
+  }
+  @keyframes rfBlink { 50% { opacity: 0; } }
   .reels-info { position: absolute; bottom: 96px; inset-inline: 20px; z-index: 3; color: #fff; text-align: center; }
   .reels-title {
     font-size: 18px; font-weight: 700;
@@ -1559,6 +1676,9 @@
       <button type="button" class="upload-mode-btn" data-mode="text" onclick="setUploadMode('text')" aria-label="پست متنی" title="متن">
         <span class="upload-mode-t">T</span>
       </button>
+      <button type="button" class="upload-mode-btn" data-mode="music" onclick="setUploadMode('music')" aria-label="پست موسیقی" title="موسیقی">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      </button>
     </div>
 
     <div class="surface-card upload-composer mode-media" id="uploadComposer">
@@ -1574,6 +1694,48 @@
         <div class="media-dropzone-preview hidden" id="mediaDropzonePreview"></div>
         <button type="button" class="media-dropzone-remove hidden" id="mediaDropzoneRemove" onclick="onRemoveDropzoneFile(event)" aria-label="حذف فایل">×</button>
       </label>
+
+      <!-- کادر آپلود موسیقی (دورچین‌دار) — فقط تو حالت «موسیقی» دیده می‌شه -->
+      <label class="music-dropzone u-music-dropzone" id="musicDropzone" for="musicFileInput">
+        <input type="file" id="musicFileInput" accept="audio/*" class="hidden" onchange="onMusicFileChosen()" />
+        <span class="music-dropzone-plus">+</span>
+        <svg class="music-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <div class="music-dropzone-text">
+          <strong>آهنگ اضافه کن</strong>
+          <span>برای انتخاب فایل صوتی ضربه بزن</span>
+        </div>
+      </label>
+      <div class="vinyl-spin-wrap u-music-dropzone">
+        <div class="vinyl-spin" id="musicVinylSpin">
+          <div class="placeholder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+        </div>
+      </div>
+
+      <!-- ردیف عنوان (کوتاه‌تر) + کاور دلخواه — فقط تو حالت «موسیقی» -->
+      <div class="title-cover-row u-title-cover-row">
+        <div class="title-input-wrap">
+          <input type="text" id="musicTitleInput" placeholder="عنوان آهنگ" maxlength="15" oninput="onMusicTitleInput()" />
+          <span class="title-counter" id="musicTitleCounter">۰/۱۵</span>
+        </div>
+        <div class="cover-pick-box">
+          <label class="cover-pick-square" id="coverPickSquare" for="coverPickInput">
+            <span id="coverPickPlus">+</span>
+            <img id="coverPickPreview" class="hidden" alt="" />
+            <input type="file" id="coverPickInput" accept="image/*" class="hidden" onchange="onCoverPickChosen()" />
+          </label>
+          <label for="coverPickInput">کاور دلخواه</label>
+        </div>
+      </div>
+
+      <!-- کادر «حس من» — فقط تو حالت «موسیقی» -->
+      <div class="feeling-wrap u-feeling">
+        <div class="feeling-box-head">
+          <span>حس من</span>
+          <button type="button" class="feeling-info-btn" onclick="toggleFeelingInfo(event)" aria-label="توضیح حس من">؟</button>
+          <div class="feeling-popup" id="feelingPopup">حس من چیزیه که شما احساس خودتون رو به آهنگتون توش می‌نویسید و توی پخش فول‌اسکرین آهنگ، این حس شما در اونجا درج می‌شه</div>
+        </div>
+        <textarea class="feeling-textarea" id="feelingInput" maxlength="43" placeholder="مثلاً یه خاطره..." oninput="onFeelingInput(event)"></textarea>
+      </div>
 
       <!-- عنوان -->
       <div class="title-input-wrap u-title">
@@ -1849,6 +2011,7 @@
   <canvas id="fullPlayerVisualizer" class="reels-visualizer"></canvas>
   <div class="reels-center">
     <div class="reels-art-wrap" id="fullPlayerArt"></div>
+    <div class="reels-feeling" id="fullPlayerFeeling" aria-hidden="true"></div>
     <div class="reels-controls" onclick="event.stopPropagation()">
       <button class="reels-ctrl-btn reels-toggle" id="fullPlayerShuffleBtn" onclick="toggleFullPlayerShuffle(event)" title="پخش تصادفی">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.42 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
@@ -2337,21 +2500,38 @@ let selectedFilePreviewUrl = null;
 let dzPreviewUrl = null;
 let uploadMode = "media";
 
-// ---------- کپسول سوییچ حالت آپلود: رسانه / متن ----------
+// ---------- کپسول سوییچ حالت آپلود: رسانه / متن / موسیقی ----------
 function setUploadMode(mode) {
   uploadMode = mode;
   const btnMedia = document.querySelector('.upload-mode-btn[data-mode="media"]');
   const btnText = document.querySelector('.upload-mode-btn[data-mode="text"]');
+  const btnMusic = document.querySelector('.upload-mode-btn[data-mode="music"]');
   const composer = document.getElementById("uploadComposer");
   if (btnMedia) btnMedia.classList.toggle("active", mode === "media");
   if (btnText) btnText.classList.toggle("active", mode === "text");
-  if (composer) composer.classList.toggle("mode-text", mode === "text");
+  if (btnMusic) btnMusic.classList.toggle("active", mode === "music");
+  if (composer) {
+    composer.classList.toggle("mode-text", mode === "text");
+    composer.classList.toggle("mode-music", mode === "music");
+  }
 
-  // تو حالت متنی نمی‌شه فایل ضمیمه کرد، پس اگه قبلاً فایلی انتخاب شده بود پاکش می‌کنیم
-  if (mode === "text" && selectedFile) clearFile();
+  // سوییچ بین حالت‌ها یعنی فایل/فیلدهای حالت قبلی دیگه معتبر نیستن
+  if (mode === "text") {
+    if (selectedFile) clearFile();
+    clearMusicFields();
+  } else if (mode === "music") {
+    if (selectedFile) clearFile();
+  } else {
+    clearMusicFields();
+  }
 
   const textEl = document.getElementById("postText");
-  if (textEl) textEl.placeholder = mode === "text" ? "چی می‌خوای توی دهات ثبت کنی؟" : "توضیحاتی برای رسانه‌ات بنویس (اختیاری)";
+  if (textEl) {
+    textEl.placeholder =
+      mode === "text" ? "چی می‌خوای توی دهات ثبت کنی؟" :
+      mode === "music" ? "توضیحاتی برای آهنگت بنویس (اختیاری)" :
+      "توضیحاتی برای رسانه‌ات بنویس (اختیاری)";
+  }
 
   positionUploadModeIndicator();
   updateUploadPreview();
@@ -2450,6 +2630,137 @@ function clearFile() {
   updateUploadPreview();
 }
 
+// ---------- کادر آپلود موسیقی (حالت «موسیقی») ----------
+let musicVinylUrl = null;
+let coverPickUrl = null;
+let customCoverOverride = false;
+
+function onMusicFileChosen() {
+  const input = document.getElementById("musicFileInput");
+  selectedFile = input.files[0] || null;
+  const dz = document.getElementById("musicDropzone");
+  if (dz) dz.classList.toggle("has-file", !!selectedFile);
+
+  selectedAudioMeta = { title: "", performer: "", coverBlob: null };
+  customCoverOverride = false;
+  renderVinylCover();
+
+  if (selectedFile && window.jsmediatags) {
+    window.jsmediatags.read(selectedFile, {
+      onSuccess: (tag) => {
+        const tags = tag.tags || {};
+        selectedAudioMeta.title = (tags.title || "").trim();
+        selectedAudioMeta.performer = (tags.artist || "").trim();
+        if (tags.picture) {
+          const { data, format } = tags.picture;
+          const bytes = new Uint8Array(data);
+          selectedAudioMeta.coverBlob = new Blob([bytes], { type: format || "image/jpeg" });
+        }
+        // اگه کاربر تا الان عنوان رو دستی وارد نکرده، عنوان استخراج‌شده از تگ ID3 رو پیش‌فرض بذاریم
+        const titleInput = document.getElementById("musicTitleInput");
+        if (titleInput && !titleInput.value && selectedAudioMeta.title) {
+          titleInput.value = selectedAudioMeta.title.slice(0, 15);
+          onMusicTitleInput();
+        }
+        renderVinylCover();
+        updateUploadPreview();
+      },
+      onError: () => { renderVinylCover(); updateUploadPreview(); },
+    });
+  }
+  updateUploadPreview();
+}
+
+// کاورِ چرخانِ گرامافونی: عکسِ تگ ID3 (یا کاور دلخواه، اگه کاربر جایگزینش کرده) رو نشون می‌ده
+function renderVinylCover() {
+  const spin = document.getElementById("musicVinylSpin");
+  if (!spin) return;
+  if (musicVinylUrl) { URL.revokeObjectURL(musicVinylUrl); musicVinylUrl = null; }
+  if (selectedAudioMeta.coverBlob) {
+    musicVinylUrl = URL.createObjectURL(selectedAudioMeta.coverBlob);
+    spin.innerHTML = `<img src="${musicVinylUrl}" alt="" />`;
+  } else {
+    spin.innerHTML = `<div class="placeholder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>`;
+  }
+}
+
+// کاور دلخواه: کاربر می‌تونه به‌جای کاور استخراج‌شده از تگ ID3، یه عکس دستی انتخاب کنه
+function onCoverPickChosen() {
+  const input = document.getElementById("coverPickInput");
+  const file = input.files[0];
+  if (!file) return;
+  selectedAudioMeta.coverBlob = file;
+  customCoverOverride = true;
+  if (coverPickUrl) URL.revokeObjectURL(coverPickUrl);
+  coverPickUrl = URL.createObjectURL(file);
+  const img = document.getElementById("coverPickPreview");
+  const plus = document.getElementById("coverPickPlus");
+  if (img) { img.src = coverPickUrl; img.classList.remove("hidden"); }
+  if (plus) plus.classList.add("hidden");
+  renderVinylCover();
+  updateUploadPreview();
+}
+
+function onMusicTitleInput() {
+  const val = document.getElementById("musicTitleInput").value;
+  const counterEl = document.getElementById("musicTitleCounter");
+  if (counterEl) {
+    counterEl.textContent = `${toPersianDigits(val.length)}/۱۵`;
+    counterEl.classList.toggle("limit", val.length >= 15);
+  }
+  updateUploadPreview();
+}
+
+// «حس من»: حداکثر ۴۰ کاراکتر، خودکار هر ۱۰ کاراکتر یه خط جدید می‌شه (۴ خط × ۱۰ کاراکتر، وسط‌چین)
+function onFeelingInput(e) {
+  const el = e.target;
+  const cursorAtEnd = el.selectionStart === el.value.length;
+  let raw = el.value.replace(/\n/g, "").slice(0, 40);
+  const formatted = raw.match(/.{1,10}/g)?.join("\n") || "";
+  el.value = formatted;
+  if (cursorAtEnd) el.selectionStart = el.selectionEnd = el.value.length;
+}
+
+function toggleFeelingInfo(evt) {
+  evt.stopPropagation();
+  document.getElementById("feelingPopup")?.classList.toggle("open");
+}
+document.addEventListener("click", (evt) => {
+  const popup = document.getElementById("feelingPopup");
+  if (popup && popup.classList.contains("open") && !popup.contains(evt.target)) {
+    popup.classList.remove("open");
+  }
+});
+
+// پاک‌کردنِ کامل فیلدهای مخصوصِ حالت «موسیقی» (موقع سوییچ حالت یا بعد از ثبت موفق)
+function clearMusicFields() {
+  selectedFile = null;
+  selectedAudioMeta = { title: "", performer: "", coverBlob: null };
+  customCoverOverride = false;
+
+  const musicInput = document.getElementById("musicFileInput");
+  if (musicInput) musicInput.value = "";
+  const dz = document.getElementById("musicDropzone");
+  if (dz) dz.classList.remove("has-file");
+
+  const titleInput = document.getElementById("musicTitleInput");
+  if (titleInput) titleInput.value = "";
+  onMusicTitleInput();
+
+  const feelingEl = document.getElementById("feelingInput");
+  if (feelingEl) feelingEl.value = "";
+
+  const coverInput = document.getElementById("coverPickInput");
+  if (coverInput) coverInput.value = "";
+  const img = document.getElementById("coverPickPreview");
+  const plus = document.getElementById("coverPickPlus");
+  if (img) { img.classList.add("hidden"); img.removeAttribute("src"); }
+  if (plus) plus.classList.remove("hidden");
+  if (coverPickUrl) { URL.revokeObjectURL(coverPickUrl); coverPickUrl = null; }
+
+  renderVinylCover();
+}
+
 // ---------- کادر عنوان پست (حداکثر ۱۵ کاراکتر) ----------
 function onTitleInput() {
   const val = document.getElementById("postTitle").value;
@@ -2474,7 +2785,8 @@ function onPostTextInput() {
 function updateUploadPreview() {
   const wrap = document.getElementById("uploadPreviewWrap");
   const card = document.getElementById("uploadPreviewCard");
-  const title = document.getElementById("postTitle").value.trim().slice(0, 15);
+  const titleSourceEl = uploadMode === "music" ? document.getElementById("musicTitleInput") : document.getElementById("postTitle");
+  const title = (titleSourceEl ? titleSourceEl.value : "").trim().slice(0, 15);
   const text = document.getElementById("postText").value.trim();
   const tagsInput = document.getElementById("postTags");
   const tagsRaw = tagsInput ? tagsInput.value.trim() : "";
@@ -2485,6 +2797,7 @@ function updateUploadPreview() {
     return;
   }
   wrap.classList.remove("hidden");
+  wrap.classList.remove("fading-out");
 
   if (selectedFilePreviewUrl) { URL.revokeObjectURL(selectedFilePreviewUrl); selectedFilePreviewUrl = null; }
 
@@ -2679,7 +2992,10 @@ function resumePostCooldownUI() {
 
 async function submitPost() {
   const text = document.getElementById("postText").value.trim();
-  const title = document.getElementById("postTitle").value.trim().slice(0, 15);
+  const titleSourceEl = uploadMode === "music" ? document.getElementById("musicTitleInput") : document.getElementById("postTitle");
+  const title = (titleSourceEl ? titleSourceEl.value : "").trim().slice(0, 15);
+  const feelingEl = document.getElementById("feelingInput");
+  const feeling = uploadMode === "music" && feelingEl ? feelingEl.value.replace(/\n/g, "").trim().slice(0, 40) : "";
   const errEl = document.getElementById("postError");
   const btn = document.getElementById("submitBtn");
   const progressWrap = document.getElementById("uploadProgressWrap");
@@ -2714,6 +3030,7 @@ async function submitPost() {
       if (selectedAudioMeta.title) fd.append("audio_title", selectedAudioMeta.title);
       if (selectedAudioMeta.performer) fd.append("audio_performer", selectedAudioMeta.performer);
       if (selectedAudioMeta.coverBlob) fd.append("audio_cover", selectedAudioMeta.coverBlob, "cover.jpg");
+      if (feeling) fd.append("audio_feeling", feeling);
     }
   }
   btn.textContent = "در حال ارسال...";
@@ -2767,6 +3084,12 @@ async function submitPost() {
   await new Promise((r) => setTimeout(r, 2000));
 
   btn.classList.remove("success");
+
+  // اول پیش‌نمایش رو محو می‌کنیم (ترنزیشن opacity)، بعد واقعاً پاکش می‌کنیم — تا کاربر یه محو شدنِ نرم ببینه
+  const previewWrap = document.getElementById("uploadPreviewWrap");
+  if (previewWrap) previewWrap.classList.add("fading-out");
+  await new Promise((r) => setTimeout(r, 280));
+
   try {
     document.getElementById("postText").value = "";
     document.getElementById("postTitle").value = "";
@@ -2775,6 +3098,7 @@ async function submitPost() {
     onTitleInput();
     onPostTextInput();
     clearFile();
+    clearMusicFields();
     // قبلاً اینجا کاربر به‌صورت خودکار به فید مدیا/متن سوییچ می‌شد (switchView(targetView, true))؛
     // طبق درخواست، بعد از پیام موفقیت باید همینجا (صفحه‌ی آپلود) بمونه و فرم به حالت اولش برگرده،
     // نه اینکه از صفحه خارج بشه.
@@ -2977,8 +3301,8 @@ document.addEventListener("visibilitychange", () => {
 // رویدادهای بالا رو اجرا نمی‌کنن؛ برای همین صرف‌نظر از این رویدادها، هر ۵ ثانیه هم جدا ذخیره می‌شه
 setInterval(() => { if (currentAudio) savePlayerState(true); }, 5000);
 
-function buildAudioPlayer(fileId, safeId, thumbFileId, title, performer, postId) {
-  audioMetaRegistry[safeId] = { postId, title: title || "", performer: performer || "", thumbFileId: thumbFileId || null, fileId, originalSafeId: safeId };
+function buildAudioPlayer(fileId, safeId, thumbFileId, title, performer, postId, feeling) {
+  audioMetaRegistry[safeId] = { postId, title: title || "", performer: performer || "", thumbFileId: thumbFileId || null, fileId, originalSafeId: safeId, feeling: feeling || "" };
   const coverHtml = thumbFileId
     ? `<img src="${WORKER_URL}/api/media/${thumbFileId}" alt="" />`
     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
@@ -3481,6 +3805,7 @@ function renderFullPlayer(safeId, playing) {
   const meta = audioMetaRegistry[safeId];
   if (!meta) return;
   const panel = document.getElementById("fullPlayer");
+  const prevSafeId = panel.dataset.safeId;
   panel.dataset.safeId = safeId;
 
   const bg = document.getElementById("fullPlayerBg");
@@ -3504,8 +3829,43 @@ function renderFullPlayer(safeId, playing) {
   document.getElementById("fullPlayerTitle").textContent = meta.title || "بدون‌عنوان";
   document.getElementById("fullPlayerPerformer").textContent = meta.performer || "";
 
+  // «حس من» فقط وقتی آهنگ واقعاً عوض شده (نه صرفاً پخش/توقف) دوباره از اول تایپ می‌شه
+  if (prevSafeId !== safeId) {
+    renderFullPlayerFeeling(meta.feeling || "");
+  }
+
   updateFullPlayerPlayState(playing);
   updateFullPlayerShuffleRepeatUI();
+}
+
+// ---------- «حس من»: نمایشِ تایپ‌شونده‌ی متنِ ذخیره‌شده‌ی آهنگ، بینِ کاور و کنترل‌های پلیر تمام‌صفحه ----------
+let feelingTypeTimer = null;
+let feelingRenderToken = 0;
+function renderFullPlayerFeeling(text) {
+  const el = document.getElementById("fullPlayerFeeling");
+  if (!el) return;
+  const myToken = ++feelingRenderToken;
+  if (feelingTypeTimer) { clearInterval(feelingTypeTimer); feelingTypeTimer = null; }
+
+  // اول متنِ آهنگِ قبلی رو ناپدید می‌کنیم
+  el.classList.remove("visible");
+  el.textContent = "";
+  if (!text) return;
+
+  // یه مکث کوتاه بعد از ناپدید شدنِ متن قبلی، بعد تایپِ متن جدید شروع می‌شه
+  setTimeout(() => {
+    if (myToken !== feelingRenderToken) return; // یه آهنگ جدیدتر جایگزینش شده، این اجرا دیگه معتبر نیست
+    el.classList.add("visible");
+    el.innerHTML = `<span class="rf-typed"></span><span class="rf-cursor"></span>`;
+    const typedSpan = el.querySelector(".rf-typed");
+    let i = 0;
+    feelingTypeTimer = setInterval(() => {
+      if (myToken !== feelingRenderToken) { clearInterval(feelingTypeTimer); return; }
+      i++;
+      typedSpan.textContent = text.slice(0, i);
+      if (i >= text.length) { clearInterval(feelingTypeTimer); feelingTypeTimer = null; }
+    }, 55);
+  }, 220);
 }
 
 // ---------- استخراج رنگ غالب از کاور آهنگ برای افکت‌های پس‌زمینه‌ی پلیر تمام‌صفحه ----------
@@ -3714,6 +4074,7 @@ async function loadRandomQueueTracks() {
           thumbFileId: p.audio_thumb || null,
           fileId: p.file_id,
           originalSafeId: safeId,
+          feeling: p.audio_feeling || "",
         };
       }
       if (!document.getElementById(`audioEl-${safeId}`)) {
@@ -4122,7 +4483,7 @@ function renderPost(p, num) {
   } else if (p.type === "video") {
     mediaHtml = `<div class="entry-media">${buildVideoPlayer(p.file_id, safeId)}</div>`;
   } else if (p.type === "audio") {
-    mediaHtml = `<div class="entry-media has-audio">${buildAudioPlayer(p.file_id, safeId, p.audio_thumb, p.audio_title, p.audio_performer, p.id)}</div>`;
+    mediaHtml = `<div class="entry-media has-audio">${buildAudioPlayer(p.file_id, safeId, p.audio_thumb, p.audio_title, p.audio_performer, p.id, p.audio_feeling)}</div>`;
   } else if (p.type === "document") {
     mediaHtml = `<div class="entry-doc">فایل پیوست — <a href="${WORKER_URL}/api/media/${p.file_id}" target="_blank">دانلود</a></div>`;
   }
@@ -4244,6 +4605,7 @@ function renderMusicRow(p) {
     thumbFileId: p.audio_thumb || null,
     fileId: p.file_id,
     originalSafeId: safeId,
+    feeling: p.audio_feeling || "",
   };
 
   const coverHtml = p.audio_thumb
