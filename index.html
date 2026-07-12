@@ -462,7 +462,7 @@
   .cover-pick-square img { width: 100%; height: 100%; object-fit: cover; }
   .cover-pick-box label { font-size: 10px; color: var(--subtext); white-space: nowrap; }
 
-  /* ---------- کادر «حس من» (۴ خط × ۱۰ کاراکتر، وسط‌چین) ---------- */
+  /* ---------- کادر «حس من» (۲ خط × ۲۵ کاراکتر، وسط‌چین) ---------- */
   .feeling-wrap { display: none; margin-bottom: 12px; }
   .feeling-box-head {
     display: flex; align-items: center; justify-content: center; gap: 5px; margin-bottom: 6px; position: relative;
@@ -474,8 +474,8 @@
     cursor: pointer; padding: 0; flex-shrink: 0; position: absolute; inset-inline-start: calc(50% + 34px);
   }
   .feeling-textarea {
-    width: 148px; height: 100px; margin: 0 auto; display: block;
-    text-align: center; resize: none; line-height: 25px; font-size: 13px;
+    width: 230px; max-width: 100%; height: 60px; margin: 0 auto; display: block;
+    text-align: center; resize: none; line-height: 22px; font-size: 13px;
     padding: 6px 8px;
   }
   .feeling-popup {
@@ -1226,7 +1226,7 @@
   .reels-ctrl-btn.reels-ctrl-main.playing .icon-pause { display: block; }
   .reels-ctrl-btn.reels-toggle.active { background: var(--accent-gradient); border-color: transparent; }
   .reels-feeling {
-    max-width: 280px; text-align: center; color: rgba(255,255,255,0.92);
+    max-width: min(320px, 85vw); text-align: center; color: rgba(255,255,255,0.92);
     font-size: 17px; line-height: 1.6; white-space: pre-line; z-index: 2;
     display: none;
   }
@@ -1748,7 +1748,7 @@
           <button type="button" class="feeling-info-btn" onclick="toggleFeelingInfo(event)" aria-label="توضیح حس من">؟</button>
           <div class="feeling-popup" id="feelingPopup">حس من چیزیه که شما احساس خودتون رو به آهنگتون توش می‌نویسید و توی پخش فول‌اسکرین آهنگ، این حس شما در اونجا درج می‌شه</div>
         </div>
-        <textarea class="feeling-textarea" id="feelingInput" maxlength="43" placeholder="مثلاً یه خاطره..." oninput="onFeelingInput(event)"></textarea>
+        <textarea class="feeling-textarea" id="feelingInput" maxlength="51" placeholder="مثلاً یه خاطره..." oninput="onFeelingInput(event)"></textarea>
       </div>
 
       <!-- عنوان -->
@@ -2725,12 +2725,12 @@ function onMusicTitleInput() {
   updateUploadPreview();
 }
 
-// «حس من»: حداکثر ۴۰ کاراکتر، خودکار هر ۱۰ کاراکتر یه خط جدید می‌شه (۴ خط × ۱۰ کاراکتر، وسط‌چین)
+// «حس من»: حداکثر ۵۰ کاراکتر، خودکار هر ۲۵ کاراکتر یه خط جدید می‌شه (۲ خط × ۲۵ کاراکتر، وسط‌چین)
 function onFeelingInput(e) {
   const el = e.target;
   const cursorAtEnd = el.selectionStart === el.value.length;
-  let raw = el.value.replace(/\n/g, "").slice(0, 40);
-  const formatted = raw.match(/.{1,10}/g)?.join("\n") || "";
+  let raw = el.value.replace(/\n/g, "").slice(0, 50);
+  const formatted = raw.match(/.{1,25}/g)?.join("\n") || "";
   el.value = formatted;
   if (cursorAtEnd) el.selectionStart = el.selectionEnd = el.value.length;
 }
