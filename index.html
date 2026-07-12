@@ -3832,20 +3832,19 @@ function renderFullPlayer(safeId, playing) {
   const panel = document.getElementById("fullPlayer");
   panel.dataset.safeId = safeId;
 
-  const bg = document.getElementById("fullPlayerBg");
   const art = document.getElementById("fullPlayerArt");
   const loaderHtml = `<div class="art-loading"><div class="art-loading-spinner"></div></div>`;
   if (meta.thumbFileId) {
     art.innerHTML = `<img src="${WORKER_URL}/api/media/${meta.thumbFileId}" alt="" />${loaderHtml}`;
-    applyAmbientCoverColors(bg, null); // تا وقتی رنگ واقعی استخراج بشه، رنگ‌های تمِ سایت به‌عنوان فالبک نشون داده می‌شن
+    applyAmbientCoverColors(panel, null); // تا وقتی رنگ واقعی استخراج بشه، رنگ‌های تمِ سایت به‌عنوان فالبک نشون داده می‌شن
     extractCoverColors(meta.thumbFileId).then((colors) => {
       // اگه کاربر تا وقتی رنگ‌ها آماده بشن آهنگ رو عوض کرده باشه، رنگ رو اعمال نکن
       if (colors && document.getElementById("fullPlayer").dataset.safeId === safeId) {
-        applyAmbientCoverColors(bg, colors);
+        applyAmbientCoverColors(panel, colors);
       }
     });
   } else {
-    applyAmbientCoverColors(bg, null);
+    applyAmbientCoverColors(panel, null);
     art.innerHTML = `<div class="placeholder-icon">${ICON_MUSIC}</div>${loaderHtml}`;
   }
   art.classList.toggle("loading", !!(audioLoadState[safeId] && audioLoadState[safeId].pending));
@@ -3909,18 +3908,20 @@ const coverColorCache = {};
 // رنگ‌های فعلی که ویژولایزر هم ازشون استفاده می‌کنه (همون رنگ‌های استخراج‌شده از کاور، یا فالبک تمِ سایت)
 let currentVizColors = null;
 
-function applyAmbientCoverColors(bg, colors) {
-  if (!bg) return;
+// این متغیرهای CSS رو روی خودِ پنل تمام‌صفحه (نه فقط لایه‌ی bg-blur) ست می‌کنیم؛ چون چندتا المان مختلف
+// (بلاب‌های پس‌زمینه + درخشش دور ویژولایزر) بهشون نیاز دارن و با ست‌کردن روی پنل، به همه‌ی فرزندانش ارث می‌رسه
+function applyAmbientCoverColors(panel, colors) {
+  if (!panel) return;
   currentVizColors = colors;
   if (!colors) {
-    bg.style.removeProperty("--cover-c1");
-    bg.style.removeProperty("--cover-c2");
-    bg.style.removeProperty("--cover-c3");
+    panel.style.removeProperty("--cover-c1");
+    panel.style.removeProperty("--cover-c2");
+    panel.style.removeProperty("--cover-c3");
     return;
   }
-  bg.style.setProperty("--cover-c1", colors[0]);
-  bg.style.setProperty("--cover-c2", colors[1] || colors[0]);
-  bg.style.setProperty("--cover-c3", colors[2] || colors[0]);
+  panel.style.setProperty("--cover-c1", colors[0]);
+  panel.style.setProperty("--cover-c2", colors[1] || colors[0]);
+  panel.style.setProperty("--cover-c3", colors[2] || colors[0]);
 }
 
 function extractCoverColors(thumbFileId) {
@@ -4029,6 +4030,7 @@ function toggleQueuePanel(e) {
 function openQueuePanel() {
   document.getElementById("queuePanel")?.classList.add("open");
   document.getElementById("queuePanelBackdrop")?.classList.add("open");
+  renderNowPlayingQueueItem();
   if (!queueListState.initialLoaded) {
     queueListState.initialLoaded = true;
     loadRandomQueueTracks();
@@ -4126,6 +4128,7 @@ async function loadRandomQueueTracks() {
 
     listEl.insertAdjacentHTML("beforeend", rowsHtml);
     if (!data.hasMore) queueListState.exhausted = true;
+    renderNowPlayingQueueItem();
   } catch (e) {
     document.getElementById("queueLoadingRow")?.remove();
     listEl.insertAdjacentHTML("beforeend", `<div class="queue-loading-more">بارگذاری صف با خطا مواجه شد</div>`);
@@ -4167,10 +4170,55 @@ function onQueuePanelScroll(e) {
   }
 }
 
+// آهنگی که همین الان داره پخش می‌شه، همیشه به‌عنوان اولین ردیفِ ثابتِ صف پخش نشون داده می‌شه
+// (قبلاً فقط ۱۵ آهنگِ بعدی رندوم نشون داده می‌شد و خودِ آهنگِ در حال پخش اصلاً تو لیست نبود)
+function renderNowPlayingQueueItem() {
+  const listEl = document.getElementById("queuePanelList");
+  if (!listEl) return;
+  const existingRow = document.getElementById("queueNowPlaying");
+
+  if (!currentAudio || !audioMetaRegistry[currentAudio.safeId]) {
+    existingRow?.remove();
+    return;
+  }
+  const safeId = currentAudio.safeId;
+  const meta = audioMetaRegistry[safeId];
+
+  // اگه همین آهنگ (اتفاقی) از قبل تو لیستِ تصادفیِ زیرش هم باشه، ردیفِ ثابت رو نشون نده تا تکراری نشه؛
+  // هایلایتِ اون آیتمِ خودش تو لیست کافیه
+  const alreadyInRandomList = queueListState.items.some((it) => it.safeId === safeId);
+  if (alreadyInRandomList) {
+    existingRow?.remove();
+    return;
+  }
+
+  const coverHtml = meta.thumbFileId
+    ? `<img src="${WORKER_URL}/api/media/${meta.thumbFileId}" alt="" />`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
+  const titleText = escapeHtml(meta.title || "بدون‌عنوان");
+  const subText = meta.performer ? escapeHtml(meta.performer) : "در حال پخش";
+
+  const rowHtml = `
+    <div class="queue-item active" id="queueNowPlaying" onclick="playQueueTrack('${safeId}')">
+      <div class="queue-item-cover">${coverHtml}</div>
+      <div class="queue-item-info">
+        <div class="queue-item-title">${titleText}</div>
+        <div class="queue-item-sub">${subText}</div>
+      </div>
+      <div class="queue-eq"><span></span><span></span><span></span></div>
+    </div>`;
+
+  if (existingRow) {
+    existingRow.outerHTML = rowHtml; // آپدیت درجا، همون جایگاه اول رو حفظ می‌کنه
+  } else {
+    listEl.insertAdjacentHTML("afterbegin", rowHtml);
+  }
+}
+
 // هر بار آهنگِ در حال پخش عوض می‌شه، هایلایت/اکولایزرِ آیتم فعال تو لیست صف هم آپدیت می‌شه
 function highlightActiveQueueItem(safeId) {
   document.querySelectorAll(".queue-item.active").forEach((el) => {
-    if (el.id !== `queueItem-${safeId}`) {
+    if (el.id !== `queueItem-${safeId}` && el.id !== "queueNowPlaying") {
       el.classList.remove("active");
       el.querySelector(".queue-eq")?.remove();
     }
@@ -4182,6 +4230,7 @@ function highlightActiveQueueItem(safeId) {
       item.insertAdjacentHTML("beforeend", `<div class="queue-eq"><span></span><span></span><span></span></div>`);
     }
   }
+  renderNowPlayingQueueItem();
 }
 
 function fullPlayerToggle(e) {
@@ -4326,7 +4375,10 @@ function startVisualizerLoop() {
   // کنواس ۲بعدی روی خیلی از مرورگرها (خصوصاً موبایل) به‌صورت نرم‌افزاری و بدون شتاب GPU حساب می‌شه و
   // تنهاییش بزرگ‌ترین منبع لگ ویژوالایزر بود. اینجا به‌جاش یه drop-shadow ثابتِ CSS روی خودِ canvas
   // می‌ذاریم که کامپوزیتور مرورگر (GPU) یه‌بار حسابش می‌کنه، نه هر فریم جاوااسکریپت.
-  canvas.style.filter = "drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent))";
+  // رنگ درخشش از رنگِ استخراج‌شده‌ی کاور آهنگه (var(--cover-c1)) تا با گرادیانِ میله‌ها هماهنگ باشه؛
+  // چون مقدار var() به‌صورت زنده توسط مرورگر حساب می‌شه، با عوض‌شدن آهنگ/کاور خودکار آپدیت می‌شه، بدون نیاز به کد اضافه.
+  // آهنگ‌های بدون کاور فالبکِ var(--accent) (همون ترکیب رنگیِ تمِ سایت) رو می‌گیرن.
+  canvas.style.filter = "drop-shadow(0 0 6px color-mix(in srgb, var(--cover-c1, var(--accent)) 55%, transparent))";
 
   let cachedGradientColors = null;
   let cachedGradient = null;
