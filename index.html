@@ -77,26 +77,38 @@
     --error: #EF4444;
   }
   :root[data-theme="teal"] {
-    /* Royal Charcoal — پس‌زمینه یه‌درجه روشن‌تر از قبل، کارت‌ها خاکستری مایل‌به‌مشکیِ خنثی‌تر (بدون گرایش آبی) */
-    --primary: #232427;
-    --surface: #202124;
-    --card: #323234;
-    --accent: #55575B;
-    --accent-hover: #6C6E73;
-    --text: #FFFFFF;
-    --subtext: #9A9BA0;
-    --border: #414245;
-    --success: #22C55E;
-    --error: #EF4444;
-    /* گرادیانِ کارت مخصوص این تم: به‌جای دو رنگ ساده، سه ایست‌رنگ که یه خطِ نورِ مورب (مثل فلزِ برس‌خورده) می‌سازه */
-    --card-gradient: linear-gradient(135deg, #3A3B3E 0%, #2A2B2D 45%, #363739 65%, #262729 100%);
+    /* Obsidian Premium — پس‌زمینه واقعاً مشکی (نه خاکستری تیره)، رنگ‌های روشن (accent/success/error) نسبت به
+       تم‌های دیگه چند پله تیره‌تر و کم‌اشباع‌تر شدن تا حس گرون/پریمیوم بدن نه شلوغ/نئونی. کارت‌ها یه پله از
+       پس‌زمینه روشن‌ترن، فقط برای اینکه لایه‌بندی دیده بشه، نه برای اینکه خودشون رنگی به‌نظر برسن. */
+    --primary: #000000;
+    --surface: #0A0A0B;
+    --card: #141416;
+    --accent: #3D3E42;
+    --accent-hover: #57585D;
+    --text: #F2F2F2;
+    --subtext: #8B8C90;
+    --border: #26262A;
+    --success: #1E7A46;
+    --error: #B23A3A;
+    /* گرادیانِ کارت مخصوص این تم: به‌جای دو رنگ ساده، سه ایست‌رنگ که یه خطِ نورِ مورب (مثل فلزِ برس‌خورده) می‌سازه،
+       ولی این بار روی زمینه‌ی تقریباً مشکی نه خاکستری */
+    --card-gradient: linear-gradient(135deg, #1D1D20 0%, #0D0D0E 45%, #191A1C 65%, #08080A 100%);
   }
   /* لبه‌ی بالایی روشن + لبه‌ی پایینی تیره روی کارت‌ها، حسِ فلزیِ برجسته (embossed metal) می‌ده */
   :root[data-theme="teal"] .post-card {
-    box-shadow: 0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.3);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -1px 0 rgba(0,0,0,0.4);
   }
   :root[data-theme="teal"] .surface-card {
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -1px 0 rgba(0,0,0,0.25);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), inset 0 -1px 0 rgba(0,0,0,0.35);
+  }
+  /* درخشش خیلی ظریفِ متن، فقط روی چند عنصر شاخص (اسم برند، اسم کاربری، عنوان پست) — نه روی کل متن،
+     چون درخشش زیاد یا همه‌جایی خوانایی رو کم می‌کنه و حس ارزون/نئونی می‌ده نه پریمیوم.
+     رنگش از --accent میاد (خاکستریِ روشنِ خودِ تم) نه یه رنگ اضافه، تا هماهنگ با پالت بمونه. */
+  :root[data-theme="teal"] h1,
+  :root[data-theme="teal"] #app-splash .app-splash-name,
+  :root[data-theme="teal"] .entry-name,
+  :root[data-theme="teal"] .entry-title {
+    text-shadow: 0 0 5px color-mix(in srgb, var(--accent-hover) 45%, transparent);
   }
   :root[data-theme="emerald"] {
     /* Emerald Depth */
@@ -413,6 +425,11 @@
   }
   .upload-submit-btn.success:disabled { opacity: 1; cursor: default; }
   .upload-submit-btn.success svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .upload-submit-btn.cooldown {
+    background: var(--card) !important; color: var(--subtext) !important;
+    border: 1px solid var(--border); cursor: not-allowed;
+  }
+  .upload-submit-btn.cooldown:disabled { opacity: 1; }
   @keyframes uploadSuccessIn {
     from { opacity: 0; transform: translateY(-4px); }
     to { opacity: 1; transform: translateY(0); }
@@ -773,7 +790,7 @@
   .theme-swatch[data-theme-value="dark"] { background: linear-gradient(135deg, #1A1210, #B98A5E); }
   .theme-swatch[data-theme-value="red"] { background: linear-gradient(135deg, #170809, #C81E1E); }
   .theme-swatch[data-theme-value="blue"] { background: linear-gradient(135deg, #000428, #004E92); }
-  .theme-swatch[data-theme-value="teal"] { background: linear-gradient(135deg, #1E1F22, #4C4E51); }
+  .theme-swatch[data-theme-value="teal"] { background: linear-gradient(135deg, #000000, #3D3E42); }
   .theme-swatch[data-theme-value="emerald"] { background: linear-gradient(135deg, #0F2027, #28623A); }
   .back-link { background: none; border: none; color: var(--accent-hover); font-size: 13px; cursor: pointer; font-family: inherit; padding: 0; margin-bottom: 14px; }
   .username-link { cursor: pointer; }
@@ -2116,12 +2133,18 @@ window.addEventListener("scroll", () => {
   const bubbleSvg = bubble.querySelector("svg");
 
   const THRESHOLD = 70;   // این‌قدر پیکسل باید کشیده بشه تا رفرش فعال بشه
-  const MAX_PULL = 100;   // بیشتر از این‌قدر حباب پایین‌تر نمیاد (حس مقاومت)
   // مقدار پنهان‌سازی عمداً بزرگ‌تر از قبله: بعد از ورود به فول‌اسکرین PWA مقدار --safe-top
   // ممکنه به‌خاطر نمایان‌شدن ناحیه‌ی نوتچ/زیر نوار وضعیت زیاد بشه؛ با -70 بخشی از حباب از بالای
   // صفحه بیرون می‌زد، با -140 حتی با بیشترین safe-area-inset معمول هم کاملاً پنهان می‌مونه
   const HIDDEN_Y = -140;
   const LOADING_Y = 16;
+  // باگ قبلی: MAX_PULL روی ۱۰۰ ثابت مونده بود، در حالی که HIDDEN_Y به -140 افزایش پیدا کرده بود؛
+  // یعنی حتی با بیشترین کشیدن ممکن، حباب فقط تا HIDDEN_Y+MAX_PULL = -40px می‌رسید و هیچ‌وقت به
+  // موقعیت واقعی/دیده‌شدنش (نزدیک ۰ یا LOADING_Y) نمی‌رسید — حس «نصفه‌نیمه اومدن» همین بود.
+  // بعد موقع ریلیز، triggerRefresh یهو حباب رو به LOADING_Y (که خیلی دورتر از -40 بود) می‌فرستاد؛
+  // همون فاصله‌ی زیاد، با اینکه transition داشت، حس «تله‌پورت» می‌داد. الان MAX_PULL طوری تنظیم شده
+  // که آخرِ کشیدن دقیقاً به همون نقطه‌ی LOADING_Y برسه، یعنی موقع ریلیز دیگه هیچ پرشی نداریم.
+  const MAX_PULL = LOADING_Y - HIDDEN_Y; // = 156
 
   let startY = 0;
   let pulling = false;
@@ -2304,6 +2327,7 @@ function switchView(name, forceReload = false) {
   if (name === "upload" && typeof positionUploadModeIndicator === "function") {
     // تازه نمایان شده، پس یه فریم صبر می‌کنیم تا ابعادش قابل اندازه‌گیری باشه
     requestAnimationFrame(positionUploadModeIndicator);
+    resumePostCooldownUI();
   }
 }
 
@@ -2601,6 +2625,58 @@ function postWithProgress(fd, onProgress) {
   });
 }
 
+// ---------- کول‌داون آپلود پست (هر ۳ دقیقه یک پست) ----------
+// این بخش فقط UX رو مدیریت می‌کنه (نمایش شمارش‌معکوس و قفل دکمه)؛ اجرای واقعی/غیرقابل‌دورزدنِ محدودیت
+// توی ورکر (handlePost) انجام می‌شه، چون کلاینت همیشه قابل دستکاریه. اینجا فقط تجربه‌ی بهتر می‌دیم: کاربر
+// اصلاً درخواست بیهوده به سرور نمی‌زنه و زمان دقیق باقی‌مونده رو می‌بینه.
+const POST_COOLDOWN_STORAGE_KEY = "postCooldownUntil";
+const POST_COOLDOWN_SECONDS = 180; // هر ۳ دقیقه یک پست
+let postCooldownIntervalId = null;
+
+function getPostCooldownRemainingSeconds() {
+  const until = parseInt(localStorage.getItem(POST_COOLDOWN_STORAGE_KEY) || "0", 10);
+  return Math.max(0, Math.ceil((until - Date.now()) / 1000));
+}
+
+function formatCooldownTime(totalSeconds) {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+// شروع/ادامه‌ی شمارش‌معکوس؛ remainingSeconds اگه ندیم، از localStorage خونده می‌شه (برای رفرش صفحه یا
+// سوییچ تب که نباید کول‌داون از نو شروع بشه، بلکه از همون‌جا که بود ادامه پیدا کنه)
+function startPostCooldownUI(remainingSeconds) {
+  const btn = document.getElementById("submitBtn");
+  if (!btn) return;
+  if (typeof remainingSeconds === "number") {
+    localStorage.setItem(POST_COOLDOWN_STORAGE_KEY, String(Date.now() + remainingSeconds * 1000));
+  }
+  clearInterval(postCooldownIntervalId);
+
+  function tick() {
+    const remaining = getPostCooldownRemainingSeconds();
+    if (remaining <= 0) {
+      clearInterval(postCooldownIntervalId);
+      localStorage.removeItem(POST_COOLDOWN_STORAGE_KEY);
+      btn.disabled = false;
+      btn.classList.remove("cooldown");
+      btn.textContent = "ثبت در دهات";
+      return;
+    }
+    btn.disabled = true;
+    btn.classList.add("cooldown");
+    btn.textContent = `تا پست بعدی ${toPersianDigits(formatCooldownTime(remaining))}`;
+  }
+  tick();
+  postCooldownIntervalId = setInterval(tick, 1000);
+}
+
+// موقع بازکردن صفحه‌ی آپلود (یا لود اولیه‌ی سایت) صدا زده می‌شه تا اگه کول‌داونی از قبل فعاله، دوباره نشونش بده
+function resumePostCooldownUI() {
+  if (getPostCooldownRemainingSeconds() > 0) startPostCooldownUI();
+}
+
 async function submitPost() {
   const text = document.getElementById("postText").value.trim();
   const title = document.getElementById("postTitle").value.trim().slice(0, 15);
@@ -2610,6 +2686,12 @@ async function submitPost() {
   const progressFill = document.getElementById("uploadProgressFill");
   const progressLabel = document.getElementById("uploadProgressLabel");
   errEl.textContent = "";
+
+  const cooldownRemaining = getPostCooldownRemainingSeconds();
+  if (cooldownRemaining > 0) {
+    errEl.textContent = `هنوز ${toPersianDigits(formatCooldownTime(cooldownRemaining))} تا پست بعدی مونده`;
+    return;
+  }
 
   if (!text && !selectedFile) { errEl.textContent = "چیزی برای ثبت وارد نکردی"; return; }
 
@@ -2634,8 +2716,6 @@ async function submitPost() {
       if (selectedAudioMeta.coverBlob) fd.append("audio_cover", selectedAudioMeta.coverBlob, "cover.jpg");
     }
   }
-  const targetView = selectedFile ? "media" : "text";
-
   btn.textContent = "در حال ارسال...";
   progressWrap.classList.remove("hidden");
   progressFill.style.width = "0%";
@@ -2649,6 +2729,11 @@ async function submitPost() {
     });
     if (!ok) {
       if (status === 401) { logout(); return; }
+      if (status === 429 && typeof data.cooldownRemaining === "number") {
+        // سرور با یه cooldownRemaining دقیق جواب داده (مثلاً چون از یه تب/دستگاه دیگه پست زده بوده)؛
+        // شمارش‌معکوس کلاینت رو با همون مقدار واقعی هماهنگ می‌کنیم
+        startPostCooldownUI(data.cooldownRemaining);
+      }
       errEl.textContent = data.error || "ارسال ناموفق بود";
       return;
     }
@@ -2682,8 +2767,6 @@ async function submitPost() {
   await new Promise((r) => setTimeout(r, 2000));
 
   btn.classList.remove("success");
-  btn.disabled = false;
-  btn.textContent = "ثبت در دهات";
   try {
     document.getElementById("postText").value = "";
     document.getElementById("postTitle").value = "";
@@ -2692,10 +2775,15 @@ async function submitPost() {
     onTitleInput();
     onPostTextInput();
     clearFile();
-    switchView(targetView, true);
+    // قبلاً اینجا کاربر به‌صورت خودکار به فید مدیا/متن سوییچ می‌شد (switchView(targetView, true))؛
+    // طبق درخواست، بعد از پیام موفقیت باید همینجا (صفحه‌ی آپلود) بمونه و فرم به حالت اولش برگرده،
+    // نه اینکه از صفحه خارج بشه.
   } catch (e) {
     console.error("خطا بعد از آپلود موفق (خودِ آپلود مشکلی نداشت):", e);
   }
+  // کول‌داون سه‌دقیقه‌ای رو همینجا شروع می‌کنیم (سمت سرور هم مستقل از این اجرا می‌شه)؛ همین تابع
+  // خودش دکمه رو غیرفعال می‌کنه و متنش رو به شمارش‌معکوس تغییر می‌ده
+  startPostCooldownUI(POST_COOLDOWN_SECONDS);
 }
 
 function avatarColor(name) {
@@ -3795,6 +3883,10 @@ const VIZ_BAR_WIDTH = 4;   // px منطقی (قبل از ضرب در dpr)
 const VIZ_BAR_GAP = 3;     // px منطقی
 let vizPhase = 0;
 let vizLastTs = 0;
+// دامنه/بیس‌لاینِ فعلی به‌صورت نرم (لرپ‌شده) دنبال می‌شن، نه اینکه با شروع/توقف پخش یهو عوض بشن؛
+// همین پرش ناگهانی یکی از عوامل «وحشی» به‌نظر رسیدن انیمیشن بود.
+let vizAmpSmooth = 0.22;
+let vizBaseSmooth = 0.09;
 
 function vizNoise(x) {
   // چند موج سینوسی با فرکانس/دامنه‌ی متفاوت روی هم — الگوی ارگانیک و غیرتکراری می‌سازه، بدون نیاز به دیتای واقعی صدا
@@ -3885,8 +3977,16 @@ function startVisualizerLoop() {
     const barCount = Math.max(Math.ceil(canvas.width / step) + 1, 1);
     const radius = barWidth / 2;
     const gradient = getVizGradient();
-    const amplitude = isPlaying ? 1 : 0.22;
-    const baseline = isPlaying ? 0.16 : 0.09;
+
+    // دامنه/بیس‌لاین رو به‌جای پرش آنی به مقدار هدف، هر فریم فقط یه بخشی از فاصله رو طی می‌کنن (ease)؛
+    // این باعث می‌شه لحظه‌ی play/pause یه گذارِ نرم داشته باشه، نه یه تکونِ ناگهانی.
+    const targetAmp = isPlaying ? 1 : 0.22;
+    const targetBaseline = isPlaying ? 0.16 : 0.09;
+    const ease = 1 - Math.pow(0.001, dt / 1000);
+    vizAmpSmooth += (targetAmp - vizAmpSmooth) * ease;
+    vizBaseSmooth += (targetBaseline - vizBaseSmooth) * ease;
+    const amplitude = vizAmpSmooth;
+    const baseline = vizBaseSmooth;
 
     // میله‌ها رو به‌جای fill جداگانه، توی چند دسته بر اساس شفافیت‌شون گروه‌بندی می‌کنیم و هر دسته رو با یه
     // Path واحد fill می‌کنیم؛ همون ظاهر قبلی (شفافیت متغیر بر اساس ارتفاع میله) حفظ می‌شه ولی تعداد fill از
@@ -3897,7 +3997,11 @@ function startVisualizerLoop() {
     for (let b = 0; b < ALPHA_BUCKETS; b++) buckets[b] = new Path2D();
     for (let i = 0; i < barCount; i++) {
       const x = i * step;
-      const n = vizNoise(i * 0.5 + vizPhase * 40); // نسبت -۱ تا ۱ تقریبی
+      // ضریب فازِ قبلی (۴۰) خیلی بزرگ بود: باعث می‌شد بلندترین موجِ فرکانسیِ نویز (x*3.7) هر فریم تقریباً
+      // یه دورِ کامل بچرخه — یعنی از فریم بعدی عملاً یه الگوی کاملاً متفاوت/نامرتبط رسم می‌شد، که همون
+      // حسِ «وحشی/تکون‌خورده» بود، نه یه موجِ آروم و پیوسته. با ضریب کوچیک‌تر، جابه‌جاییِ فاز بین دو فریم
+      // متوالی خیلی کمتر از یه دورِ کامله، پس چشم یه حرکتِ نرم و پیوسته می‌بینه.
+      const n = vizNoise(i * 0.5 + vizPhase * 6); // نسبت -۱ تا ۱ تقریبی
       const v = Math.max(baseline + (n * 0.5 + 0.5) * amplitude * 0.85, 0.04);
       const barHeight = Math.max(v * canvas.height, radius * 2);
       const y = canvas.height - barHeight;
@@ -5891,6 +5995,67 @@ function hideAppSplash() {
   el.classList.add("hide");
   setTimeout(() => el.remove(), 450);
 }
+
+// ---------- بررسی خودکار نسخه‌ی جدیدِ صفحه (بدون نیاز به رفرش دستی کاربر) ----------
+// چون سایت روی گیت‌هاب‌پیجز استاتیکه و پشتش سرویس‌ورکر داره، ممکنه مرورگر یا کش سرویس‌ورکر یه نسخه‌ی
+// قدیمی از index.html رو نگه داره و کاربر تا رفرش دستی نزنه، فایل جدید رو نبینه. اینجا خودِ همین HTML
+// رو دوره‌ای (و هر بار کاربر به تب/اپ برمی‌گرده) با یه کوئری‌استرینگِ یکتا از سرور می‌گیریم — کوئری‌استرینگِ
+// یکتا هم کش معمولیِ HTTP و هم (چون کلید کش سرویس‌ورکر معمولاً کل URL از‌جمله کوئری‌استرینگه) کشِ
+// سرویس‌ورکر رو دور می‌زنه و یه درخواست واقعاً تازه از شبکه می‌گیره. اگه متنِ برگشتی با متنِ شناخته‌شده
+// فرق داشت، یعنی نسخه‌ی جدیدی منتشر شده؛ یه پیام کوتاه نشون می‌دیم و خودمون رفرش می‌کنیم.
+let knownPageSource = null;
+
+async function fetchLatestPageSource() {
+  try {
+    const url = `${location.pathname}?_v=${Date.now()}`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return null;
+    return await res.text();
+  } catch (e) {
+    return null; // قطعیِ شبکه؛ دفعه‌ی بعد دوباره امتحان می‌شه
+  }
+}
+
+function showUpdateToast() {
+  if (document.getElementById("appUpdateToast")) return;
+  const toast = document.createElement("div");
+  toast.id = "appUpdateToast";
+  toast.style.cssText =
+    "position:fixed;left:50%;bottom:calc(20px + var(--safe-bottom));transform:translateX(-50%);z-index:10000;" +
+    "background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:12px;" +
+    "padding:10px 18px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,0.4);";
+  toast.textContent = "نسخه‌ی جدید سایت آماده‌ست، در حال بروزرسانی...";
+  document.body.appendChild(toast);
+}
+
+// اگه کاربر وسط نوشتن پست یا وسط آپلود باشه، رفرشِ خودکار همون لحظه ورودی‌هاش رو از دست می‌ده؛
+// در این حالت رفرش رو عقب می‌ندازیم و توی چک‌های بعدی دوباره امتحان می‌کنیم.
+function isSafeToAutoReload() {
+  const uploadView = document.getElementById("view-upload");
+  const isOnUploadView = uploadView && !uploadView.classList.contains("hidden");
+  if (!isOnUploadView) return true;
+  const text = (document.getElementById("postText")?.value || "").trim();
+  const title = (document.getElementById("postTitle")?.value || "").trim();
+  const submitBtn = document.getElementById("submitBtn");
+  const isSubmitting = !!(submitBtn && submitBtn.disabled);
+  return !text && !title && !selectedFile && !isSubmitting;
+}
+
+async function checkForNewVersion() {
+  const latest = await fetchLatestPageSource();
+  if (!latest) return;
+  if (knownPageSource === null) { knownPageSource = latest; return; } // اولین بار: فقط مرجع رو ذخیره کن
+  if (latest === knownPageSource) return;
+  if (!isSafeToAutoReload()) return; // بعداً دوباره چک می‌شه
+  showUpdateToast();
+  setTimeout(() => location.reload(), 1200);
+}
+
+checkForNewVersion(); // برای ثبتِ نسخه‌ی مرجع همون اول
+setInterval(checkForNewVersion, 3 * 60 * 1000); // هر ۳ دقیقه
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") checkForNewVersion();
+});
 
 (async () => {
   const splashStart = Date.now();
