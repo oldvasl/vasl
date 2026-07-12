@@ -1038,7 +1038,10 @@
   .mini-player-info { flex: 1; min-width: 0; }
   .mini-player-title { font-size: 12.5px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .mini-player-performer { font-size: 11px; color: var(--subtext); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .mini-player-controls { display: flex; align-items: center; gap: 1px; flex-shrink: 0; }
+  /* کنترل‌های پلیر (قبلی/پخش/بعدی) همیشه باید از چپ به راست باشن، مثل هر پلیرِ موزیکِ استاندارد،
+     صرف‌نظر از راست‌چین بودنِ کل صفحه؛ وگرنه به‌خاطر RTL صفحه، دکمه‌ی «بعدی» سمت چپ و «قبلی» سمت
+     راستِ دکمه‌ی پخش قرار می‌گیره که برعکسِ چیزیه که کاربر انتظار داره */
+  .mini-player-controls { display: flex; align-items: center; gap: 1px; flex-shrink: 0; direction: ltr; }
   .mini-player-btn {
     background: none; border: none; color: var(--subtext); width: 27px; height: 27px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0;
@@ -1203,6 +1206,8 @@
   }
   .reels-controls {
     display: flex; align-items: center; justify-content: center; gap: 14px; z-index: 4;
+    /* کنترل‌های پلیر همیشه چپ‌به‌راست، صرف‌نظر از راست‌چین بودن کل صفحه (توضیح کامل بالای مینی‌پلیر) */
+    direction: ltr;
   }
   .reels-ctrl-btn {
     background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: #fff;
@@ -2995,7 +3000,7 @@ async function submitPost() {
   const titleSourceEl = uploadMode === "music" ? document.getElementById("musicTitleInput") : document.getElementById("postTitle");
   const title = (titleSourceEl ? titleSourceEl.value : "").trim().slice(0, 15);
   const feelingEl = document.getElementById("feelingInput");
-  const feeling = uploadMode === "music" && feelingEl ? feelingEl.value.replace(/\n/g, "").trim().slice(0, 40) : "";
+  const feeling = uploadMode === "music" && feelingEl ? feelingEl.value.trim().slice(0, 43) : "";
   const errEl = document.getElementById("postError");
   const btn = document.getElementById("submitBtn");
   const progressWrap = document.getElementById("uploadProgressWrap");
@@ -3417,7 +3422,10 @@ function bindAllVideoPlayers(container) {
 
 function toPersianDigits(str) {
   const map = { 0: "۰", 1: "۱", 2: "۲", 3: "۳", 4: "۴", 5: "۵", 6: "۶", 7: "۷", 8: "۸", 9: "۹" };
-  return str.replace(/[0-9]/g, (d) => map[d]);
+  // بعضی جاها یه عدد خام (مثل val.length یا percent) مستقیم پاس داده می‌شه؛ چون عدد متد replace نداره،
+  // بدون این تبدیل، کل تابعِ صدازننده وسط کار کرش می‌کنه (مثلاً setUploadMode/onTitleInput که باعث
+  // می‌شد کپسولِ سوییچ حالت قفل بمونه یا ریست‌شدن فرم بعد از ارسال موفق نیمه‌کاره بمونه)
+  return String(str).replace(/[0-9]/g, (d) => map[d]);
 }
 function formatTime(sec) {
   if (!isFinite(sec) || sec < 0) return "۰:۰۰";
@@ -3506,6 +3514,14 @@ function requestPlay(safeId) {
 
   currentAudio = { safeId, audioEl };
   bindAudioEvents(safeId);
+
+  // به‌محض شروع پخشِ هر آهنگی، اگه صفِ رندومِ پس‌زمینه هنوز بار نشده، همین الان (بدون نیاز به باز
+  // کردنِ دستیِ پنل صف) بارش می‌کنیم؛ وگرنه وقتی فقط یه <audio> تو DOM باشه (مثلاً پخش مستقیم یه پست
+  // تکی، نه از تب موزیک)، دکمه‌ی بعدی/قبلی هیچ آهنگ دیگه‌ای برای رفتن پیدا نمی‌کرد و قفل می‌موند
+  if (!queueListState.initialLoaded) {
+    queueListState.initialLoaded = true;
+    loadRandomQueueTracks();
+  }
 
   // فوراً کاور/اسمِ آهنگ به‌روز بشه (هنوز پخش نشده) تا کاربر بدون فیدبک نمونه؛ بعداً که آماده شد «پخش» می‌شه
   miniPlayerState.queue = collectAudioQueueFromDOM();
