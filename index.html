@@ -373,6 +373,17 @@
   .upload-composer.mode-music .u-feeling { order: 3; display: block; }
   .upload-composer.mode-music .u-text { order: 4; }
   .upload-composer.mode-music .u-tags { order: 5; }
+
+  /* تا وقتی فایلی انتخاب نشده (رسانه/موسیقی) یا چیزی تایپ نشده (متن)، هیچ کادرِ دیگه‌ای به‌جز
+     کادرِ اصلیِ آپلود/نوشتن دیده نمی‌شه؛ محدودیت روی هر ۳ حالتِ آپلود اعمال می‌شه */
+  .upload-composer:not(.content-ready) .u-title,
+  .upload-composer:not(.content-ready) .u-tags,
+  .upload-composer:not(.content-ready) .u-submit,
+  .upload-composer:not(.content-ready) .u-title-cover-row,
+  .upload-composer:not(.content-ready) .u-feeling { display: none !important; }
+  /* تو حالتِ متنی، خودِ کادرِ متن معادلِ همون «کادرِ اصلیِ آپلود»ه، پس همیشه دیده می‌شه؛
+     تو حالتِ رسانه/موسیقی، متن هم مثلِ بقیه تا انتخابِ فایل مخفیه */
+  .upload-composer:not(.mode-text):not(.content-ready) .u-text { display: none !important; }
   .upload-composer.mode-music .u-submit { order: 6; }
 
   /* ---------- کادر آپلود رسانه (دورچین‌دار) ---------- */
@@ -1507,6 +1518,22 @@
   .chat-receipt.read path { stroke: var(--accent); }
   .chat-bubble-sender-name { font-size: 11px; font-weight: 700; color: var(--accent-hover); margin-bottom: 3px; }
   .chat-bubble-long-press { user-select: none; -webkit-touch-callout: none; }
+  .chat-bubble-row.theirs { align-items: flex-end; }
+  .chat-bubble-group-avatar {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #fff; overflow: hidden; cursor: pointer; margin-bottom: 2px;
+  }
+  .chat-bubble-group-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .chat-bubble-group-avatar-spacer { width: 28px; flex-shrink: 0; }
+  .chat-bubble-reply-quote {
+    display: flex; flex-direction: column; gap: 1px; padding: 5px 8px; margin-bottom: 5px; border-inline-start: 3px solid var(--accent-hover);
+    background: rgba(127,127,127,0.12); border-radius: 6px; cursor: pointer; max-width: 100%;
+  }
+  .chat-bubble-row.mine .chat-bubble-reply-quote { border-inline-start-color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.14); }
+  .chat-bubble-reply-quote-sender { font-size: 11px; font-weight: 700; opacity: 0.9; }
+  .chat-bubble-reply-quote-text { font-size: 12px; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat-bubble.flash-highlight { animation: chatFlashHighlight 1.1s ease; }
+  @keyframes chatFlashHighlight { 0%, 100% { box-shadow: none; } 30% { box-shadow: 0 0 0 2px var(--accent-hover); } }
 
   /* ---------- چت: منوی زمینه‌ای ویرایش/حذف پیام ---------- */
   .chat-msg-menu-backdrop {
@@ -1534,6 +1561,15 @@
   }
   .chat-edit-banner.hidden { display: none; }
   .chat-edit-banner-cancel { margin-inline-start: auto; background: none; border: none; color: var(--accent-hover); cursor: pointer; font-family: inherit; font-size: 12px; }
+  .chat-reply-banner {
+    display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--surface); border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text);
+  }
+  .chat-reply-banner.hidden { display: none; }
+  .chat-reply-banner-bar { width: 3px; align-self: stretch; background: var(--accent-hover); border-radius: 2px; flex-shrink: 0; }
+  .chat-reply-banner-body { flex: 1; min-width: 0; }
+  .chat-reply-banner-sender { font-weight: 700; color: var(--accent-hover); font-size: 12px; }
+  .chat-reply-banner-text { color: var(--subtext); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat-reply-banner-cancel { background: none; border: none; color: var(--subtext); cursor: pointer; font-family: inherit; font-size: 12px; flex-shrink: 0; }
   .chat-attach-btn {
     background: none; border: none; color: var(--subtext); cursor: pointer; width: 34px; height: 34px;
     border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -1626,6 +1662,12 @@
     flex: 1; background: var(--card); border: 1px solid #EF4444; color: #EF4444; font-family: inherit; font-size: 13.5px;
     font-weight: 600; padding: 11px; border-radius: 12px; cursor: pointer;
   }
+  .chat-members-leave-btn.hidden { display: none; }
+  .chat-members-delete-group-btn {
+    flex: 1; background: #EF4444; border: 1px solid #EF4444; color: #fff; font-family: inherit; font-size: 13.5px;
+    font-weight: 600; padding: 11px; border-radius: 12px; cursor: pointer;
+  }
+  .chat-members-delete-group-btn.hidden { display: none; }
   .chat-members-add-btn {
     flex: 1; background: var(--accent-gradient); border: none; color: #fff; font-family: inherit; font-size: 13.5px;
     font-weight: 600; padding: 11px; border-radius: 12px; cursor: pointer;
@@ -2128,10 +2170,10 @@
 
       <!-- کادر آپلود رسانه (دورچین‌دار) — فقط تو حالت «رسانه» دیده می‌شه -->
       <label class="media-dropzone u-dropzone" id="mediaDropzone" for="fileInput">
-        <input type="file" id="fileInput" accept="image/*,video/*,audio/*" class="hidden" onchange="onFileChosen()" />
+        <input type="file" id="fileInput" accept="image/*,video/*" class="hidden" onchange="onFileChosen()" />
         <div class="media-dropzone-inner" id="mediaDropzoneInner">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          <strong>عکس، ویدیو یا آهنگ اضافه کن</strong>
+          <strong>عکس یا ویدیو اضافه کن</strong>
           <span>برای انتخاب فایل ضربه بزن</span>
         </div>
         <div class="media-dropzone-preview hidden" id="mediaDropzonePreview"></div>
@@ -2268,6 +2310,14 @@
         <span>در حال ویرایش پیام</span>
         <button class="chat-edit-banner-cancel" onclick="cancelEditChatMessage()">انصراف</button>
       </div>
+      <div class="chat-reply-banner hidden" id="chatReplyBanner">
+        <div class="chat-reply-banner-bar"></div>
+        <div class="chat-reply-banner-body">
+          <div class="chat-reply-banner-sender" id="chatReplyBannerSender"></div>
+          <div class="chat-reply-banner-text" id="chatReplyBannerText"></div>
+        </div>
+        <button class="chat-reply-banner-cancel" onclick="cancelReplyToMessage()">انصراف</button>
+      </div>
       <div class="chat-conv-composer" id="chatConvComposer">
         <button class="chat-attach-btn" title="عکس" onclick="document.getElementById('chatImageInput').click()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
@@ -2298,7 +2348,8 @@
     </div>
     <div class="chat-members-body" id="chatMembersBody"></div>
     <div class="chat-members-footer">
-      <button class="chat-members-leave-btn" onclick="leaveChatGroup()">خروج از گروه</button>
+      <button class="chat-members-leave-btn" id="chatLeaveGroupBtn" onclick="leaveChatGroup()">خروج از گروه</button>
+      <button class="chat-members-delete-group-btn hidden" id="chatDeleteGroupBtn" onclick="deleteGroupApi()">حذف گروه</button>
       <button class="chat-members-add-btn hidden" id="chatMembersAddBtn" onclick="openAddMembersModal()">افزودن عضو</button>
     </div>
   </div>
@@ -3109,7 +3160,18 @@ function setUploadMode(mode) {
   }
 
   positionUploadModeIndicator();
+  updateComposerRevealState();
   updateUploadPreview();
+}
+
+// تا وقتی کاربر فایلی انتخاب نکرده (تو حالتِ رسانه/موسیقی) یا چیزی تایپ نکرده (تو حالتِ متنی)، هیچ کادری
+// به‌جز همون کادرِ اصلیِ آپلود/نوشتن نشون داده نمی‌شه؛ بقیه‌ی فیلدها (عنوان، توضیحات، تگ‌ها، دکمه‌ی ثبت)
+// فقط بعد از اون لحظه ظاهر می‌شن
+function updateComposerRevealState() {
+  const composer = document.getElementById("uploadComposer");
+  if (!composer) return;
+  const ready = uploadMode === "text" ? !!document.getElementById("postText")?.value.trim() : !!selectedFile;
+  composer.classList.toggle("content-ready", ready);
 }
 
 function positionUploadModeIndicator() {
@@ -3126,7 +3188,14 @@ function positionUploadModeIndicator() {
 
 function onFileChosen() {
   const input = document.getElementById("fileInput");
-  selectedFile = input.files[0] || null;
+  const chosen = input.files[0] || null;
+  // کادرِ رسانه فقط عکس/ویدیو قبول می‌کنه؛ آهنگ باید از کادرِ مخصوصِ موسیقی آپلود بشه
+  if (chosen && chosen.type.startsWith("audio/")) {
+    input.value = "";
+    toast("آهنگ رو باید از قسمتِ «موسیقی» آپلود کنی", "error");
+    return;
+  }
+  selectedFile = chosen;
   renderMediaDropzone();
 
   selectedAudioMeta = { title: "", performer: "", coverBlob: null };
@@ -3149,6 +3218,7 @@ function onFileChosen() {
       },
     });
   }
+  updateComposerRevealState();
   updateUploadPreview();
 }
 
@@ -3202,6 +3272,7 @@ function clearFile() {
   const input = document.getElementById("fileInput");
   if (input) input.value = "";
   renderMediaDropzone();
+  updateComposerRevealState();
   updateUploadPreview();
 }
 
@@ -3243,6 +3314,7 @@ function onMusicFileChosen() {
       onError: () => { renderVinylCover(); updateUploadPreview(); },
     });
   }
+  updateComposerRevealState();
   updateUploadPreview();
 }
 
@@ -3334,6 +3406,7 @@ function clearMusicFields() {
   if (coverPickUrl) { URL.revokeObjectURL(coverPickUrl); coverPickUrl = null; }
 
   renderVinylCover();
+  updateComposerRevealState();
 }
 
 // ---------- کادر عنوان پست (حداکثر ۱۵ کاراکتر) ----------
@@ -3353,6 +3426,7 @@ function onPostTextInput() {
     counterEl.textContent = `${toPersianDigits(val.length)}/۳۹۰`;
     counterEl.classList.toggle("limit", val.length >= 390);
   }
+  updateComposerRevealState();
   updateUploadPreview();
 }
 
@@ -3415,15 +3489,12 @@ function updateUploadPreview() {
     }
   }
 
-  // تگ‌ها صرفاً تزیینی‌ان و به سرور ارسال نمی‌شن؛ فقط تو پیش‌نمایش به‌شکل چیپ نشون داده می‌شن
+  // تگ‌ها رو با همون قانونِ سرور جدا می‌کنیم و به‌شکلِ چیپ نشون می‌دیم؛ دقیقاً همینا موقعِ ثبتِ پست
+  // به سرور هم فرستاده می‌شن و رو خودِ پست تو فید هم به همین شکل دیده می‌شن
   let tagsHtml = "";
   if (tagsRaw) {
     const tagList = tagsRaw.split(/[\s,،]+/).filter(Boolean).slice(0, 6);
-    if (tagList.length) {
-      tagsHtml = `<div class="entry-tags" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">${tagList
-        .map((t) => `<span style="font-size:11px; color:var(--accent-hover); background:rgba(139,92,246,0.12); border:1px solid var(--border); border-radius:999px; padding:3px 10px;">#${escapeHtml(t)}</span>`)
-        .join("")}</div>`;
-    }
+    tagsHtml = buildTagsChipsHtml(tagList);
   }
 
   card.innerHTML = `${header}${mediaHtml}${textHtml}${tagsHtml}${timeHtml}`;
@@ -3599,6 +3670,8 @@ async function submitPost() {
   const fd = new FormData();
   fd.append("text", text);
   if (title) fd.append("title", title);
+  const tagsRawForSubmit = document.getElementById("postTags")?.value.trim() || "";
+  if (tagsRawForSubmit) fd.append("tags", tagsRawForSubmit);
   if (fileToUpload) {
     fd.append("file", fileToUpload);
     if (selectedFile.type.startsWith("audio/")) {
@@ -3731,6 +3804,7 @@ const chatState = {
   otherReadAt: 0, // last_read_at طرفِ مقابل (فقط چت دونفره) — برای تیکِ دوبل
   otherPresence: null, // { online, lastActiveAt } طرفِ مقابل (فقط چت دونفره)
   editingMessageId: null,
+  replyingTo: null, // { id, sender, msgType, text } پیامی که در حالِ ریپلای‌کردن بهشیم
   membersData: null, // { conversation, myRole, members } آخرین چیزی که از /api/chat/members گرفتیم
   pollTimer: null,
 };
@@ -3867,6 +3941,7 @@ async function openChatConversation(conversationId) {
   chatState.otherReadAt = 0;
   chatState.otherPresence = null;
   chatState.membersData = null;
+  cancelReplyToMessage();
   cancelEditChatMessage();
 
   updateChatConvHeader(conv);
@@ -3954,6 +4029,7 @@ function closeChatConversation() {
   stopChatPolling();
   chatState.active = null;
   cancelEditChatMessage();
+  cancelReplyToMessage();
   loadChatConversationsList();
 }
 
@@ -4071,8 +4147,7 @@ function renderChatMessages(opts = {}) {
 function renderChatBubble(m, myUsername) {
   const mine = m.sender === myUsername;
   const isGroup = chatState.active && chatState.active.type === "group";
-  const iAmModerator = isGroup && chatState.active.myRole && chatState.active.myRole !== "member";
-  const clickable = !m.deleted && (mine || iAmModerator);
+  const clickable = !m.deleted;
 
   let bodyHtml = "";
   if (m.deleted) {
@@ -4089,6 +4164,14 @@ function renderChatBubble(m, myUsername) {
   } else {
     bodyHtml = `<div class="chat-bubble-text">${escapeHtml(m.text || "")}</div>`;
   }
+
+  const replyQuoteHtml = !m.deleted && m.replyTo
+    ? `<div class="chat-bubble-reply-quote" onclick="event.stopPropagation(); scrollToChatMessage('${m.replyTo.id}')">
+        <div class="chat-bubble-reply-quote-sender">${escapeHtml(m.replyTo.sender)}</div>
+        <div class="chat-bubble-reply-quote-text">${escapeHtml(m.replyTo.deleted ? "پیام حذف‌شده" : chatReplyPreviewText(m.replyTo))}</div>
+      </div>`
+    : "";
+  bodyHtml = replyQuoteHtml + bodyHtml;
 
   const senderNameHtml = isGroup && !mine && !m.deleted ? `<div class="chat-bubble-sender-name">${escapeHtml(m.sender)}</div>` : "";
 
@@ -4109,13 +4192,54 @@ function renderChatBubble(m, myUsername) {
     m.deleted ? " chat-bubble-deleted" : ""
   }${clickable ? " chat-bubble-long-press" : ""}`;
 
-  return `<div class="chat-bubble-row ${mine ? "mine" : "theirs"}">
+  // تو گروه، کنارِ پیامِ اعضای دیگه (نه پیامِ خودمون) آواتارِ فرستنده رو نشون می‌دیم؛ برای هم‌ترازی، پیام‌های
+  // خودمون هم به‌اندازه‌ی همون آواتار یه فاصله‌ی خالی می‌گیرن
+  let avatarHtml = "";
+  if (isGroup) {
+    if (!mine) {
+      const member = chatState.membersData?.members?.find((x) => x.username === m.sender);
+      avatarHtml = `<div class="chat-bubble-group-avatar" style="background:${avatarColor(m.sender)}" onclick="openProfile('${m.sender}')">${avatarInnerHtml(
+        member?.avatarFileId || null,
+        m.sender
+      )}</div>`;
+    } else {
+      avatarHtml = `<div class="chat-bubble-group-avatar-spacer"></div>`;
+    }
+  }
+
+  return `<div class="chat-bubble-row ${mine ? "mine" : "theirs"}" id="chatMsg-${m.id}">
+    ${!mine ? avatarHtml : ""}
     <div class="chat-bubble-wrap">
       ${senderNameHtml}
       <div class="${bubbleClass}"${clickAttr}>${bodyHtml}</div>
       ${metaHtml}
     </div>
+    ${mine ? avatarHtml : ""}
   </div>`;
+}
+
+// ---------- چت: اسکرول به یک پیامِ خاص (وقتی روی پیش‌نمایشِ ریپلای کلیک می‌شه) ----------
+function scrollToChatMessage(messageId) {
+  const el = document.getElementById(`chatMsg-${messageId}`);
+  if (!el) {
+    toast("این پیام تو بخشِ بارگذاری‌شده نیست", "info");
+    return;
+  }
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  const bubble = el.querySelector(".chat-bubble");
+  if (bubble) {
+    bubble.classList.remove("flash-highlight");
+    void bubble.offsetWidth;
+    bubble.classList.add("flash-highlight");
+  }
+}
+
+// متنِ کوتاهِ پیش‌نمایش برای انواعِ مختلفِ پیام (تو بنرِ ریپلای و تو حبابِ ریپلای‌شده استفاده می‌شه)
+function chatReplyPreviewText(m) {
+  if (m.msgType === "image") return "📷 عکس";
+  if (m.msgType === "audio") return "🎙 پیامِ صوتی";
+  if (m.msgType === "sticker") return "استیکر";
+  return (m.text || "").slice(0, 60);
 }
 
 // ---------- چت: منوی ویرایش/حذف پیام ----------
@@ -4129,7 +4253,6 @@ function openChatMessageMenu(messageId) {
   if (!mine && chatState.active && chatState.active.type === "group" && chatState.active.myRole) {
     canDelete = chatState.active.myRole === "owner" || chatState.active.myRole === "admin";
   }
-  if (!canDelete && !canEdit) return;
 
   document.getElementById("chatMsgMenuBackdrop")?.remove();
   const backdrop = document.createElement("div");
@@ -4140,6 +4263,10 @@ function openChatMessageMenu(messageId) {
   };
   backdrop.innerHTML = `
     <div class="chat-msg-menu">
+      <button class="chat-msg-menu-item" onclick="document.getElementById('chatMsgMenuBackdrop').remove(); startReplyToMessage('${messageId}')">
+        ${ICON_REPLY}
+        پاسخ
+      </button>
       ${
         canEdit
           ? `<button class="chat-msg-menu-item" onclick="document.getElementById('chatMsgMenuBackdrop').remove(); startEditChatMessage('${messageId}')">
@@ -4160,9 +4287,27 @@ function openChatMessageMenu(messageId) {
   document.body.appendChild(backdrop);
 }
 
+// ---------- چت: شروعِ ریپلای روی یه پیام ----------
+function startReplyToMessage(messageId) {
+  const m = chatState.messages.find((x) => x.id === messageId);
+  if (!m || m.deleted) return;
+  cancelEditChatMessage();
+  chatState.replyingTo = { id: m.id, sender: m.sender, msgType: m.msgType, text: m.text };
+  document.getElementById("chatReplyBannerSender").textContent = m.sender;
+  document.getElementById("chatReplyBannerText").textContent = chatReplyPreviewText(m);
+  document.getElementById("chatReplyBanner")?.classList.remove("hidden");
+  document.getElementById("chatComposerInput")?.focus();
+}
+
+function cancelReplyToMessage() {
+  chatState.replyingTo = null;
+  document.getElementById("chatReplyBanner")?.classList.add("hidden");
+}
+
 function startEditChatMessage(messageId) {
   const m = chatState.messages.find((x) => x.id === messageId);
   if (!m || m.msgType !== "text") return;
+  cancelReplyToMessage();
   chatState.editingMessageId = messageId;
   const input = document.getElementById("chatComposerInput");
   input.value = m.text || "";
@@ -4304,16 +4449,18 @@ async function submitEditChatMessage(messageId, text) {
 
 async function submitChatMessage(payload) {
   if (!chatState.active) return;
+  const replyToId = chatState.replyingTo?.id || null;
   try {
     const res = await fetch(`${WORKER_URL}/api/chat/send`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
-      body: JSON.stringify({ conversationId: chatState.active.id, ...payload }),
+      body: JSON.stringify({ conversationId: chatState.active.id, ...payload, replyTo: replyToId }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "ارسال پیام ناموفق بود");
     chatState.messages.push(data.message);
     chatState.newestLoadedAt = data.message.createdAt;
+    if (replyToId) cancelReplyToMessage();
     renderChatMessages();
   } catch (e) {
     toast(e.message || "ارسال پیام ناموفق بود", "error");
@@ -4364,7 +4511,10 @@ async function loadChatMembers(conversationId) {
     chatState.membersData = data;
     if (chatState.active && chatState.active.id === conversationId) {
       chatState.active.myRole = data.myRole;
-      document.getElementById("chatMembersAddBtn")?.classList.toggle("hidden", !(data.myRole === "owner" || data.myRole === "admin"));
+      const isOwner = data.myRole === "owner";
+      document.getElementById("chatMembersAddBtn")?.classList.toggle("hidden", !(isOwner || data.myRole === "admin"));
+      document.getElementById("chatLeaveGroupBtn")?.classList.toggle("hidden", isOwner);
+      document.getElementById("chatDeleteGroupBtn")?.classList.toggle("hidden", !isOwner);
       if (document.getElementById("chatMembersPanel")?.classList.contains("open")) renderChatMembersPanel();
     }
   } catch (e) {
@@ -4547,6 +4697,26 @@ async function leaveChatGroup() {
   }
 }
 
+// ---------- چت: حذفِ کاملِ گروه (فقط مالک؛ برخلافِ خروج، فوراً برای همه پاک می‌شه) ----------
+async function deleteGroupApi() {
+  if (!chatState.active || chatState.active.type !== "group") return;
+  if (!confirm("این گروه برای همیشه و برای همه‌ی اعضا حذف می‌شه. مطمئنی؟")) return;
+  try {
+    const res = await fetch(`${WORKER_URL}/api/chat/group/delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ conversationId: chatState.active.id }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "خطا");
+    closeChatMembersPanel();
+    closeChatConversation();
+    toast("گروه حذف شد", "success");
+  } catch (e) {
+    toast(e.message || "حذف گروه ناموفق بود", "error");
+  }
+}
+
 // ---------- چت: شروعِ گفتگوی جدید / ساختِ گروه (با جستجوی کاربر به‌جای prompt) ----------
 function onChatFabClick() {
   if (chatState.tab === "direct") {
@@ -4658,7 +4828,8 @@ async function confirmJoinGroup() {
   }
 }
 
-// ---------- چت: پاپ‌آپ ساخت گروه (اسم + اعضا + آواتار اختیاری) ----------
+// ---------- چت: پاپ‌آپ ساخت گروه (فقط اسم + آواتار اختیاری؛ اضافه‌کردنِ عضو بدون اجازه‌ی خودش درست نیست،
+// پس هیچ انتخابِ عضوی اینجا نیست و بقیه فقط با کدِ دعوتِ گروه می‌تونن بهش بپیوندن) ----------
 let createGroupAvatarFile = null;
 
 function closeCreateGroupModal() {
@@ -4668,17 +4839,6 @@ function closeCreateGroupModal() {
 
 function openCreateGroupModal() {
   closeCreateGroupModal();
-  userSearchState = {
-    multi: true,
-    showTitleField: true,
-    excludeUsernames: new Set([getUsername()]),
-    selected: new Map(),
-    onConfirm: async ({ title, members }) => {
-      await createChatGroup(title, members, createGroupAvatarFile);
-    },
-    searchTimer: null,
-  };
-
   const backdrop = document.createElement("div");
   backdrop.className = "user-search-modal-backdrop";
   backdrop.id = "createGroupBackdrop";
@@ -4698,27 +4858,29 @@ function openCreateGroupModal() {
           <input type="file" id="groupAvatarInput" accept="image/*" class="hidden" onchange="onGroupAvatarChosen(event)" />
           <span class="group-avatar-picker-label">آواتار گروه (اختیاری)</span>
         </div>
-        <input type="text" class="user-search-group-title-input show" id="userSearchTitleInput"
-          placeholder="اسم گروه" maxlength="60" oninput="updateUserSearchConfirmState()" />
-        <div class="user-search-input-wrap">
-          <input type="text" class="user-search-input" id="userSearchQueryInput" placeholder="جستجوی یوزرنیم..." autocomplete="off" />
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        </div>
-        <div class="user-search-selected" id="userSearchSelected"></div>
+        <input type="text" class="user-search-group-title-input show" id="createGroupTitleInput"
+          placeholder="اسم گروه" maxlength="60" oninput="updateCreateGroupConfirmState()" />
+        <div class="join-group-hint" style="margin-top:6px;">بعد از ساخت، یه کدِ عضویتِ اختصاصی می‌گیری؛ فقط کسایی که این کد رو داشته باشن می‌تونن عضو گروه بشن</div>
       </div>
-      <div class="user-search-results" id="userSearchResults">
-        <div class="user-search-empty">اسمِ کاربر رو تایپ کن</div>
-      </div>
-      <button class="user-search-confirm-btn" id="userSearchConfirmBtn" onclick="confirmUserSearchModal()" disabled>ساخت گروه</button>
+      <button class="user-search-confirm-btn" id="createGroupConfirmBtn" onclick="confirmCreateGroup()" disabled>ساخت گروه</button>
     </div>`;
   document.body.appendChild(backdrop);
+  document.getElementById("createGroupTitleInput").focus();
+  updateCreateGroupConfirmState();
+}
 
-  document.getElementById("userSearchQueryInput").addEventListener("input", (e) => {
-    clearTimeout(userSearchState.searchTimer);
-    const q = e.target.value.trim();
-    userSearchState.searchTimer = setTimeout(() => runUserSearchQuery(q), 300);
-  });
-  updateUserSearchConfirmState();
+function updateCreateGroupConfirmState() {
+  const btn = document.getElementById("createGroupConfirmBtn");
+  const title = document.getElementById("createGroupTitleInput")?.value.trim();
+  if (btn) btn.disabled = !title;
+}
+
+async function confirmCreateGroup() {
+  const title = document.getElementById("createGroupTitleInput")?.value.trim();
+  if (!title) return;
+  const avatarFile = createGroupAvatarFile;
+  closeCreateGroupModal();
+  await createChatGroup(title, avatarFile);
 }
 
 function onGroupAvatarChosen(e) {
@@ -4747,11 +4909,10 @@ async function startDirectChat(username) {
   }
 }
 
-async function createChatGroup(title, members, avatarFile) {
+async function createChatGroup(title, avatarFile) {
   try {
     const fd = new FormData();
     fd.append("title", title);
-    fd.append("members", JSON.stringify(members));
     if (avatarFile) fd.append("avatar", await stripImageExif(avatarFile));
     const res = await fetch(`${WORKER_URL}/api/chat/group`, {
       method: "POST",
@@ -4762,6 +4923,7 @@ async function createChatGroup(title, members, avatarFile) {
     if (!res.ok) throw new Error(data.error || "خطا");
     await loadChatConversationsList();
     openChatConversation(data.conversationId);
+    if (data.inviteCode) toast(`گروه ساخته شد؛ کدِ عضویت: ${data.inviteCode}`, "success");
   } catch (e) {
     toast(e.message || "ساخت گروه ناموفق بود", "error");
   } finally {
@@ -6306,6 +6468,7 @@ function renderPost(p, num) {
       </div>
     </div>`;
   const textHtml = p.text ? `<div class="entry-text">${escapeHtml(p.text)}</div>` : "";
+  const tagsHtml = buildTagsChipsHtml(parsePostTags(p.tags));
   const timeHtml = `<div class="entry-time">${new Date(p.date).toLocaleString("fa-IR")}</div>`;
 
   // ---------- نوار اکشن (آپ‌ووت / داون‌ووت / لایک / کامنت / دانلود) ----------
@@ -6349,7 +6512,7 @@ function renderPost(p, num) {
     </div>`;
 
   if (!hasMedia) {
-    return `<div class="text-entry" id="post-${safeId}">${header}${textHtml}${timeHtml}${actionBar}${commentsBlock}</div>`;
+    return `<div class="text-entry" id="post-${safeId}">${header}${textHtml}${tagsHtml}${timeHtml}${actionBar}${commentsBlock}</div>`;
   }
 
   let mediaHtml = "";
@@ -6363,7 +6526,7 @@ function renderPost(p, num) {
     mediaHtml = `<div class="entry-doc">فایل پیوست — <a href="${WORKER_URL}/api/media/${p.file_id}" target="_blank">دانلود</a></div>`;
   }
 
-  return `<div class="post-card" id="post-${safeId}">${header}${mediaHtml}${textHtml}${timeHtml}<div class="comments-wrap">${actionBar}${commentsBlock}</div></div>`;
+  return `<div class="post-card" id="post-${safeId}">${header}${mediaHtml}${textHtml}${tagsHtml}${timeHtml}<div class="comments-wrap">${actionBar}${commentsBlock}</div></div>`;
 }
 
 function isDesktopMediaLayout() {
@@ -7755,6 +7918,25 @@ function escapeHtml(str) {
   const div = document.createElement("div");
   div.textContent = str || "";
   return div.innerHTML;
+}
+
+// ساختِ HTML چیپ‌های تگ — دقیقاً همون ظاهری که تو پیش‌نمایشِ آپلود دیده می‌شه، این‌جا هم برای خودِ پست در فید استفاده می‌شه
+function buildTagsChipsHtml(tagList) {
+  if (!tagList || !tagList.length) return "";
+  return `<div class="entry-tags" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">${tagList
+    .map((t) => `<span style="font-size:11px; color:var(--accent-hover); background:rgba(139,92,246,0.12); border:1px solid var(--border); border-radius:999px; padding:3px 10px;">#${escapeHtml(t)}</span>`)
+    .join("")}</div>`;
+}
+
+// پارسِ امنِ ستونِ tags که از سرور به‌شکلِ رشته‌ی JSON میاد (یا خالیه/نامعتبره)
+function parsePostTags(raw) {
+  if (!raw) return [];
+  try {
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr.filter(Boolean).slice(0, 6) : [];
+  } catch (e) {
+    return [];
+  }
 }
 
 // امن‌سازی متن برای جاسازی داخل یه رشته‌ی جاوااسکریپت تک‌کوتیشن که خودش داخل یه attribute دوکوتیشن HTML قرار گرفته
