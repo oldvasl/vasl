@@ -897,13 +897,16 @@
   }
 
   /* صفحه پروفایل */
+  /* هدر پروفایل: بدون کادر/پس‌زمینه، فقط وسط‌چین و نزدیک به نوار بالا */
+  .profile-header-clean { text-align: center; padding-top: 2px; margin-bottom: 20px; }
+  #view-profile .back-link { margin-bottom: 10px; }
   .profile-avatar-big {
-    width: 76px; height: 76px; border-radius: 50%; color: #fff; font-size: 28px; font-weight: 500;
-    display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; overflow: hidden;
+    width: 104px; height: 104px; border-radius: 50%; color: #fff; font-size: 38px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; overflow: hidden;
   }
   .profile-avatar-big img { width: 100%; height: 100%; object-fit: cover; }
   .profile-username { font-size: 18px; font-weight: 700; }
-  .profile-bio { color: var(--subtext); font-size: 13px; margin-top: 6px; white-space: pre-wrap; }
+  .profile-bio { color: var(--subtext); font-size: 13px; margin-top: 6px; white-space: pre-wrap; text-align: center; }
   .profile-edit { margin-top: 16px; text-align: right; border-top: 1px solid var(--border); padding-top: 14px; }
   .theme-picker { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; text-align: right; }
   .theme-picker-label { font-size: 13px; color: var(--subtext); margin-bottom: 10px; }
@@ -919,6 +922,21 @@
   .theme-swatch[data-theme-value="blue"] { background: linear-gradient(135deg, #000428, #004E92); }
   .theme-swatch[data-theme-value="teal"] { background: linear-gradient(135deg, #000000, #3D3E42); }
   .theme-swatch[data-theme-value="emerald"] { background: linear-gradient(135deg, #0F2027, #28623A); }
+  /* دکمه‌ی «تنظیمات» تو صفحه‌ی پروفایلِ خود کاربر: کادر باریک دورچین‌دار */
+  .profile-settings-block { margin-top: 16px; }
+  .profile-settings-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    margin: 0 auto; padding: 8px 18px; border-radius: 999px;
+    border: 1px dashed var(--border); background: none; color: var(--subtext);
+    font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .profile-settings-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .profile-settings-btn:hover { color: var(--text); border-color: var(--accent); }
+  .profile-settings-panel {
+    margin-top: 10px; text-align: center; font-size: 13px; color: var(--subtext);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+  }
   .back-link { background: none; border: none; color: var(--accent-hover); font-size: 13px; cursor: pointer; font-family: inherit; padding: 0; margin-bottom: 14px; }
   .username-link { cursor: pointer; }
   .username-link:hover { text-decoration: underline; }
@@ -1353,6 +1371,7 @@
 
   /* فیلتر رسانه/متن داخل پروفایل */
   .profile-filter { display: flex; gap: 8px; margin-bottom: 14px; }
+  .profile-filter.centered { justify-content: center; }
 
   /* ---------- چت: تب‌ها (کپسولِ متحرک)، لیست گفتگوها، دکمه‌ی شناورِ گفتگوی جدید ---------- */
   .chat-tabs {
@@ -2290,7 +2309,7 @@
   <!-- صفحه پروفایل -->
   <div id="view-profile" class="view hidden">
     <button class="back-link" onclick="closeProfile()">← بازگشت</button>
-    <div class="surface-card" style="text-align:center;">
+    <div class="profile-header-clean">
       <div class="profile-avatar-big" id="profileAvatarWrap"></div>
       <div class="profile-username" id="profileUsername"></div>
       <div class="profile-bio" id="profileBioView"></div>
@@ -2312,6 +2331,8 @@
         </div>
       </div>
 
+      <!-- تنظیمات آواتار/بایو/تم فعلاً از نمای اصلیِ پروفایل جدا شدن و مخفی موندن؛
+           بعداً همین المان‌ها به‌جای «به‌زودی» داخل پنل تنظیمات جدید سوار می‌شن -->
       <div id="profileEditBlock" class="profile-edit hidden">
         <textarea id="profileBioInput" placeholder="یه بایوی کوتاه بنویس..." style="min-height:60px;"></textarea>
         <div class="composer-tools">
@@ -2329,25 +2350,22 @@
           <button class="primary" id="saveProfileBtn" onclick="saveProfile()">ذخیره پروفایل</button>
         </div>
         <div class="error" id="profileError"></div>
+      </div>
 
-        <div class="theme-picker">
-          <div class="theme-picker-label">تم اپلیکیشن</div>
-          <div class="theme-options">
-            <button class="theme-swatch" data-theme-value="purple" title="بنفش" onclick="selectTheme('purple')"></button>
-            <button class="theme-swatch" data-theme-value="dark" title="گردویی" onclick="selectTheme('dark')"></button>
-            <button class="theme-swatch" data-theme-value="red" title="قرمز تیره" onclick="selectTheme('red')"></button>
-            <button class="theme-swatch" data-theme-value="blue" title="آبی تیره" onclick="selectTheme('blue')"></button>
-            <button class="theme-swatch" data-theme-value="teal" title="مشکی" onclick="selectTheme('teal')"></button>
-            <button class="theme-swatch" data-theme-value="emerald" title="زمردی تیره" onclick="selectTheme('emerald')"></button>
-          </div>
-        </div>
+      <!-- دکمه‌ی تنظیمات: فقط تو پروفایل خودِ کاربر نشون داده می‌شه -->
+      <div id="profileSettingsBlock" class="profile-settings-block hidden">
+        <button class="profile-settings-btn" id="profileSettingsBtn" onclick="toggleProfileSettings()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          تنظیمات
+        </button>
+        <div id="profileSettingsPanel" class="profile-settings-panel hidden">به زودی</div>
       </div>
     </div>
 
     <div class="feed-header">
       <span id="profilePostsLabel">پست‌های این کاربر</span>
     </div>
-    <div class="profile-filter">
+    <div class="profile-filter centered">
       <button class="filter-chip active" id="profFilter-all" onclick="setProfileFilter('all')">همه</button>
       <button class="filter-chip" id="profFilter-media" onclick="setProfileFilter('media')">رسانه</button>
       <button class="filter-chip" id="profFilter-audio" onclick="setProfileFilter('audio')">آهنگ‌ها</button>
@@ -7913,6 +7931,8 @@ async function loadProfile(username) {
   document.getElementById("profileBioView").textContent = "";
   document.getElementById("profileFeed").innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
   document.getElementById("profileEditBlock").classList.add("hidden");
+  document.getElementById("profileSettingsBlock").classList.add("hidden");
+  document.getElementById("profileSettingsPanel").classList.add("hidden");
   resetReportBlock();
   clearAvatarFile();
 
@@ -7939,9 +7959,7 @@ async function loadProfile(username) {
     document.getElementById("profileBioView").textContent = p.bio || (isSelf ? "هنوز بایویی ننوشتی" : "بایویی ثبت نشده");
 
     if (isSelf) {
-      document.getElementById("profileEditBlock").classList.remove("hidden");
-      document.getElementById("profileBioInput").value = p.bio || "";
-      markActiveSwatch(currentTheme);
+      document.getElementById("profileSettingsBlock").classList.remove("hidden");
     } else {
       document.getElementById("profileChatBlock").classList.remove("hidden");
       document.getElementById("reportBlock").classList.remove("hidden");
@@ -8162,6 +8180,12 @@ function setProfileFilter(filter) {
   document.querySelectorAll(".filter-chip").forEach((el) => el.classList.remove("active"));
   document.getElementById(`profFilter-${filter}`)?.classList.add("active");
   loadProfilePosts(profileState.username, true);
+}
+
+// دکمه‌ی تنظیماتِ پروفایل: فعلاً فقط یه پیام «به زودی» رو باز/بسته می‌کنه؛
+// محتوای واقعیش (آواتار، بایو، تم و ...) بعداً همینجا اضافه می‌شه
+function toggleProfileSettings() {
+  document.getElementById("profileSettingsPanel").classList.toggle("hidden");
 }
 
 function onAvatarChosen() {
