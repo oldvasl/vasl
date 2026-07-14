@@ -2459,6 +2459,72 @@
 
   /* دکمه‌ی «بازگشت به بالا» با کمی نرمی بیشتر ظاهر/محو بشه (روی ترنزیشن قبلی‌اش می‌شینه) */
   .back-to-top, .refresh-fab { transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.15s ease; }
+
+  /* ================= بخش Deels: استکِ کارت‌های سوایپ‌شونده ================= */
+  .deels-stack-outer { display: flex; flex-direction: column; align-items: center; padding: 6px 0 4px; }
+  .deels-stack {
+    position: relative; width: 100%; max-width: 380px;
+    height: min(62vh, 560px); min-height: 340px;
+    touch-action: pan-x; user-select: none;
+  }
+  .deels-card {
+    position: absolute; inset: 0; border-radius: 22px; overflow: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.28);
+    display: flex; flex-direction: column; padding: 10px 10px 14px;
+    transition: transform 0.38s cubic-bezier(.22,.68,0,1.01), opacity 0.32s ease;
+    cursor: grab;
+  }
+  .deels-card:active { cursor: grabbing; }
+  /* استکِ پشتِ کارتِ جلو: یه ذره کج و کوچیک‌تر، نه خیلی زیاد */
+  .deels-pos-0 { transform: translateY(0) scale(1) rotate(0deg); z-index: 3; }
+  .deels-pos-1 { transform: translateY(14px) scale(0.94) rotate(-3deg); z-index: 2; }
+  .deels-pos-2 { transform: translateY(26px) scale(0.89) rotate(3deg); z-index: 1; }
+  .deels-exit-up { transform: translateY(-135%) rotate(-7deg) !important; opacity: 0; z-index: 5 !important; }
+  .deels-enter-top { transform: translateY(-135%) rotate(-7deg); opacity: 0; z-index: 5; }
+
+  .deels-media-box {
+    flex: 1; min-height: 0; border-radius: 14px; overflow: hidden;
+    background: var(--surface); display: flex; align-items: center; justify-content: center;
+  }
+  .deels-media-box img, .deels-media-box video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .deels-text-box {
+    width: 100%; height: 100%; padding: 18px; box-sizing: border-box; overflow-y: auto;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    white-space: pre-wrap; font-size: 15px; line-height: 1.8; color: var(--text);
+  }
+  .deels-doc-box { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--subtext); }
+  .deels-doc-box svg { width: 44px; height: 44px; }
+
+  .deels-post-title { font-size: 13px; font-weight: 700; margin-top: 9px; color: var(--text); }
+  .deels-desc-box {
+    font-size: 12.5px; color: var(--subtext); margin-top: 4px; max-height: 50px; overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .deels-tags-row { margin-top: 6px; }
+
+  .deels-sender-avatar {
+    position: absolute; bottom: -14px; right: 14px; width: 44px; height: 44px; border-radius: 50%;
+    background: var(--card); border: 2px solid var(--bg, var(--card)); overflow: hidden; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 4;
+  }
+  .deels-sender-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .deels-actions { display: flex; justify-content: center; gap: 14px; margin-top: 22px; }
+  .deels-action-item { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .deels-action-btn {
+    width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--border); background: var(--card);
+    color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer;
+    font-family: inherit;
+  }
+  .deels-action-btn svg { width: 19px; height: 19px; }
+  .deels-action-btn.active { color: var(--accent-hover); border-color: var(--accent); }
+  .deels-action-btn.active svg { animation: softBounce 0.35s ease; }
+  .deels-action-btn.disabled { opacity: 0.4; cursor: default; }
+  .deels-action-count { font-size: 11px; color: var(--subtext); font-family: ui-monospace, Menlo, monospace; }
+
+  .deels-empty, .deels-loading { text-align: center; color: var(--subtext); font-size: 13px; padding: 60px 0; }
 </style>
 </head>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
@@ -2502,6 +2568,10 @@
     <button class="nav-item" id="navBtn-music" onclick="switchView('music')">
       <span class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>
       <span class="nav-label">سگ‌تونز</span>
+    </button>
+    <button class="nav-item" id="navBtn-deels" onclick="switchView('deels')">
+      <span class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span>
+      <span class="nav-label">دیلز</span>
     </button>
     <button class="nav-item" id="navBtn-upload" onclick="switchView('upload')">
       <span class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span>
@@ -2553,6 +2623,14 @@
     <button class="music-fab" onclick="openFullPlayer()" title="پخش تمام‌صفحه" aria-label="پخش تمام‌صفحه">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zM5 10h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
     </button>
+  </div>
+
+  <!-- بخش Deels: استکِ پست‌های سوایپ‌شونده (تصادفی، بدون آهنگ) -->
+  <div id="view-deels" class="view hidden">
+    <div class="deels-stack-outer">
+      <div class="deels-stack" id="deelsStack"></div>
+      <div class="deels-actions" id="deelsActions"></div>
+    </div>
   </div>
 
   <!-- بخش پست جدید -->
@@ -3517,6 +3595,9 @@ function switchView(name, forceReload = false) {
   }
   if (name === "music" && (forceReload || !musicState.loaded)) {
     loadMusicList(true);
+  }
+  if (name === "deels" && (forceReload || !deelsState.loaded)) {
+    initDeelsView();
   }
   if (name === "admin" && (forceReload || !feedState.admin.loaded)) {
     loadAdminFeed(true);
@@ -7008,6 +7089,285 @@ function renderPost(p, num, opts) {
 
   return `<div class="post-card" id="post-${safeId}">${header}${mediaHtml}${textHtml}${tagsHtml}${timeHtml}<div class="comments-wrap">${actionBar}${commentsBlock}</div></div>`;
 }
+
+// ================= بخش Deels =================
+// استکِ کارت‌هایی که با سوایپ بالا/پایین رد می‌شن؛ ترتیب تصادفیه (از سرور با sort=random)،
+// بدون آهنگ (excludeAudio)، و کلاینت خودش مرتب می‌کنه که دو پست با نوعِ یکسان پشتِ سرِ هم نیان.
+const deelsState = {
+  timeline: [],   // پست‌هایی که تا الان از سرور اومدن، به همون ترتیبی که قراره نمایش داده بشن
+  pointer: -1,    // ایندکسِ پستِ جلوی استکِ فعلی تو timeline
+  seenIds: [],    // شناسه‌ی پست‌هایی که قبلاً گرفته شدیم (برای exclude تو فچِ بعدی، تا تکراری نیاد)
+  lastType: null, // نوعِ آخرین پستی که به صف اضافه شده (برای رعایتِ تنوع بینِ دو تا فچِ جداگونه)
+  loading: false,
+  loaded: false,
+  animating: false,
+};
+// رفرنسِ زنده‌ی سه‌تا کارتی که الان تو DOM هستن: 0 = جلو، 1 و 2 = پشتِ استک
+let deelsStackEls = { 0: null, 1: null, 2: null };
+
+// آرایه‌ی پست‌های تازه‌رسیده رو طوری می‌چینه که (تا جایی که ممکنه) دو پستِ هم‌نوع پشتِ‌سرِهم نیفتن
+function diversifyDeelsOrder(posts, seedPrevType) {
+  const arr = [...posts];
+  const result = [];
+  let prevType = seedPrevType || null;
+  while (arr.length) {
+    let idx = arr.findIndex((p) => p.type !== prevType);
+    if (idx === -1) idx = 0; // چاره‌ای نیست، مجبوریم تکرار کنیم (مثلاً کل دسته یه نوعن)
+    const [item] = arr.splice(idx, 1);
+    result.push(item);
+    prevType = item.type;
+  }
+  return result;
+}
+
+async function fetchDeelsBatch() {
+  if (deelsState.loading) return;
+  deelsState.loading = true;
+  try {
+    const excludeParam = deelsState.seenIds.slice(-300).join(",");
+    const qs = `filter=all&excludeAudio=1&sort=random&pageSize=12${excludeParam ? `&exclude=${encodeURIComponent(excludeParam)}` : ""}`;
+    const res = await fetch(`${WORKER_URL}/api/feed?${qs}`, { headers: { "Authorization": `Bearer ${getToken()}` } });
+    const data = await res.json();
+    let posts = data.posts || [];
+    if (posts.length === 0 && deelsState.seenIds.length > 0) {
+      // به آخرِ پست‌های موجود رسیدیم؛ برای اینکه فید تموم نشه، دوباره از اول (با چینشِ رندومِ تازه) شروع می‌کنیم
+      deelsState.seenIds = [];
+      const res2 = await fetch(`${WORKER_URL}/api/feed?filter=all&excludeAudio=1&sort=random&pageSize=12`, {
+        headers: { "Authorization": `Bearer ${getToken()}` },
+      });
+      posts = (await res2.json()).posts || [];
+    }
+    if (posts.length === 0) return; // اصلاً پستی (غیر از آهنگ) تو سایت نیست
+    const diversified = diversifyDeelsOrder(posts, deelsState.lastType);
+    diversified.forEach((p) => {
+      deelsState.timeline.push(p);
+      deelsState.seenIds.push(p.id);
+    });
+    deelsState.lastType = diversified[diversified.length - 1]?.type || deelsState.lastType;
+  } catch (e) {
+    // بی‌صدا؛ دفعه‌ی بعد که کاربر سوایپ کنه دوباره امتحان می‌شه
+  } finally {
+    deelsState.loading = false;
+  }
+}
+
+// مطمئن می‌شه همیشه حداقل ۲ پستِ بعدیِ پستِ فعلی تو صف آماده‌ست (برای لیزی‌لودِ مدیا)
+async function ensureDeelsAhead() {
+  let guard = 0;
+  while (deelsState.timeline.length < deelsState.pointer + 4 && guard < 5) {
+    await fetchDeelsBatch();
+    guard++;
+    if (deelsState.timeline.length === 0) break;
+  }
+}
+
+function buildDeelsCard(p) {
+  const div = document.createElement("div");
+  div.dataset.postId = p.id;
+  let mediaHtml = "";
+  if (p.type === "photo") {
+    mediaHtml = `<img src="${WORKER_URL}/api/media/${p.file_id}" loading="lazy" />`;
+  } else if (p.type === "video") {
+    mediaHtml = `<video src="${WORKER_URL}/api/media/${p.file_id}" preload="auto" muted playsinline loop disableRemotePlayback x-webkit-airplay="deny"></video>`;
+  } else if (p.type === "document") {
+    mediaHtml = `<div class="deels-doc-box">${ICON_DOWNLOAD}</div>`;
+  } else {
+    // پستِ متنیِ خالی: چند سطر، وسط‌چین، تویِ همون قابی که مدیا توش می‌شینه
+    mediaHtml = `<div class="deels-text-box">${escapeHtml(p.text || "")}</div>`;
+  }
+  const initial = p.username ? p.username[0].toUpperCase() : "?";
+  const avatarHtml = p.avatar_file_id
+    ? `<img src="${WORKER_URL}/api/media/${p.avatar_file_id}" />`
+    : initial;
+  const titleHtml = p.title ? `<div class="deels-post-title">${escapeHtml(String(p.title).slice(0, 15))}</div>` : "";
+  const descHtml = (p.text && p.type !== "text") ? `<div class="deels-desc-box">${escapeHtml(p.text)}</div>` : "";
+  const tagsHtml = buildTagsChipsHtml(parsePostTags(p.tags));
+
+  div.innerHTML = `
+    <div class="deels-media-box">${mediaHtml}</div>
+    ${titleHtml}
+    ${descHtml}
+    ${tagsHtml ? `<div class="deels-tags-row">${tagsHtml}</div>` : ""}
+    <div class="deels-sender-avatar" style="background:${p.avatar_file_id ? "transparent" : avatarColor(p.username || "")}" onclick="openProfile('${jsAttr(p.username)}')">${avatarHtml}</div>`;
+  return div;
+}
+
+function renderDeelsActionBar(p) {
+  const actionsEl = document.getElementById("deelsActions");
+  if (!p) { actionsEl.innerHTML = ""; return; }
+  const safeId = p.id.replace(/[^a-zA-Z0-9_]/g, "");
+  const hasMedia = (p.type === "photo" || p.type === "video" || p.type === "document") && p.file_id;
+  const downloadExtByType = { photo: "jpg", video: "mp4", document: "bin" };
+  const downloadExt = downloadExtByType[p.type];
+  const score = (p.upvotes || 0) - (p.downvotes || 0);
+  const userVote = p.userVote || null;
+  const liked = !!p.liked;
+  const likesCount = p.likes || 0;
+
+  const downloadBtn = hasMedia
+    ? `<button class="deels-action-btn" onclick="downloadPostMedia('${WORKER_URL}/api/media/${p.file_id}','${safeId}','${downloadExt}')" title="دانلود" aria-label="دانلود">${ICON_DOWNLOAD}</button>`
+    : `<button class="deels-action-btn disabled" disabled title="فایلی برای دانلود نیست" aria-label="دانلود">${ICON_DOWNLOAD}</button>`;
+
+  actionsEl.innerHTML = `
+    <div class="deels-action-item">${downloadBtn}<span class="deels-action-count">${hasMedia ? "دانلود" : "—"}</span></div>
+    <div class="deels-action-item">
+      <button class="deels-action-btn down${userVote === "down" ? " active" : ""}" id="downBtn-${safeId}" onclick="voteOnPost('${p.id}','${safeId}','down')" title="داون‌ووت" aria-label="داون‌ووت">${ICON_ARROW_DOWN}</button>
+    </div>
+    <div class="deels-action-item">
+      <button class="deels-action-btn like${liked ? " active" : ""}" id="likeBtn-${safeId}" onclick="toggleLike('${p.id}','${safeId}')" title="سیو" aria-label="سیو">${ICON_HEART}</button>
+      <span class="deels-action-count" id="likeCount-${safeId}">${likesCount}</span>
+    </div>
+    <div class="deels-action-item">
+      <button class="deels-action-btn up${userVote === "up" ? " active" : ""}" id="upBtn-${safeId}" onclick="voteOnPost('${p.id}','${safeId}','up')" title="آپ‌ووت" aria-label="آپ‌ووت">${ICON_ARROW_UP}</button>
+      <span class="deels-action-count" id="voteScore-${safeId}">${score}</span>
+    </div>
+    <div class="deels-action-item">
+      <button class="deels-action-btn comment" onclick="openDeelsComments('${p.id}')" title="کامنت‌ها" aria-label="کامنت‌ها">${ICON_COMMENT}</button>
+      <span class="deels-action-count">${p.comment_count || 0}</span>
+    </div>`;
+}
+
+function updateDeelsActionBar() {
+  renderDeelsActionBar(deelsState.timeline[deelsState.pointer]);
+}
+
+// پست تو مودالِ استاندارد باز می‌شه و بلافاصله بخشِ کامنت‌هاش هم باز می‌شه
+async function openDeelsComments(postId) {
+  await openPostModal(postId);
+  const safeId = postId.replace(/[^a-zA-Z0-9_]/g, "");
+  toggleComments(postId, safeId);
+}
+
+async function initDeelsView() {
+  deelsState.loaded = true;
+  const stack = document.getElementById("deelsStack");
+  stack.innerHTML = `<div class="deels-loading">در حال بارگذاری...</div>`;
+  document.getElementById("deelsActions").innerHTML = "";
+  await fetchDeelsBatch();
+  if (deelsState.timeline.length === 0) {
+    stack.innerHTML = `<div class="deels-empty">هنوز پستی (غیر از آهنگ) تو سایت نیست</div>`;
+    return;
+  }
+  deelsState.pointer = 0;
+  stack.innerHTML = "";
+  deelsStackEls = { 0: null, 1: null, 2: null };
+  for (let i = 0; i <= 2; i++) {
+    const post = deelsState.timeline[deelsState.pointer + i];
+    if (!post) break;
+    const el = buildDeelsCard(post);
+    el.className = `deels-card deels-pos-${i}`;
+    stack.appendChild(el);
+    deelsStackEls[i] = el;
+  }
+  updateDeelsActionBar();
+  ensureDeelsAhead();
+}
+
+function deelsSwipeUp() {
+  if (deelsState.animating) return;
+  const nextPointer = deelsState.pointer + 1;
+  if (nextPointer >= deelsState.timeline.length) { ensureDeelsAhead(); return; }
+  deelsState.animating = true;
+
+  const exitingEl = deelsStackEls[0];
+  if (exitingEl) exitingEl.className = "deels-card deels-exit-up";
+
+  const el1 = deelsStackEls[1];
+  const el2 = deelsStackEls[2];
+  if (el1) el1.className = "deels-card deels-pos-0";
+  if (el2) el2.className = "deels-card deels-pos-1";
+  deelsStackEls = { 0: el1, 1: el2, 2: null };
+
+  const newBackPost = deelsState.timeline[nextPointer + 2];
+  if (newBackPost) {
+    const el = buildDeelsCard(newBackPost);
+    el.className = "deels-card deels-pos-2";
+    document.getElementById("deelsStack").appendChild(el);
+    deelsStackEls[2] = el;
+  }
+
+  setTimeout(() => {
+    if (exitingEl) exitingEl.remove();
+    deelsState.pointer = nextPointer;
+    deelsState.animating = false;
+    updateDeelsActionBar();
+    ensureDeelsAhead();
+  }, 400);
+}
+
+function deelsSwipeDown() {
+  if (deelsState.animating) return;
+  const prevPointer = deelsState.pointer - 1;
+  if (prevPointer < 0) return; // اولین پستیم، جایی برای برگشت نیست
+  deelsState.animating = true;
+
+  if (deelsStackEls[2]) { deelsStackEls[2].remove(); }
+  const el0 = deelsStackEls[0];
+  const el1 = deelsStackEls[1];
+  if (el0) el0.className = "deels-card deels-pos-1";
+  if (el1) el1.className = "deels-card deels-pos-2";
+
+  const prevPost = deelsState.timeline[prevPointer];
+  const prevEl = buildDeelsCard(prevPost);
+  prevEl.className = "deels-card deels-enter-top";
+  document.getElementById("deelsStack").prepend(prevEl);
+  requestAnimationFrame(() => { prevEl.className = "deels-card deels-pos-0"; });
+
+  deelsStackEls = { 0: prevEl, 1: el0, 2: el1 };
+
+  setTimeout(() => {
+    deelsState.pointer = prevPointer;
+    deelsState.animating = false;
+    updateDeelsActionBar();
+  }, 400);
+}
+
+// ---------- ژست سوایپِ عمودی روی استکِ Deels ----------
+(function setupDeelsSwipeGestures() {
+  let startX = null, startY = null, dragging = false, currentEl = null;
+  const THRESHOLD = 65;
+
+  function getStack() { return document.getElementById("deelsStack"); }
+
+  function onStart(e) {
+    const stack = getStack();
+    if (!stack || deelsState.animating) return;
+    const pt = e.touches ? e.touches[0] : e;
+    startX = pt.clientX; startY = pt.clientY; dragging = true;
+    currentEl = deelsStackEls[0];
+    if (currentEl) currentEl.style.transition = "none";
+  }
+  function onMove(e) {
+    if (!dragging || !currentEl) return;
+    const pt = e.touches ? e.touches[0] : e;
+    const dy = pt.clientY - startY;
+    const dx = pt.clientX - startX;
+    if (Math.abs(dy) > Math.abs(dx)) {
+      if (e.cancelable) e.preventDefault();
+      const clamped = dy < 0 ? Math.max(dy, -170) : Math.min(dy * 0.35, 60);
+      currentEl.style.transform = `translateY(${clamped}px) rotate(${clamped / 22}deg)`;
+    }
+  }
+  function onEnd(e) {
+    if (!dragging || !currentEl) { dragging = false; return; }
+    dragging = false;
+    const el = currentEl;
+    currentEl = null;
+    const pt = e.changedTouches ? e.changedTouches[0] : e;
+    const dy = pt.clientY - startY;
+    el.style.transition = "";
+    el.style.transform = "";
+    if (dy < -THRESHOLD) deelsSwipeUp();
+    else if (dy > THRESHOLD) deelsSwipeDown();
+  }
+
+  document.addEventListener("touchstart", (e) => { if (e.target.closest("#deelsStack")) onStart(e); }, { passive: true });
+  document.addEventListener("touchmove", (e) => { if (dragging) onMove(e); }, { passive: false });
+  document.addEventListener("touchend", (e) => { if (dragging) onEnd(e); });
+  document.addEventListener("mousedown", (e) => { if (e.target.closest("#deelsStack")) onStart(e); });
+  document.addEventListener("mousemove", (e) => { if (dragging) onMove(e); });
+  document.addEventListener("mouseup", (e) => { if (dragging) onEnd(e); });
+})();
 
 function isDesktopMediaLayout() {
   return window.matchMedia("(min-width: 900px)").matches;
