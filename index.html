@@ -1096,6 +1096,10 @@
     width: 100%; height: 180px; background-size: cover; background-position: center;
     background-color: var(--card);
   }
+  /* موبایل: بنر کوچیک‌تر (۵/۸ ارتفاع اصلی) که فضای کمتری از صفحه بگیره */
+  @media (max-width: 899px) {
+    .profile-banner { height: 113px; }
+  }
   .profile-banner-backbtn {
     position: absolute; top: calc(12px + var(--safe-top)); width: 36px; height: 36px; border-radius: 50%;
     background: rgba(0,0,0,0.4); color: #fff; border: none; display: flex; align-items: center; justify-content: center;
@@ -1119,7 +1123,7 @@
   .profile-avatar-fade-row .fade-line.end { background: linear-gradient(to right, var(--border), transparent); }
 
   /* هدر پروفایل: بدون کادر/پس‌زمینه، فقط وسط‌چین */
-  .profile-header-clean { text-align: center; padding-top: 2px; margin-bottom: 20px; }
+  .profile-header-clean { text-align: center; padding-top: 2px; margin-bottom: 10px; }
   .profile-avatar-big {
     width: 104px; height: 104px; border-radius: 50%; color: #fff; font-size: 38px; font-weight: 500;
     display: flex; align-items: center; justify-content: center; margin: 0 auto; overflow: hidden;
@@ -1742,6 +1746,9 @@
   /* فیلتر رسانه/متن داخل پروفایل */
   .profile-filter { display: flex; gap: 8px; margin-bottom: 14px; }
   .profile-filter.centered { justify-content: center; }
+  /* تو صفحه پروفایل، نوار عنوان («پست‌های این کاربر») و ردیف فیلترها فاصله‌ی کمتری تا اطلاعاتِ بالاش دارن */
+  #view-profile .feed-header { margin-bottom: 8px; }
+  #view-profile .profile-filter { margin-bottom: 10px; }
 
   /* ---------- چت: تب‌ها (کپسولِ متحرک)، لیست گفتگوها، دکمه‌ی شناورِ گفتگوی جدید ---------- */
   .chat-tabs {
@@ -6919,7 +6926,8 @@ const ICON_REPLY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const ICON_MSG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
 const ICON_THUMB = ICON_ARROW_UP;
 
-function renderPost(p, num) {
+function renderPost(p, num, opts) {
+  const hideText = !!(opts && opts.hideText);
   const initial = p.username ? p.username[0].toUpperCase() : "?";
   const hasMedia = (p.type === "photo" || p.type === "video" || p.type === "audio" || p.type === "document") && p.file_id;
   const canDelete = p.username === getUsername() || isAdmin;
@@ -6939,7 +6947,7 @@ function renderPost(p, num) {
         ${deleteBtn}
       </div>
     </div>`;
-  const textHtml = p.text ? `<div class="entry-text">${escapeHtml(p.text)}</div>` : "";
+  const textHtml = (p.text && !hideText) ? `<div class="entry-text">${escapeHtml(p.text)}</div>` : "";
   const tagsHtml = buildTagsChipsHtml(parsePostTags(p.tags));
   const timeHtml = `<div class="entry-time">${new Date(p.date).toLocaleString("fa-IR")}</div>`;
 
@@ -8626,7 +8634,7 @@ async function loadProfile(username) {
       bannerEl.style.backgroundImage = `url('${WORKER_URL}/api/media/${p.banner_file_id}')`;
     } else {
       bannerEl.style.backgroundImage = "none";
-      bannerEl.style.background = bannerPlaceholderGradient();
+      bannerEl.style.background = bannerPlaceholderGradient(p.theme);
     }
 
     document.getElementById("profileUpvoteCount").textContent = (p.total_upvotes || 0).toLocaleString("fa-IR");
@@ -8653,9 +8661,10 @@ async function loadProfile(username) {
   }
 }
 
-// وقتی کاربر هنوز بنری آپلود نکرده، به‌جاش یه گرادیانِ هم‌خانواده با تمِ رنگیِ فعلاً انتخاب‌شده نشون می‌دیم
-function bannerPlaceholderGradient() {
-  const hue = (currentTheme || "purple-dark").split("-")[0];
+// وقتی کاربرِ صاحبِ پروفایل هنوز بنری آپلود نکرده، به‌جاش یه گرادیانِ هم‌خانواده با تمِ رنگیِ خودِ اون کاربر نشون داده می‌شه؛
+// (نه تمِ فعلیِ بیننده) تا هر کاربر با تمِ خودش ست باشه، مثلاً یکی تمش آبی بود گرادیانت آبی ببینه
+function bannerPlaceholderGradient(ownerTheme) {
+  const hue = (ownerTheme || currentTheme || "purple-dark").split("-")[0];
   const info = THEME_HUE_INFO[hue] || THEME_HUE_INFO.purple;
   return `linear-gradient(135deg, ${info.from}, ${info.to})`;
 }
@@ -8756,7 +8765,7 @@ async function loadProfilePosts(username, reset) {
       gridEl.insertAdjacentHTML("beforeend", html);
     } else {
       if (reset) feedEl.innerHTML = "";
-      const html = data.posts.map((p) => renderPost(p, profileState.postsCache[p.id].__num)).join("");
+      const html = data.posts.map((p) => renderPost(p, profileState.postsCache[p.id].__num, { hideText: true })).join("");
       feedEl.insertAdjacentHTML("beforeend", html);
       bindAllAudioPlayers(feedEl);
       bindAllVideoPlayers(feedEl);
@@ -9444,6 +9453,30 @@ function renderSettingsModal(direction = "none") {
   else if (stage === "privacy") loadBlockedUsersList();
 }
 
+// ---------- تبدیل ابعاد عکسِ بنر به نسبتِ قابِ بنر ----------
+// به‌جای اینکه بذاریم موقع نمایش (background-size: cover) بخشی از بالا/پایین یا چپ/راستِ عکس بریده بشه،
+// همون لحظه‌ی انتخاب، عکس رو با کش اومدن/جمع‌شدن (بدون حفظ نسبتِ اصلیِ خودش) دقیقاً به نسبتِ قابِ بنر تبدیل می‌کنیم؛
+// این یعنی کل عکس همیشه دیده می‌شه، فقط ممکنه یه‌کم کشیده/فشرده به‌نظر برسه.
+const BANNER_TARGET_W = 1400;
+const BANNER_TARGET_H = 400;
+async function resizeImageToBannerRatio(file) {
+  try {
+    const bitmap = await createImageBitmap(file);
+    const canvas = document.createElement("canvas");
+    canvas.width = BANNER_TARGET_W;
+    canvas.height = BANNER_TARGET_H;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height, 0, 0, BANNER_TARGET_W, BANNER_TARGET_H);
+    const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, outType, 0.92));
+    if (!blob) return file; // اگه تبدیل جواب نداد، همون فایل اصلی رو برمی‌گردونیم تا کاربر گیر نکنه
+    const newName = file.name.replace(/\.(heic|heif)$/i, outType === "image/png" ? ".png" : ".jpg");
+    return new File([blob], newName, { type: outType, lastModified: Date.now() });
+  } catch (e) {
+    return file;
+  }
+}
+
 function onAvatarChosen() {
   const input = document.getElementById("avatarInput");
   selectedAvatarFile = input.files[0] || null;
@@ -9479,9 +9512,10 @@ function updateBannerPreview() {
   }
 }
 
-function onBannerChosen() {
+async function onBannerChosen() {
   const input = document.getElementById("bannerInput");
-  selectedBannerFile = input.files[0] || null;
+  const rawFile = input.files[0] || null;
+  selectedBannerFile = rawFile ? await resizeImageToBannerRatio(rawFile) : null;
   document.getElementById("bannerChip").classList.toggle("hidden", !selectedBannerFile);
   document.getElementById("bannerAttachLabel").classList.toggle("hidden", !!selectedBannerFile);
   if (selectedBannerFile) document.getElementById("bannerFileName").textContent = selectedBannerFile.name;
@@ -9507,7 +9541,7 @@ async function saveProfile() {
   btn.disabled = true;
   btn.textContent = "در حال ذخیره...";
   if (selectedAvatarFile) fd.append("avatar", await stripImageExif(selectedAvatarFile));
-  if (selectedBannerFile) fd.append("banner", await stripImageExif(selectedBannerFile));
+  if (selectedBannerFile) fd.append("banner", selectedBannerFile);
   try {
     const res = await fetch(`${WORKER_URL}/api/profile`, {
       method: "POST",
