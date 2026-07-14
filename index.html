@@ -2,7 +2,14 @@
 <html lang="fa" dir="rtl">
 <head>
 <script>
-(function(){try{var t=localStorage.getItem("theme")||"purple";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();
+(function(){
+  try{
+    var LEGACY_MAP = {purple:"purple-dark", dark:"walnut-dark", red:"red-dark", blue:"blue-dark", teal:"pure-dark", emerald:"emerald-dark"};
+    var t = localStorage.getItem("theme") || "purple-dark";
+    if (LEGACY_MAP[t]) { t = LEGACY_MAP[t]; try { localStorage.setItem("theme", t); } catch(e2){} }
+    document.documentElement.setAttribute("data-theme", t);
+  }catch(e){}
+})();
 </script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -12,13 +19,14 @@
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<link rel="apple-touch-icon" href="icon-192.png" />
-<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAQt0lEQVR4nL2ba6wd11XHf2vvPXPOuS8/4thJ7DqvOg/HIWlLUVu1VK5IVSpEECiAhJSmSDQIkqBSoEggWXzhC6JVnyKows2HlkBUqXzgoaiNFaGWlpJiY9etmzhO0sSNa2zHvr73nnNm9l582DNz5pwz59zjR1lX4zmemf347732Wv+1Zo8wUfYZ+IsA8Pjjjyef+8TLH+j1s1/zedjrQ9gO2PJJVR0vLgCD6w1PVHe0ekCLcrVSIuUTzaUHbXtjzEnrzDNzqfvKZ//ml/517969+SiWxm6OywMWnvKqau6+488e6q5lj4ag94JB1QNhtPFajbOAjne1CbTUy04bNmCsfYOIBTxi5L/T1H7m+ec/8UUR0RLTWHfHq44PvvXuP33b8nL4jHr7zqA5qpmqEgAzVq6Y7emAi46rFoOkw9XI+jU0Dni8U9SlCgRQI+JExGGM/8biUuuxw4f/6rtNgzAyAO918Gx+9+0ff2h1NXxeVToh9HNQA2IYK3mJoEcwR9AlgOKSCK3UkXtPngcGmjIJdL18/UENIEEkccboWrtlfu/Y85/6YomxfKoGap+DZ/M7d/3JH62uyn7v804IfQ+4IfACiKLrz1fxFwYdK9VbigOl3mlVMEbozKWkLYfqJPD1QZj0gBgRcaqZD8F31nqy/7Y3P/bRCP69rg6HUjV27/r4Q7012e9D1xezLnVjth7gEsTADtRmaUYVFxGS1BK8kmU5InWVGS0/vb6ybBxGCdaktt3RDx879qkvlpil/HHvXX9+z/nz3W9r8AkEEDGXpOJjFpxGFZ9cfvj/se+jKj65ruGBanoqrkMxLtu8aeEdhw795UF4wBrYrfv27XPLy6tfQKWFBFXBTFfxQr01RBWXAXhlsoqPgiyP0bojGCnKlktovB4pgIvI1CGK/RFRVFWl9cb5C1/Yt++Ag90qAHfs+viD/S5P+LCWgzgmSNXZuhUv+qmyvq5MtuJDT02BUohIMaHNXlxhooNX1dzYtmu3+e0Xjn1yv3zkI48nX/u37z8Xgt2jmumYta80QQe1V4ZwRmlwAIMZLs9D3a/OyjDOphJDVU66N6ghgBNrwtH7f/m2t8meXX/8wYtr/p9V89qQ1qxvg89ed7ZHpkDxKKF2lKpdtzJKYXERTHFYDBYRUw3HxGGX2tBV1HLSUKmKONmwmN7vunn+m5HVSlBVW4GWwhgVar4evyvVWzAogZwuSo5gcbRJWSCReU3oiKWFlVQtTgRXABcUTyAjY5W+XqTHBfpcxLNa1JxiJSk8TagvKKn3w4ggxuB9I/sFJICxK93sAZfnujdoBngzpGsCzhly30QyxoGXfeizQkKHrXKnbja3sUF2MifXSiqLONpicCWVrBprojNxKFZY0zNc0B/pGf0hZ/R5WdGfgBgS2hLnd9SDgEsMSeL04kpv1DmUTxnVnODZKzu3P+JHiY6iGCOkiaPby6aAHrqKp89O8269xf6CLMl2DHU7rpXqr+8apfizGKjq6bHCT8L39GX9d06H74sgONoExij+FBmyNyo7tz+iIKiM3hw1tNNZWSDnHvcgN5t3kQOevKjPIphhC7ie9RxRCS3qMjgcQgBeDwf1aPiqvKEvkbJQMM71RKNVqLiZ4JqAV/2Q9V2XYOizzO32fm4x72KNrJi96E1V11C9iOoqql3QHkoGeKhFlgOjZUFSRDqILCBmCZEFEIcq9MkA4QZzr1xrdnPEP6Uvhq+JY47xJTHyu+ALpWlUURp9/vr+ujR4QqDPnGzhFnsffQKmUNrgX8H7l9BwAehH7zNCjZuddeEzKdXPIbKAMVsxdgdiNgNxIATHW+1vybxs1SP+78XRqQahGgwZ+JbKxtSarQZghlCzdh5cz+my0/w8HeZjpyTBZ8/js++CJMQV7CYSk0YZSYqoLuPzc3h/HGOuV5vsRsySoDk9PLeb+0RRjvgvkcgCZQpFCtDaWG8U00xHm8A301KD4zq5t7hiQDOCPw6SRuBD5S/ngLgsWkTNelWy3gEJ+QnAIRh65Nxu3s9N5n1kejHanLK01I4GMc2Xy+KTubyIECRjTraw0dyMRxEsIZxBdSV2enauuI7U+iEpoOT9/8Lnx7TMzOUE9thfZ1G2k9MfC44myRjtHQc+PAgipYsyeDI2mptp0SGQRxfqT2lc7z8t0dhtaeGz/5HgX0HEEfC06HC7/RW8REM5y7IzMwGWWFkZdZVGRAlsll2VkUEDIZwBsfx0pdSGhDw7hIYVBEeGZ7u8jU3cQk63otbTxDTNeqk+FWAYrkwgELC02SS3EADBorqC6rJcHfWfsnCBShO0G5eCRCrtsLxJ3kko3OV60mwDhgjQoLmaXhAkpyObmZfrCTGBgoZzis7W8HRR0B7QZ8h1NnY0JfjXRMOKCgke2GbuIWVxKkMsjb+BupoXyQWJnKnuPrR2gODJWJQdtGhVDYVwliuf+YBIG5vcibE3FkZu2qAKaJcQfgwiBDwLXMsS2wn0q3L1BEwVuEmMOWtqPnv3gwY2yk31MAzVc1dh/QsueTs22YNL3i5J630Ys02nDoIY1J8u2HrAIizJTrzmiMqYmxcpl7lipLa660xp6Kgwak11LBvlxuKejZQ3rDAIXS4dOOSIuQYx14DGiEJkHpe+Q0SWAD86CFragmh78ur+AtcB9fyBFMDLtgrmUq3tIRWf3tGAJ2WRRW4oDKBB9YJCT6ZSi/VEA8Zsq9HkOCiIw7ibi0EZwR9DNlT7qPYp22/LhphUkXKJN8cIBgGXWEIYn7XGdYMQyJiXa2nLxrj+BTS8wZX5f41AzTUjChRV0MhGYrqySbuEyFKjBijgaMfE9gjgUXFzcy2csxhr6PWymRKXgZxF2Y5D6BMQtXEAZmRfk2oVmUPMEo2Wv4orRkUaf8+asTTOGpyNdGC2rG2sfqPsrDXqa/7/ciTOYFznCTTF9lp7w1R2YuinoeQfsUfd5npGxK31Muhm+BCqNzPTJWBxLMmOmgG8iOoal28AAQ2I2TjRFSldBS9xgEZjPEUkVZFUyve3Xc4zS5LERbWvu4bxpkUGbFDxpCwxL9sKmywEXSa6qbJzlyFiENkwcYlrWI5aMNbFUnvmidFnTOGt6KkGOlciGpwLIjT2iE6KBD05c7KFFktoGQCF81cYACmQIGZx4m0NZ2sdHX2XFhCzqfIeHljmNZFiSdaJ/nBAr3WrMhoPFO0NpcRlyABq4YY1nL8KBrCNSIdxA2hA1wjhjMQZVsYaE4sxW6K3wNHlAsv6YwxJ9RZicNT/imBIRKsqS+D1FTY4BERZkh21mx7Vi1fg/0sVniMCrGtS1GLvXwVdZbyN2H7MHW4WxWOBc/oiq7yB4CLQaiJHGaGU0WCNDFGjxWOTGjA4FrmhZgC7V8EAKsjCOMnDgPYI/oUGDlBMleYYe4PG+wEBXtdDWsYnUUuH+X9dqpch1eVytBo0OhBImGdethYMUFC9SDQ8V8AA0UID6uAjxjw7XMswjZdDUoy9UdCYNl9jlVMcFker8gL18L48l78N1CjwAHQD/Lj+22ykzcYiBC6t86W8mGgQkWIAyhm2IBafHSX4l4CUce0S0D7G7kTMIkqOQzipz3FRT2FIh1R+knt3s4bu0QXmzMtWEhwZWRkDcMXxvwJV6CqovoHPfkjwr9AMHuImjjmsuwNUEQw5nhP6DJYEZPCydZpM3AvQ3M/AAttqITBxCVyRB4gxQJ59H/EnQfuoLhN5/STwcfZd+hbEdFDNSEl4Ub/BWY6TynpvigZ1zjwAJTOYl+uKKwbI4EoNIBBnPkPDqeK3ZTKpim7RuF0YeyOqOQZLlxV+oF/Fjqh+DUHj70uwXNHIzMmWMpIuPEDv0qqZKEIEXc7JJPBdjH0TLrmHktY4DIf1KS5yCjukNTrhGMj622GqzgUcLTpsqmhx0DWiqk4KUy9VJtVRLDHtYuxOXPqzAAQ8bRKO6zc4oQdImWdoW96EOhtfjUFzNFgu7+gCF0hlIa4uIap/Iz+/mhLJDgRscgfW7Sn6k9Ei5XU9xkF9goR2A/hhaXLtY+8Gx91FWWEgoY2t/Ksp1P9qzPyolH0IoH3ELGGTuzH2BtBQzHzKaV7kW/ppFI8haTR862W43NisV1S8HgFERmVwyFDOPxt64sqk3lMPmoN0sMkurNsFpGiREmuTcFKP6H/q5yWnWxi+Afj1QNcxO6jPenMEWK55T0bc95PELsuG4oFekQ0e30c9mwQi6FCQokWM24GxNyFmrpj1Po4UAxzTp/WwPilxD8kA/Pr5zGEREZyMzHazlDTzLKucYQPXk2uOsdtxrfcQ/MtoOB83QJBHQFqvtznPAELcnZMgsoSx1yB2W4zsxBUcvo8hoU3KBT3NYZ7UV/Xb4mSuoOJhJuD1ZE99mc/MAwRDxgrHw9P8nHmo2LTiMeY6jLkOyIodIGvRPZIR3xLFAdFaviAmK9MiBJ4DmY+hsBSpOTxohiEhJaVLl+fDM7w293WWszOSZJHoxA0QkwEP2pMpVDjq3bqOXAkkzPGyPsu8buVO+SAK5MUewDibC4gsXhoxVCj3D6K+2AdkESyrnOe4fosT+gzneZV2fwGjHbysH3vM9npcgzPGnAxBdkBoSMVWfSzOiqHF4fAPnJEX9Db5gGySW0kLm1BRDR0kHibZlWhVTPFv3BipQI9VTutxXuM5XteDrMhprLRIWcLnHmrgJyVxZwCvYERETzprzDOq5kHVEKh/BzRyrvWbtl3gZP6cvK6H2CA72MytbJCdzLOVtmwgYR5LC4uj3AhZ71JMTeXkrNJjmTX9Xy7wKmc5zjlOsMJpAh4nbVIWi6H3E9V91s0QNQki1jqrB1yrlTyZr2YPghodyqvXzqWh1Dhv1gpJPgcC5/kRZzmBFPG41RaWFo4UWxxxv1+c5ajwOTldMtbIWCVjjUCOiMGQ4mhDkXIb9e2TjNmliRoItFvpP7p79mz8+je/c+qwkuxRzQKIGQsmav9VVXq9rHrHFsG2qwcVJS+AgR9aBgOfIFRLQEwFeFBDLW059mLzSmmnBsSJGH/kLbs3PS0AN93xyIP9nnnC+25J7McanO2dAYwumpHs5dCGTG14/qcjQ7FBbkzbtdo89NLRzz1hYJ/50G9c82Wk9x2RxMFgV0Ed8HTwk6KuQomlPAa7xUdnuem4fGkidgqoR5wzpv/c+9/9M1+GfUbKT2buuvej95x9o/vtEEIS36Su7xqnmMp4dUZtnRyHXI6M9kXrP9SIzTZt6bzj6Hc+dbD4ZOYpDw/Y7x385KHOXPKwtakhfuM2YQqiDW/aM1htnpqQVJ0k04jK7NIU81dnRQnGpKbTcb9bgi8+miolfk938x2P/mGvx1+HkEHMdtrhBiY0fwn9n92erFvTOv8HwINYYxLS1H/s5R/87Sfq3w6O9CLeePPuxz68spZ/DpWO6oQPJ7m0qKuUqzPTTb/HngsoQUzqMNpd6Njff+HI5/9u9OvREVDP5vCAfeHop/dv2Jy+2zr9pjEthySmWBIeQS9Xxa/AbzNYetPYJRqpvSqSGOPazjn+Y8tS5z1N4GEityo/nt5nbr3r3Id63exRr/qWmAQpvwNoaP3/x5hNKSEYcSABETnYbiefffHIZ/aLSLiEj6dLGXxyfuDAAfc7f/BPv9jt9n41eL3Pe389gzeGY5HXlct0ezOpQJK402LM053UfeVjj+z5l4cffjgbxTIq/wei0cd/NXpuggAAAABJRU5ErkJggg==" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="icon" type="image/png" href="favicon-dark.png" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/png" href="favicon-light.png" media="(prefers-color-scheme: dark)" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
-  :root, :root[data-theme="purple"] {
+  :root, :root[data-theme="purple-dark"] {
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-left: env(safe-area-inset-left, 0px);
@@ -37,47 +45,101 @@
     --accent-gradient: linear-gradient(135deg, var(--accent), var(--accent-hover));
     --card-gradient: linear-gradient(160deg, var(--card), var(--surface));
   }
-  :root[data-theme="dark"] {
-    /* Walnut Noir */
-    --primary: #1A1210;
-    --surface: #241916;
-    --card: #33251F;
-    --accent: #B98A5E;
-    --accent-hover: #D2A679;
+  /* ================= Purple — حالت روشن (بدون عکس راهنما؛ با همون رنگ بنفشِ فعلی هماهنگه) ================= */
+  :root[data-theme="purple-light"] {
+    --primary: #F5F1FC;
+    --surface: #ECE4FA;
+    --card: #E2D6F7;
+    --accent: #7C3AED;
+    --accent-hover: #6427D9;
+    --text: #1E1033;
+    --subtext: #6B5D80;
+    --border: #D9CCF0;
+    --success: #16A34A;
+    --error: #DC2626;
+  }
+
+  /* ================= Walnut (جایگزین تم قبلیِ «dark» / Walnut Noir) ================= */
+  :root[data-theme="walnut-dark"] {
+    --primary: #1B140F;
+    --surface: #271D16;
+    --card: #362819;
+    --accent: #B9825A;
+    --accent-hover: #D3A177;
     --text: #FFFFFF;
-    --subtext: #D6C7BC;
-    --border: #4A3830;
+    --subtext: #D9C7B8;
+    --border: #4A392B;
     --success: #22C55E;
     --error: #EF4444;
   }
-  :root[data-theme="red"] {
-    /* Crimson Velvet */
-    --primary: #170809;
-    --surface: #220C0F;
-    --card: #3D1216;
-    --accent: #C81E1E;
-    --accent-hover: #DC2626;
+  :root[data-theme="walnut-light"] {
+    --primary: #FBF5F0;
+    --surface: #F3E8E0;
+    --card: #EADACD;
+    --accent: #7A5038;
+    --accent-hover: #613F2B;
+    --text: #2A1B10;
+    --subtext: #7C6455;
+    --border: #E3D0C3;
+    --success: #16A34A;
+    --error: #DC2626;
+  }
+
+  /* ================= Red (جایگزین تم قبلیِ «red» / Crimson Velvet) ================= */
+  :root[data-theme="red-dark"] {
+    --primary: #180303;
+    --surface: #260505;
+    --card: #3B0A0A;
+    --accent: #C4302F;
+    --accent-hover: #DE4B48;
     --text: #FFFFFF;
-    --subtext: #D9B8BA;
-    --border: #4A171B;
+    --subtext: #E0B4B2;
+    --border: #4E1414;
     --success: #22C55E;
     --error: #EF4444;
   }
-  :root[data-theme="blue"] {
-    /* Emerald Chrome */
-    --primary: #000428;
-    --surface: #050B3A;
-    --card: #0A1E52;
-    --accent: #004E92;
-    --accent-hover: #2876BA;
+  :root[data-theme="red-light"] {
+    --primary: #FDF3F2;
+    --surface: #FBE6E4;
+    --card: #F6D3D0;
+    --accent: #A01212;
+    --accent-hover: #830E0E;
+    --text: #2B0808;
+    --subtext: #7A4B49;
+    --border: #F0C4C0;
+    --success: #16A34A;
+    --error: #C81E1E;
+  }
+
+  /* ================= Blue (جایگزین تم قبلیِ «blue» / Emerald Chrome) ================= */
+  :root[data-theme="blue-dark"] {
+    --primary: #020814;
+    --surface: #041130;
+    --card: #082352;
+    --accent: #2E63C4;
+    --accent-hover: #4C81E0;
     --text: #FFFFFF;
-    --subtext: #AFC3E6;
-    --border: #14285C;
+    --subtext: #AFC6EE;
+    --border: #16305F;
     --success: #22C55E;
     --error: #EF4444;
   }
-  :root[data-theme="teal"] {
-    /* Obsidian Premium — پس‌زمینه واقعاً مشکی (نه خاکستری تیره)، رنگ‌های روشن (accent/success/error) نسبت به
+  :root[data-theme="blue-light"] {
+    --primary: #F2F6FD;
+    --surface: #E4EDFB;
+    --card: #D3E2F7;
+    --accent: #3661AB;
+    --accent-hover: #2A4F8F;
+    --text: #101E33;
+    --subtext: #56698A;
+    --border: #CBDAF2;
+    --success: #16A34A;
+    --error: #DC2626;
+  }
+
+  /* ================= Pure (جایگزین تم قبلیِ «teal» / Obsidian Premium) ================= */
+  :root[data-theme="pure-dark"] {
+    /* پس‌زمینه واقعاً مشکی (نه خاکستری تیره)، رنگ‌های روشن (accent/success/error) نسبت به
        تم‌های دیگه چند پله تیره‌تر و کم‌اشباع‌تر شدن تا حس گرون/پریمیوم بدن نه شلوغ/نئونی. کارت‌ها یه پله از
        پس‌زمینه روشن‌ترن، فقط برای اینکه لایه‌بندی دیده بشه، نه برای اینکه خودشون رنگی به‌نظر برسن. */
     --primary: #000000;
@@ -95,34 +157,140 @@
     --card-gradient: linear-gradient(135deg, #1D1D20 0%, #0D0D0E 45%, #191A1C 65%, #08080A 100%);
   }
   /* لبه‌ی بالایی روشن + لبه‌ی پایینی تیره روی کارت‌ها، حسِ فلزیِ برجسته (embossed metal) می‌ده */
-  :root[data-theme="teal"] .post-card {
+  :root[data-theme="pure-dark"] .post-card {
     box-shadow: 0 3px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -1px 0 rgba(0,0,0,0.4);
   }
-  :root[data-theme="teal"] .surface-card {
+  :root[data-theme="pure-dark"] .surface-card {
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), inset 0 -1px 0 rgba(0,0,0,0.35);
   }
   /* درخشش خیلی ظریفِ متن، فقط روی چند عنصر شاخص (اسم برند، اسم کاربری، عنوان پست) — نه روی کل متن،
      چون درخشش زیاد یا همه‌جایی خوانایی رو کم می‌کنه و حس ارزون/نئونی می‌ده نه پریمیوم.
      رنگش از --accent میاد (خاکستریِ روشنِ خودِ تم) نه یه رنگ اضافه، تا هماهنگ با پالت بمونه. */
-  :root[data-theme="teal"] h1,
-  :root[data-theme="teal"] #app-splash .app-splash-name,
-  :root[data-theme="teal"] .entry-name,
-  :root[data-theme="teal"] .entry-title {
+  :root[data-theme="pure-dark"] h1,
+  :root[data-theme="pure-dark"] #app-splash .app-splash-name,
+  :root[data-theme="pure-dark"] .entry-name,
+  :root[data-theme="pure-dark"] .entry-title {
     text-shadow: 0 0 5px color-mix(in srgb, var(--accent-hover) 45%, transparent);
   }
-  :root[data-theme="emerald"] {
-    /* Emerald Depth */
-    --primary: #0F2027;
-    --surface: #15262B;
-    --card: #1C3A2C;
-    --accent: #28623A;
-    --accent-hover: #35935A;
+  :root[data-theme="pure-light"] {
+    --primary: #FAFAFA;
+    --surface: #F1F1F1;
+    --card: #E6E6E6;
+    --accent: #4B4B4E;
+    --accent-hover: #333335;
+    --text: #141414;
+    --subtext: #6E6E71;
+    --border: #D8D8D8;
+    --success: #16A34A;
+    --error: #DC2626;
+  }
+
+  /* ================= Emerald (جایگزین تم قبلیِ «emerald» / Emerald Depth) ================= */
+  :root[data-theme="emerald-dark"] {
+    --primary: #04170A;
+    --surface: #082C12;
+    --card: #0E3D1A;
+    --accent: #1FA348;
+    --accent-hover: #29C95A;
     --text: #FFFFFF;
-    --subtext: #B7D6C0;
-    --border: #23492F;
+    --subtext: #A8D9B8;
+    --border: #164B25;
     --success: #22C55E;
     --error: #EF4444;
   }
+  :root[data-theme="emerald-light"] {
+    --primary: #F1FBF3;
+    --surface: #E4F6E8;
+    --card: #D3EEDA;
+    --accent: #2E7D46;
+    --accent-hover: #256838;
+    --text: #123018;
+    --subtext: #4F7A5C;
+    --border: #CFE8D6;
+    --success: #16A34A;
+    --error: #DC2626;
+  }
+
+  /* ================= Berry (تم جدید) ================= */
+  :root[data-theme="berry-dark"] {
+    --primary: #170A10;
+    --surface: #24121B;
+    --card: #3A1E2C;
+    --accent: #C85186;
+    --accent-hover: #E06CA0;
+    --text: #FFFFFF;
+    --subtext: #E3B9CB;
+    --border: #4D2438;
+    --success: #22C55E;
+    --error: #EF4444;
+  }
+  :root[data-theme="berry-light"] {
+    --primary: #FBF2F6;
+    --surface: #F6E4ED;
+    --card: #EFD2E0;
+    --accent: #B64F7D;
+    --accent-hover: #9A3C67;
+    --text: #34121F;
+    --subtext: #855C6C;
+    --border: #EEC7D9;
+    --success: #16A34A;
+    --error: #DC2626;
+  }
+
+  /* ================= Police (تم جدید — دوتونِ قرمز/آبیِ چراغ‌گردانِ پلیس) ================= */
+  :root[data-theme="police-dark"] {
+    --primary: #05001A;
+    --surface: #0D0326;
+    --card: #1B0433;
+    --accent: #3355FF;
+    --accent-hover: #E63946;
+    --text: #FFFFFF;
+    --subtext: #B9BEEA;
+    --border: #241246;
+    --success: #22C55E;
+    --error: #EF4444;
+    /* گرادیانِ دوتونِ قرمز-بنفش-آبی، یادآورِ چراغ‌گردانِ پلیس */
+    --card-gradient: linear-gradient(135deg, #240018 0%, #06001F 45%, #1B0030 65%, #02012E 100%);
+  }
+  :root[data-theme="police-light"] {
+    --primary: #FBF4FE;
+    --surface: #F5E7FA;
+    --card: #EEDCF5;
+    --accent: #7A5AF0;
+    --accent-hover: #D1425B;
+    --text: #241536;
+    --subtext: #755C88;
+    --border: #E7D3F2;
+    --success: #16A34A;
+    --error: #DC2626;
+  }
+
+  /* ================= Fall (تم جدید) ================= */
+  :root[data-theme="fall-dark"] {
+    --primary: #1C1310;
+    --surface: #2A1B14;
+    --card: #3D2417;
+    --accent: #E85D28;
+    --accent-hover: #FF7A45;
+    --text: #FFFFFF;
+    --subtext: #E8C2AE;
+    --border: #56331F;
+    --success: #22C55E;
+    --error: #EF4444;
+  }
+  :root[data-theme="fall-light"] {
+    --primary: #FFF7F2;
+    --surface: #FFEDE2;
+    --card: #FFDFCC;
+    --accent: #C94A1A;
+    --accent-hover: #A33716;
+    --text: #331B0D;
+    --subtext: #8A5C43;
+    --border: #FFD3B8;
+    --success: #16A34A;
+    --error: #DC2626;
+  }
+
   * { box-sizing: border-box; }
 
   /* ---------- اسپلش‌اسکرین سفارشی موقع باز شدن اپ ---------- */
@@ -133,11 +301,18 @@
     transition: opacity 0.4s ease;
   }
   #app-splash.hide { opacity: 0; pointer-events: none; }
-  #app-splash img {
-    width: 96px; height: 96px; border-radius: 24px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+  /* به‌جای عکسِ ثابتِ قبلی، یه نشانِ متحرک از ترکیب‌های «: » و «D» با افکتِ تایپ نشون داده می‌شه */
+  #app-splash .app-splash-emoji {
+    direction: ltr; /* این کاراکترها لاتین‌محورن، جهتشون همیشه چپ‌به‌راست بمونه، حتی تو صفحه‌ی راست‌چین */
+    font-size: 54px; font-weight: 800; letter-spacing: 1px; color: var(--text);
+    min-height: 70px; display: flex; align-items: center; justify-content: center;
     animation: splash-pulse 1.6s ease-in-out infinite;
   }
+  #app-splash .app-splash-emoji .splash-caret {
+    display: inline-block; width: 3px; height: 42px; background: var(--accent-hover);
+    margin-inline-start: 3px; animation: caretBlink 0.9s step-end infinite;
+  }
+  @keyframes caretBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
   #app-splash .app-splash-name { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
   #app-splash .app-splash-dots { display: flex; gap: 6px; }
   #app-splash .app-splash-dots span {
@@ -149,7 +324,7 @@
   @keyframes splash-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
   @keyframes splash-dot { 0%, 100% { opacity: 0.35; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-4px); } }
   @media (prefers-reduced-motion: reduce) {
-    #app-splash img, #app-splash .app-splash-dots span { animation: none; }
+    #app-splash .app-splash-emoji, #app-splash .app-splash-emoji .splash-caret, #app-splash .app-splash-dots span { animation: none; }
   }
   /* حذف باکس آبیِ پیش‌فرض مرورگرهای موبایل (مخصوصاً اندروید کروم) موقع لمس هر المان قابل‌کلیک */
   * { -webkit-tap-highlight-color: transparent; }
@@ -921,18 +1096,46 @@
   .profile-edit { margin-top: 16px; text-align: right; border-top: 1px solid var(--border); padding-top: 14px; }
   .theme-picker { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; text-align: right; }
   .theme-picker-label { font-size: 13px; color: var(--subtext); margin-bottom: 10px; }
-  .theme-options { display: flex; gap: 10px; flex-wrap: wrap; }
-  .theme-swatch {
-    width: 42px; height: 42px; border-radius: 12px; border: 2px solid transparent;
-    cursor: pointer; padding: 0; flex-shrink: 0; position: relative;
+
+  /* ---------- لیستِ افقیِ تم‌ها (آیکونِ رنگی + اسمِ تم + توضیح) ---------- */
+  .theme-hue-list { display: flex; flex-direction: column; gap: 8px; }
+  .theme-hue-row {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    padding: 10px 14px; border-radius: 12px;
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); font-family: inherit; cursor: pointer; text-align: start;
+    transition: border-color 0.15s;
   }
-  .theme-swatch.active { border-color: #fff; }
-  .theme-swatch[data-theme-value="purple"] { background: linear-gradient(135deg, #1A0A31, #8B5CF6); }
-  .theme-swatch[data-theme-value="dark"] { background: linear-gradient(135deg, #1A1210, #B98A5E); }
-  .theme-swatch[data-theme-value="red"] { background: linear-gradient(135deg, #170809, #C81E1E); }
-  .theme-swatch[data-theme-value="blue"] { background: linear-gradient(135deg, #000428, #004E92); }
-  .theme-swatch[data-theme-value="teal"] { background: linear-gradient(135deg, #000000, #3D3E42); }
-  .theme-swatch[data-theme-value="emerald"] { background: linear-gradient(135deg, #0F2027, #28623A); }
+  .theme-hue-row:hover { border-color: var(--accent); }
+  .theme-hue-row.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .theme-hue-icon {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid transparent;
+  }
+  .theme-hue-row.active .theme-hue-icon { border-color: #fff; }
+  .theme-hue-text { min-width: 0; font-size: 12.5px; line-height: 1.7; color: var(--subtext); }
+  .theme-hue-text strong { color: var(--text); font-size: 13.5px; font-weight: 700; }
+
+  /* ---------- کپسولِ روشن/تاریک (بینِ آیکونِ آفتاب و ماه) ---------- */
+  .mode-toggle-wrap { display: flex; justify-content: center; margin-top: 14px; }
+  .mode-capsule {
+    position: relative; display: flex; align-items: center; direction: ltr;
+    width: 92px; height: 42px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 999px; padding: 3px;
+  }
+  .mode-capsule-slider {
+    position: absolute; top: 3px; left: 3px; width: calc(50% - 3px); height: calc(100% - 6px);
+    background: var(--accent-gradient); border-radius: 999px; transition: transform 0.25s ease;
+    pointer-events: none;
+  }
+  .mode-capsule[data-mode="dark"] .mode-capsule-slider { transform: translateX(100%); }
+  .mode-capsule-btn {
+    position: relative; z-index: 1; flex: 1; height: 100%; border: none; background: none;
+    display: flex; align-items: center; justify-content: center; color: var(--subtext);
+    cursor: pointer; padding: 0;
+  }
+  .mode-capsule-btn svg { width: 18px; height: 18px; transition: color 0.2s; }
+  .mode-capsule-btn.active { color: #fff; }
   /* دکمه‌ی «تنظیمات» تو صفحه‌ی پروفایلِ خود کاربر: کادر باریک دورچین‌دار */
   .profile-settings-block { margin-top: 16px; }
   .profile-settings-btn {
@@ -944,10 +1147,99 @@
   }
   .profile-settings-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
   .profile-settings-btn:hover { color: var(--text); border-color: var(--accent); }
-  .profile-settings-panel {
-    margin-top: 10px; text-align: center; font-size: 13px; color: var(--subtext);
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+
+  /* پنجره‌ی مودال تنظیمات: مستقل از موقعیت دکمه، وسط صفحه و بزرگ.
+     تمام مراحل (تنظیمات اصلی، تنظیمات اکانت، تغییر نام کاربری، تغییر رمز) از همین یک ساختار عبور می‌کنن. */
+  .settings-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
   }
+  .settings-overlay.hidden { display: none; }
+  .settings-modal {
+    width: 100%; max-width: 380px; max-height: 82vh; overflow-y: auto;
+    background: var(--surface); border: 1px dashed var(--border); border-radius: 20px;
+    padding: 18px; display: flex; flex-direction: column; gap: 14px;
+  }
+  .settings-modal-header { display: flex; align-items: center; gap: 10px; }
+  .settings-modal-title { flex: 1; font-size: 15px; font-weight: 700; color: var(--text); }
+  .settings-modal-iconbtn {
+    width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: none;
+    color: var(--subtext); display: flex; align-items: center; justify-content: center; cursor: pointer;
+    flex-shrink: 0; transition: color 0.15s, border-color 0.15s;
+  }
+  .settings-modal-iconbtn:hover { color: var(--text); border-color: var(--accent); }
+  .settings-modal-iconbtn svg { width: 16px; height: 16px; }
+
+  .settings-item {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    min-height: 52px; padding: 0 16px; border-radius: 12px;
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); font-family: inherit; font-size: 14px; font-weight: 500;
+    cursor: pointer; text-align: start;
+    transition: border-color 0.15s;
+  }
+  .settings-item:hover { border-color: var(--accent); }
+  .settings-item:active { transform: scale(0.98); }
+  .settings-item svg { width: 20px; height: 20px; flex-shrink: 0; color: var(--accent-hover); }
+
+  .settings-field-label { font-size: 12.5px; color: var(--subtext); margin-bottom: 6px; display: block; }
+  .settings-field-hint { font-size: 11.5px; color: var(--subtext); margin-top: 6px; line-height: 1.7; }
+  .settings-field-hint.ok { color: var(--success); }
+  .settings-field-hint.err { color: var(--error); }
+  .settings-input-wrap { position: relative; }
+  .settings-input-wrap input {
+    width: 100%; padding-left: 40px;
+  }
+  .settings-eye-btn {
+    position: absolute; left: 6px; top: 50%; transform: translateY(-50%);
+    width: 30px; height: 30px; border: none; background: none; color: var(--subtext);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .settings-eye-btn svg { width: 18px; height: 18px; }
+  .settings-eye-btn .icon-eye-off { display: none; }
+  .settings-eye-btn.showing .icon-eye { display: none; }
+  .settings-eye-btn.showing .icon-eye-off { display: block; }
+
+  .settings-modal .primary:disabled { opacity: 0.45; cursor: not-allowed; }
+  .settings-lock-msg {
+    font-size: 12.5px; color: var(--error); text-align: center; background: var(--card);
+    border: 1px solid var(--border); border-radius: 10px; padding: 10px;
+  }
+
+  /* ---------- ردیفِ سوییچِ اعلان (تنظیمات > اعلان) ---------- */
+  .settings-toggle-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px;
+  }
+  .settings-toggle-title { font-size: 14px; font-weight: 500; color: var(--text); }
+  .switch { position: relative; display: inline-block; width: 44px; height: 26px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch-slider {
+    position: absolute; inset: 0; cursor: pointer; background: var(--border);
+    border-radius: 999px; transition: background-color 0.2s;
+  }
+  .switch-slider::before {
+    content: ""; position: absolute; width: 20px; height: 20px; left: 3px; bottom: 3px;
+    background: #fff; border-radius: 50%; transition: transform 0.2s;
+  }
+  .switch input:checked + .switch-slider { background: var(--accent); }
+  .switch input:checked + .switch-slider::before { transform: translateX(-18px); }
+  .switch input:disabled + .switch-slider { opacity: 0.5; cursor: not-allowed; }
+
+  /* ---------- لیستِ کاربرانِ مسدودشده (تنظیمات > حریم خصوصی) ---------- */
+  .blocked-user-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px;
+  }
+  .blocked-user-name { font-size: 13.5px; font-weight: 500; color: var(--text); }
+  .blocked-user-unblock-btn {
+    padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); background: none;
+    color: var(--subtext); font-family: inherit; font-size: 12px; cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .blocked-user-unblock-btn:hover { color: var(--text); border-color: var(--accent); }
+  .blocked-user-unblock-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .back-link { background: none; border: none; color: var(--accent-hover); font-size: 13px; cursor: pointer; font-family: inherit; padding: 0; margin-bottom: 14px; }
   .username-link { cursor: pointer; }
   .username-link:hover { text-decoration: underline; }
@@ -2003,13 +2295,13 @@
   /* تعامل‌پذیرها: یه فیدبک ریز و سریع موقع فشردن/هاور */
   button, .nav-item, .filter-chip, .action-pill, .load-more-btn,
   .mini-player-btn, .reels-ctrl-btn, .audio-play-btn, .music-row-play,
-  .grid-item, .theme-swatch, .back-to-top, .comment-item2-iconbtn,
+  .grid-item, .theme-hue-row, .mode-capsule-btn, .back-to-top, .comment-item2-iconbtn,
   .header-avatar, .bell-btn {
     transition: transform 0.15s ease, opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
   }
   button:active, .nav-item:active, .filter-chip:active, .action-pill:active,
   .mini-player-btn:active, .reels-ctrl-btn:active, .audio-play-btn:active,
-  .music-row-play:active, .theme-swatch:active {
+  .music-row-play:active, .theme-hue-row:active {
     transform: scale(0.93);
   }
   @media (hover: hover) {
@@ -2058,7 +2350,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
 <body>
 <div id="app-splash" aria-hidden="true">
-  <img src="data:image/png;base64,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" alt="" />
+  <div class="app-splash-emoji" id="appSplashEmoji"><span class="emoji-text"></span><span class="splash-caret"></span></div>
   <div class="app-splash-name">دهات</div>
   <div class="app-splash-dots"><span></span><span></span><span></span></div>
 </div>
@@ -2066,7 +2358,7 @@
 
   <header>
     <div class="brand">
-      <img src="data:image/png;base64,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" alt="دهات" class="brand-logo" />
+      <img src="icon-192.png" alt="دهات" class="brand-logo" />
       <div>
         <h1>دهات</h1>
         <p>فید عمومی</p>
@@ -2403,13 +2695,12 @@
         <div class="error" id="profileError"></div>
       </div>
 
-      <!-- دکمه‌ی تنظیمات: فقط تو پروفایل خودِ کاربر نشون داده می‌شه -->
+      <!-- دکمه‌ی تنظیمات: فقط تو پروفایل خودِ کاربر نشون داده می‌شه. با کلیک، مودالِ سراسریِ #settingsOverlay باز می‌شه -->
       <div id="profileSettingsBlock" class="profile-settings-block hidden">
-        <button class="profile-settings-btn" id="profileSettingsBtn" onclick="toggleProfileSettings()">
+        <button class="profile-settings-btn" id="profileSettingsBtn" onclick="openSettingsModal()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
           تنظیمات
         </button>
-        <div id="profileSettingsPanel" class="profile-settings-panel hidden">به زودی</div>
       </div>
     </div>
 
@@ -2515,6 +2806,11 @@
   <button class="mini-player-close" onclick="closeMiniPlayer(event)" aria-label="بستن" title="بستن">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
   </button>
+</div>
+
+<!-- مودال: تنظیمات (اکانت/ظاهری/حریم‌خصوصی/اعلان) — مستقل از موقعیت دکمه، وسط صفحه؛ محتوای داخلش با JS بسته به مرحله عوض می‌شه -->
+<div id="settingsOverlay" class="settings-overlay hidden" onclick="if(event.target===this) closeSettingsModal()">
+  <div class="settings-modal" id="settingsModal"></div>
 </div>
 
 <!-- مودال: نمایش کامل یک پست از توی گرید پروفایل -->
@@ -2763,21 +3059,61 @@ async function logout() {
 }
 
 // ---------- تم ----------
-const VALID_THEMES = ["purple", "dark", "red", "blue", "teal", "emerald"];
-let currentTheme = localStorage.getItem("theme") || "purple";
+// هر تم از دو بخش تشکیل شده: «رنگ‌بندی» (hue) و «حالت» (mode: dark/light) که با خط تیره به هم وصل می‌شن،
+// مثلاً "emerald-dark". کاربر از لیست فقط رنگ‌بندی رو انتخاب می‌کنه و از کپسولِ روشن/تاریک، حالت رو.
+const THEME_HUES = ["purple", "walnut", "red", "blue", "pure", "emerald", "berry", "police", "fall"];
+const VALID_THEMES = THEME_HUES.flatMap((h) => [`${h}-dark`, `${h}-light`]);
+
+// نگاشتِ مقادیرِ قدیمیِ تک‌کلمه‌ای (قبل از اضافه‌شدنِ حالت روشن/تاریک) به معادلِ جدیدشون،
+// تا کاربرهایی که از قبل یه تم انتخاب کرده بودن، بعد از این آپدیت به‌جای بنفشِ پیش‌فرض، همون تمِ خودشون رو ببینن
+const LEGACY_THEME_MAP = { purple: "purple-dark", dark: "walnut-dark", red: "red-dark", blue: "blue-dark", teal: "pure-dark", emerald: "emerald-dark" };
+
+function normalizeThemeValue(theme) {
+  if (!theme) return "purple-dark";
+  return LEGACY_THEME_MAP[theme] || theme;
+}
+
+let currentTheme = normalizeThemeValue(localStorage.getItem("theme"));
 
 function applyTheme(theme) {
-  if (!VALID_THEMES.includes(theme)) theme = "purple";
+  theme = normalizeThemeValue(theme);
+  if (!VALID_THEMES.includes(theme)) theme = "purple-dark";
   document.documentElement.setAttribute("data-theme", theme);
   localStorage.setItem("theme", theme);
   currentTheme = theme;
   markActiveSwatch(theme);
 }
 
+// وضعیتِ فعلی رو هم روی ردیفِ رنگ‌بندیِ درست تو لیست، هم روی کپسولِ روشن/تاریک منعکس می‌کنه
 function markActiveSwatch(theme) {
-  document.querySelectorAll(".theme-swatch").forEach((el) => {
-    el.classList.toggle("active", el.dataset.themeValue === theme);
+  const [hue, mode] = (theme || "purple-dark").split("-");
+  document.querySelectorAll(".theme-hue-row").forEach((el) => {
+    el.classList.toggle("active", el.dataset.hue === hue);
   });
+  const capsule = document.getElementById("modeCapsule");
+  if (capsule) {
+    capsule.dataset.mode = mode;
+    capsule.querySelectorAll(".mode-capsule-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.mode === mode);
+    });
+  }
+}
+
+function currentThemeParts() {
+  const [hue, mode] = (currentTheme || "purple-dark").split("-");
+  return { hue: hue || "purple", mode: mode || "dark" };
+}
+
+// کلیک روی یه ردیفِ لیست: فقط رنگ‌بندی عوض می‌شه، حالتِ روشن/تاریکِ فعلی حفظ می‌شه
+function selectThemeHue(hue) {
+  const { mode } = currentThemeParts();
+  selectTheme(`${hue}-${mode}`);
+}
+
+// کلیک روی کپسول: فقط حالت عوض می‌شه، رنگ‌بندیِ فعلی حفظ می‌شه
+function selectThemeMode(mode) {
+  const { hue } = currentThemeParts();
+  selectTheme(`${hue}-${mode}`);
 }
 
 async function selectTheme(theme) {
@@ -2798,8 +3134,9 @@ async function syncThemeFromServer() {
     const res = await fetch(`${WORKER_URL}/api/profile?username=${encodeURIComponent(getUsername())}`);
     const data = await res.json();
     if (res.ok && data.profile) {
-      if (data.profile.theme && data.profile.theme !== currentTheme) {
-        applyTheme(data.profile.theme);
+      const serverTheme = normalizeThemeValue(data.profile.theme);
+      if (serverTheme && serverTheme !== currentTheme) {
+        applyTheme(serverTheme);
       } else {
         markActiveSwatch(currentTheme);
       }
@@ -8114,7 +8451,7 @@ async function loadProfile(username) {
   document.getElementById("profileFeed").innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
   document.getElementById("profileEditBlock").classList.add("hidden");
   document.getElementById("profileSettingsBlock").classList.add("hidden");
-  document.getElementById("profileSettingsPanel").classList.add("hidden");
+  closeSettingsModal();
   resetReportBlock();
   clearAvatarFile();
 
@@ -8364,10 +8701,528 @@ function setProfileFilter(filter) {
   loadProfilePosts(profileState.username, true);
 }
 
-// دکمه‌ی تنظیماتِ پروفایل: فعلاً فقط یه پیام «به زودی» رو باز/بسته می‌کنه؛
-// محتوای واقعیش (آواتار، بایو، تم و ...) بعداً همینجا اضافه می‌شه
-function toggleProfileSettings() {
-  document.getElementById("profileSettingsPanel").classList.toggle("hidden");
+// ============ سیستم مودالِ تنظیمات ============
+// مودال مستقل از موقعیت دکمه‌ست (وسط صفحه) و از چند «مرحله» تشکیل شده که توی settingsStack پشته می‌شن
+// تا دکمه‌ی بازگشت بتونه به مرحله‌ی قبلی برگرده. مراحل فعلی: main -> account -> username | password_current -> password_new
+let settingsStack = [];
+let usernameCheckTimer = null;
+
+function openSettingsModal() {
+  settingsStack = [{ stage: "main", data: {} }];
+  renderSettingsModal();
+  document.getElementById("settingsOverlay").classList.remove("hidden");
+}
+
+function closeSettingsModal() {
+  document.getElementById("settingsOverlay").classList.add("hidden");
+  document.getElementById("settingsModal").innerHTML = "";
+  settingsStack = [];
+  if (usernameCheckTimer) clearTimeout(usernameCheckTimer);
+}
+
+function goSettingsStage(stage, data = {}) {
+  settingsStack.push({ stage, data });
+  renderSettingsModal();
+}
+
+function backSettingsStage() {
+  if (settingsStack.length > 1) settingsStack.pop();
+  renderSettingsModal();
+}
+
+function currentSettingsStage() {
+  return settingsStack[settingsStack.length - 1] || { stage: "main", data: {} };
+}
+
+function settingsComingSoon(name) {
+  toast(`${name} — به زودی`, "info");
+}
+
+// هدرِ مشترکِ همه‌ی مراحل: عنوان + دکمه‌ی بازگشت (اگه مرحله‌ی اول نباشه) + دکمه‌ی بستن
+function settingsHeader(title, showBack) {
+  return `
+    <div class="settings-modal-header">
+      ${showBack ? `<button class="settings-modal-iconbtn" onclick="backSettingsStage()" aria-label="بازگشت">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>` : `<span style="width:32px; flex-shrink:0;"></span>`}
+      <span class="settings-modal-title">${escapeHtml(title)}</span>
+      <button class="settings-modal-iconbtn" onclick="closeSettingsModal()" aria-label="بستن">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>`;
+}
+
+function eyeToggleBtnHtml(inputId) {
+  return `
+    <button type="button" class="settings-eye-btn" onclick="toggleEye('${inputId}', this)" aria-label="نمایش/مخفی‌کردن رمز">
+      <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a19.4 19.4 0 0 1 5.06-5.94M9.9 4.24A10.9 10.9 0 0 1 12 4c7 0 11 8 11 8a19.5 19.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+    </button>`;
+}
+
+function toggleEye(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const showing = btn.classList.toggle("showing");
+  input.type = showing ? "text" : "password";
+}
+
+// ---------- مرحله‌ی اول: منوی اصلی تنظیمات ----------
+function renderSettingsMain() {
+  return settingsHeader("تنظیمات", false) + `
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <button class="settings-item" onclick="goSettingsStage('account')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        تنظیمات اکانت
+      </button>
+      <button class="settings-item" onclick="goSettingsStage('appearance')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="0.5" fill="currentColor"/><circle cx="17.5" cy="10.5" r="0.5" fill="currentColor"/><circle cx="8.5" cy="7.5" r="0.5" fill="currentColor"/><circle cx="6.5" cy="12.5" r="0.5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-4.4-4.5-8-10-8z"/></svg>
+        تنظیمات ظاهری
+      </button>
+      <button class="settings-item" onclick="goSettingsStage('privacy')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        تنظیمات حریم خصوصی
+      </button>
+      <button class="settings-item" onclick="goSettingsStage('notifications')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        تنظیمات اعلان
+      </button>
+    </div>`;
+}
+
+// ---------- مرحله‌ی دوم: تنظیمات اکانت ----------
+function renderSettingsAccount() {
+  return settingsHeader("تنظیمات اکانت", true) + `
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <button class="settings-item" onclick="goSettingsStage('username')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        تغییر نام کاربری
+      </button>
+      <button class="settings-item" onclick="goSettingsStage('password_current')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3"/></svg>
+        تغییر رمز عبور
+      </button>
+    </div>`;
+}
+
+// ---------- مرحله: تنظیمات ظاهری (انتخاب رنگ‌بندی + حالت روشن/تاریک) ----------
+// توضیحِ هر تم فعلاً یه متنِ موقته؛ به‌محض اینکه متنِ نهاییِ توضیحات ارسال بشه، همین‌جا جایگزین می‌شه.
+const THEME_HUE_INFO = {
+  purple: { name: "بنفش", desc: "بنفش وصل، میراث وایرکس", from: "#1A0A31", to: "#8B5CF6" },
+  walnut: { name: "قهوه", desc: "بلوط فراموش‌شده‌ای که درخت نشد", from: "#1B140F", to: "#B9825A" },
+  red: { name: "سرخ", desc: "گویی که دلقک ماهی خون گریه کرده", from: "#180303", to: "#C4302F" },
+  blue: { name: "دریا", desc: "مرز بین آسمان و دریا", from: "#020814", to: "#2E63C4" },
+  pure: { name: "پوچ", desc: "گرفتاری در تاریکی و روشناییِ مطلق", from: "#000000", to: "#3D3E42" },
+  emerald: { name: "زمرد", desc: "قانون سی و چهارم دهات", from: "#04170A", to: "#1FA348" },
+  berry: { name: "گونه آفتاب", desc: "وقتی که نور نیاز به آسایش دارد", from: "#170A10", to: "#C85186" },
+  police: { name: "سرخابی", desc: "صدای دومی که فقط تو می‌شنوی", from: "#05001A", to: "#3355FF" },
+  fall: { name: "پاییز", desc: "بوی پرتقال و بادهای پاییزی", from: "#1C1310", to: "#E85D28" },
+};
+
+function renderSettingsAppearance() {
+  const rows = THEME_HUES.map((hue) => {
+    const info = THEME_HUE_INFO[hue];
+    return `
+      <button type="button" class="theme-hue-row" data-hue="${hue}" onclick="selectThemeHue('${hue}')">
+        <span class="theme-hue-icon" style="background:linear-gradient(135deg, ${info.from}, ${info.to})"></span>
+        <span class="theme-hue-text"><strong>${info.name}</strong>: ${escapeHtml(info.desc)}</span>
+      </button>`;
+  }).join("");
+
+  return settingsHeader("تنظیمات ظاهری", true) + `
+    <div class="theme-picker" style="margin-top:0; border-top:none; padding-top:0;">
+      <div class="theme-picker-label">رنگ‌بندی اپ رو انتخاب کن</div>
+      <div class="theme-hue-list">${rows}</div>
+      <div class="mode-toggle-wrap">
+        <div class="mode-capsule" id="modeCapsule">
+          <div class="mode-capsule-slider"></div>
+          <button type="button" class="mode-capsule-btn" data-mode="light" onclick="selectThemeMode('light')" aria-label="حالت روشن">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          </button>
+          <button type="button" class="mode-capsule-btn" data-mode="dark" onclick="selectThemeMode('dark')" aria-label="حالت تاریک">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.8 14.5c-3.9 1.5-8.3-.4-9.8-4.3-.9-2.4-.6-4.9.6-7-3.7 1-6.6 4.1-7.2 8-.9 5.4 2.7 10.5 8.1 11.4 4.7.8 9.1-1.8 10.8-6-.8-.5-1.6-1.2-2.5-2.1z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ---------- مرحله: تنظیمات اعلان (روشن/خاموش‌کردنِ پوش‌نوتیفیکیشن) ----------
+function renderSettingsNotifications() {
+  return settingsHeader("تنظیمات اعلان", true) + `
+    <div class="settings-toggle-row">
+      <span class="settings-toggle-title">اعلان‌های پوش</span>
+      <label class="switch">
+        <input type="checkbox" id="notifToggleInput" onchange="onNotifToggleChange()" />
+        <span class="switch-slider"></span>
+      </label>
+    </div>
+    <div class="settings-field-hint" id="notifStatusHint">در حال بررسی وضعیت...</div>
+    <div class="error" id="notifError"></div>`;
+}
+
+async function refreshNotificationSettingsUI() {
+  const hint = document.getElementById("notifStatusHint");
+  const toggle = document.getElementById("notifToggleInput");
+  if (!hint || !toggle) return;
+
+  if (!pushSupported()) {
+    toggle.disabled = true;
+    toggle.checked = false;
+    hint.textContent = "مرورگر/گوشیت از اعلان پشتیبانی نمی‌کنه";
+    return;
+  }
+  if (Notification.permission === "denied") {
+    toggle.disabled = true;
+    toggle.checked = false;
+    hint.textContent = "اجازه‌ی اعلان مسدود شده؛ برای فعال‌کردنش باید از تنظیمات مرورگر/گوشی دستی اجازه بدی";
+    return;
+  }
+
+  toggle.disabled = false;
+  if (Notification.permission === "granted") {
+    try {
+      const reg = await navigator.serviceWorker.getRegistration();
+      const sub = reg ? await reg.pushManager.getSubscription() : null;
+      toggle.checked = !!sub;
+      hint.textContent = sub ? "اعلان‌ها روشنه" : "اعلان‌ها خاموشه";
+      return;
+    } catch (e) {
+      // ادامه می‌دیم و حالت خاموش رو نشون می‌دیم
+    }
+  }
+  toggle.checked = false;
+  hint.textContent = "اعلان‌ها خاموشه";
+}
+
+async function onNotifToggleChange() {
+  const toggle = document.getElementById("notifToggleInput");
+  const errEl = document.getElementById("notifError");
+  const wantOn = toggle.checked;
+  errEl.textContent = "";
+  toggle.disabled = true;
+  try {
+    if (wantOn) {
+      await enablePushNotifications();
+    } else {
+      await disablePushNotifications();
+    }
+  } catch (e) {
+    errEl.textContent = "خطا در تغییر وضعیت اعلان";
+  } finally {
+    await refreshNotificationSettingsUI();
+  }
+}
+
+async function disablePushNotifications() {
+  if (!pushSupported()) return;
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    const sub = reg ? await reg.pushManager.getSubscription() : null;
+    if (!sub) return;
+    const endpoint = sub.endpoint;
+    await sub.unsubscribe();
+    await fetch(`${WORKER_URL}/api/push/unsubscribe`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ endpoint }),
+    });
+  } catch (e) {
+    // اگه لغوِ اشتراک شکست بخوره، دفعه‌ی بعد که کاربر وارد این تنظیمات بشه، وضعیتِ واقعی دوباره خونده می‌شه
+  }
+}
+
+// ---------- مرحله: تنظیمات حریم خصوصی (لیستِ کاربرانِ مسدودشده) ----------
+function renderSettingsPrivacy() {
+  return settingsHeader("تنظیمات حریم خصوصی", true) + `
+    <div class="settings-field-label">کاربرانی که مسدود کردی</div>
+    <div id="blockedUsersList" style="display:flex; flex-direction:column; gap:8px;">
+      <div class="settings-field-hint">در حال بارگذاری...</div>
+    </div>`;
+}
+
+async function loadBlockedUsersList() {
+  const wrap = document.getElementById("blockedUsersList");
+  if (!wrap) return;
+  try {
+    const res = await fetch(`${WORKER_URL}/api/chat/blocked`, {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      wrap.innerHTML = `<div class="settings-field-hint err">${escapeHtml(data.error || "خطا در دریافت لیست")}</div>`;
+      return;
+    }
+    const list = data.blocked || [];
+    if (!list.length) {
+      wrap.innerHTML = `<div class="settings-field-hint">هیچ کاربری رو مسدود نکردی</div>`;
+      return;
+    }
+    wrap.innerHTML = list
+      .map(
+        (u) => `
+      <div class="blocked-user-row">
+        <span class="blocked-user-name">${escapeHtml(u.username)}</span>
+        <button class="blocked-user-unblock-btn" onclick="unblockUserFromSettings('${escapeHtml(u.username)}', this)">رفع مسدودیت</button>
+      </div>`
+      )
+      .join("");
+  } catch (e) {
+    wrap.innerHTML = `<div class="settings-field-hint err">اتصال به سرور برقرار نشد</div>`;
+  }
+}
+
+async function unblockUserFromSettings(username, btn) {
+  btn.disabled = true;
+  btn.textContent = "در حال حذف...";
+  try {
+    const res = await fetch(`${WORKER_URL}/api/chat/unblock`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ username }),
+    });
+    if (!res.ok) throw new Error();
+    toast(`${username} از حالت مسدود خارج شد`, "success");
+    loadBlockedUsersList();
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = "رفع مسدودیت";
+    toast("خطا در رفع مسدودیت، دوباره امتحان کن", "error");
+  }
+}
+
+// ---------- تغییر نام کاربری: اعتبارسنجی زنده حین تایپ ----------
+function renderSettingsUsername() {
+  return settingsHeader("تغییر نام کاربری", true) + `
+    <div>
+      <label class="settings-field-label">نام کاربری جدید</label>
+      <input type="text" id="newUsernameInput" placeholder="نام کاربری جدید" autocomplete="off" oninput="onNewUsernameInput()" />
+      <div class="settings-field-hint" id="usernameHint">۳ تا ۲۰ کاراکتر، فقط حروف، عدد و _</div>
+    </div>
+    <div class="error" id="usernameError"></div>
+    <div class="submit-row">
+      <button class="primary" id="setUsernameBtn" disabled onclick="submitNewUsername()">تنظیم نام کاربری</button>
+    </div>`;
+}
+
+function onNewUsernameInput() {
+  const val = document.getElementById("newUsernameInput").value.trim();
+  const hint = document.getElementById("usernameHint");
+  const btn = document.getElementById("setUsernameBtn");
+  document.getElementById("usernameError").textContent = "";
+  btn.disabled = true;
+
+  if (usernameCheckTimer) clearTimeout(usernameCheckTimer);
+
+  if (!val) {
+    hint.textContent = "۳ تا ۲۰ کاراکتر، فقط حروف، عدد و _";
+    hint.className = "settings-field-hint";
+    return;
+  }
+  const localRe = /^[\p{L}\p{N}_]{3,20}$/u;
+  if (!localRe.test(val)) {
+    hint.textContent = "فرمت نام کاربری نامعتبره";
+    hint.className = "settings-field-hint err";
+    return;
+  }
+  if (val === getUsername()) {
+    hint.textContent = "این همون نام کاربری فعلیته";
+    hint.className = "settings-field-hint err";
+    return;
+  }
+
+  hint.textContent = "در حال بررسی...";
+  hint.className = "settings-field-hint";
+  usernameCheckTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(`${WORKER_URL}/api/username/check?username=${encodeURIComponent(val)}`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      const data = await res.json();
+      const input = document.getElementById("newUsernameInput");
+      if (!input || input.value.trim() !== val) return; // کاربر تا وقتی جواب رسیده، متن رو عوض کرده
+      if (data.available) {
+        hint.textContent = "این نام کاربری آزاده";
+        hint.className = "settings-field-hint ok";
+        btn.disabled = false;
+      } else {
+        hint.textContent = data.reason || "این نام کاربری در دسترس نیست";
+        hint.className = "settings-field-hint err";
+        btn.disabled = true;
+      }
+    } catch (e) {
+      hint.textContent = "خطا در بررسی، دوباره امتحان کن";
+      hint.className = "settings-field-hint err";
+    }
+  }, 450);
+}
+
+async function submitNewUsername() {
+  const val = document.getElementById("newUsernameInput").value.trim();
+  const btn = document.getElementById("setUsernameBtn");
+  const errEl = document.getElementById("usernameError");
+  btn.disabled = true;
+  errEl.textContent = "";
+  try {
+    const res = await fetch(`${WORKER_URL}/api/username/change`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ newUsername: val }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.error || "تغییر نام کاربری ناموفق بود";
+      btn.disabled = false;
+      return;
+    }
+    localStorage.setItem("username", data.username);
+    toast("نام کاربری با موفقیت تغییر کرد", "success");
+    closeSettingsModal();
+    location.reload();
+  } catch (e) {
+    errEl.textContent = "خطا در ارتباط با سرور";
+    btn.disabled = false;
+  }
+}
+
+// ---------- تغییر رمز عبور، مرحله‌ی اول: تایید رمز فعلی (۵ تلاش ناموفق => ۲ دقیقه قفل، سمت سرور) ----------
+function renderSettingsPasswordCurrent() {
+  return settingsHeader("تغییر رمز عبور", true) + `
+    <div>
+      <label class="settings-field-label">رمز عبور فعلی</label>
+      <div class="settings-input-wrap">
+        <input type="password" id="currentPasswordInput" placeholder="رمز عبور فعلی" autocomplete="current-password"
+          oninput="document.getElementById('currentPasswordError').textContent=''" />
+        ${eyeToggleBtnHtml("currentPasswordInput")}
+      </div>
+    </div>
+    <div class="error" id="currentPasswordError"></div>
+    <div class="submit-row">
+      <button class="primary" id="verifyPasswordBtn" onclick="submitCurrentPassword()">ادامه</button>
+    </div>`;
+}
+
+async function submitCurrentPassword() {
+  const input = document.getElementById("currentPasswordInput");
+  const val = input.value;
+  const errEl = document.getElementById("currentPasswordError");
+  const btn = document.getElementById("verifyPasswordBtn");
+  if (!val) { errEl.textContent = "رمز فعلی رو وارد کن"; return; }
+  btn.disabled = true;
+  errEl.textContent = "";
+  try {
+    const res = await fetch(`${WORKER_URL}/api/password/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ currentPassword: val }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.error || "رمز عبور فعلی اشتباهه";
+      btn.disabled = false;
+      return;
+    }
+    goSettingsStage("password_new", { currentPassword: val });
+  } catch (e) {
+    errEl.textContent = "خطا در ارتباط با سرور";
+    btn.disabled = false;
+  }
+}
+
+// ---------- تغییر رمز عبور، مرحله‌ی دوم: رمز جدید + تکرارش (رمز فعلی دوباره سمت سرور چک می‌شه) ----------
+function renderSettingsPasswordNew() {
+  return settingsHeader("رمز عبور جدید", true) + `
+    <div>
+      <label class="settings-field-label">رمز عبور جدید</label>
+      <div class="settings-input-wrap">
+        <input type="password" id="newPasswordInput" placeholder="رمز عبور جدید" autocomplete="new-password" oninput="onNewPasswordInput()" />
+        ${eyeToggleBtnHtml("newPasswordInput")}
+      </div>
+      <div class="settings-field-hint" id="newPasswordHint">حداقل ۸ کاراکتر، شامل حداقل یه حرف و یه عدد</div>
+    </div>
+    <div>
+      <label class="settings-field-label">تکرار رمز عبور جدید</label>
+      <div class="settings-input-wrap">
+        <input type="password" id="confirmPasswordInput" placeholder="تکرار رمز عبور جدید" autocomplete="new-password" oninput="onNewPasswordInput()" />
+        ${eyeToggleBtnHtml("confirmPasswordInput")}
+      </div>
+    </div>
+    <div class="error" id="newPasswordError"></div>
+    <div class="submit-row">
+      <button class="primary" id="changePasswordBtn" disabled onclick="submitNewPassword()">تغییر رمز عبور</button>
+    </div>`;
+}
+
+function onNewPasswordInput() {
+  const newVal = document.getElementById("newPasswordInput").value;
+  const confirmVal = document.getElementById("confirmPasswordInput").value;
+  const hint = document.getElementById("newPasswordHint");
+  const btn = document.getElementById("changePasswordBtn");
+  document.getElementById("newPasswordError").textContent = "";
+
+  const localPasswordRe = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+  const validFormat = localPasswordRe.test(newVal);
+
+  if (!newVal) {
+    hint.textContent = "حداقل ۸ کاراکتر، شامل حداقل یه حرف و یه عدد";
+    hint.className = "settings-field-hint";
+  } else if (!validFormat) {
+    hint.textContent = "رمز باید حداقل ۸ کاراکتر و شامل حرف و عدد باشه";
+    hint.className = "settings-field-hint err";
+  } else {
+    hint.textContent = "فرمت رمز عبور معتبره";
+    hint.className = "settings-field-hint ok";
+  }
+
+  const matches = confirmVal.length > 0 && newVal === confirmVal;
+  btn.disabled = !(validFormat && matches);
+}
+
+async function submitNewPassword() {
+  const { currentPassword } = currentSettingsStage().data || {};
+  const newPassword = document.getElementById("newPasswordInput").value;
+  const errEl = document.getElementById("newPasswordError");
+  const btn = document.getElementById("changePasswordBtn");
+  btn.disabled = true;
+  errEl.textContent = "";
+  try {
+    const res = await fetch(`${WORKER_URL}/api/password/change`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.error || "تغییر رمز عبور ناموفق بود";
+      btn.disabled = false;
+      return;
+    }
+    toast("رمز عبور با موفقیت تغییر کرد", "success");
+    closeSettingsModal();
+  } catch (e) {
+    errEl.textContent = "خطا در ارتباط با سرور";
+    btn.disabled = false;
+  }
+}
+
+// ---------- توزیع‌کننده‌ی رندر: بسته به بالای پشته‌ی مراحل، محتوای مودال رو می‌سازه ----------
+function renderSettingsModal() {
+  const { stage, data } = currentSettingsStage();
+  const modal = document.getElementById("settingsModal");
+  let html = "";
+  if (stage === "main") html = renderSettingsMain();
+  else if (stage === "account") html = renderSettingsAccount();
+  else if (stage === "username") html = renderSettingsUsername();
+  else if (stage === "password_current") html = renderSettingsPasswordCurrent();
+  else if (stage === "password_new") html = renderSettingsPasswordNew();
+  else if (stage === "appearance") html = renderSettingsAppearance();
+  else if (stage === "notifications") html = renderSettingsNotifications();
+  else if (stage === "privacy") html = renderSettingsPrivacy();
+  modal.innerHTML = html;
+
+  // هر مرحله ممکنه بعد از قرارگرفتن توی DOM نیاز به یه مقداردهی اولیه (فچ/وضعیتِ فعلی) داشته باشه
+  if (stage === "appearance") markActiveSwatch(currentTheme);
+  else if (stage === "notifications") refreshNotificationSettingsUI();
+  else if (stage === "privacy") loadBlockedUsersList();
 }
 
 function onAvatarChosen() {
@@ -8444,6 +9299,51 @@ function hideAppSplash() {
   el.classList.add("hide");
   setTimeout(() => el.remove(), 450);
 }
+
+// ---------- نشانِ متحرکِ ترکیب‌های «:» و «D» تو اسپلش‌اسکرین: با افکتِ تایپ نوشته می‌شه، مکث می‌کنه،
+// با افکتِ پاک‌شدن حذف می‌شه و ترکیبِ بعدی میاد. خودش وقتی المانش از صفحه حذف بشه (اسپلش تموم بشه) متوقف می‌شه ----------
+(function initSplashEmoji() {
+  const COMBOS = [":D", "D:", ":DD", "DD:", "::D", "D::", ":D:D", "D:D:"];
+  const host = document.querySelector("#appSplashEmoji .emoji-text");
+  if (!host) return;
+
+  let comboIndex = 0;
+  let charIndex = 0;
+  let phase = "typing";
+
+  function tick() {
+    if (!host.isConnected) return; // اسپلش حذف شده؛ دیگه لازم نیست ادامه بدیم
+    if (document.hidden) { setTimeout(tick, 400); return; }
+
+    const combo = COMBOS[comboIndex];
+    if (phase === "typing") {
+      charIndex++;
+      host.textContent = combo.slice(0, charIndex);
+      if (charIndex >= combo.length) {
+        phase = "pausing";
+        setTimeout(tick, 1100);
+      } else {
+        setTimeout(tick, 110 + Math.random() * 70);
+      }
+      return;
+    }
+    if (phase === "pausing") {
+      phase = "deleting";
+      setTimeout(tick, 20);
+      return;
+    }
+    charIndex--;
+    host.textContent = combo.slice(0, charIndex);
+    if (charIndex <= 0) {
+      comboIndex = (comboIndex + 1) % COMBOS.length;
+      phase = "typing";
+      setTimeout(tick, 250);
+    } else {
+      setTimeout(tick, 45);
+    }
+  }
+  tick();
+})();
 
 // ---------- بررسی خودکار نسخه‌ی جدیدِ صفحه (بدون نیاز به رفرش دستی کاربر) ----------
 // چون سایت روی گیت‌هاب‌پیجز استاتیکه و پشتش سرویس‌ورکر داره، ممکنه مرورگر یا کش سرویس‌ورکر یه نسخه‌ی
