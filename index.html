@@ -1878,12 +1878,6 @@
   .chat-bubble-sender-name { font-size: 11px; font-weight: 700; color: var(--accent-hover); margin-bottom: 3px; }
   .chat-bubble-long-press { user-select: none; -webkit-touch-callout: none; }
   .chat-bubble-row.theirs { align-items: flex-end; }
-  .chat-bubble-group-avatar {
-    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700; color: #fff; overflow: hidden; cursor: pointer; margin-bottom: 2px;
-  }
-  .chat-bubble-group-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .chat-bubble-group-avatar-spacer { width: 28px; flex-shrink: 0; }
   .chat-bubble-reply-quote {
     display: flex; flex-direction: column; gap: 1px; padding: 5px 8px; margin-bottom: 5px; border-inline-start: 3px solid var(--accent-hover);
     background: rgba(127,127,127,0.12); border-radius: 6px; cursor: pointer; max-width: 100%;
@@ -1893,6 +1887,36 @@
   .chat-bubble-reply-quote-text { font-size: 12px; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .chat-bubble.flash-highlight { animation: chatFlashHighlight 1.1s ease; }
   @keyframes chatFlashHighlight { 0%, 100% { box-shadow: none; } 30% { box-shadow: 0 0 0 2px var(--accent-hover); } }
+
+  /* ---------- چتِ گروهی: چیدمانِ تخت و تمام‌عرضِ پیام‌ها به‌سبکِ دیسکورد ----------
+     برخلافِ چتِ خصوصی (bubble راست/چپ)، اینجا همه‌ی پیام‌ها یک‌شکل و چسبیده‌به‌راست/چپِ صفحه شروع می‌شن؛
+     فقط اولین پیامِ هر «دسته»ی پشت‌سرهم آواتار+اسم می‌گیره، بقیه زیرش جمع می‌شن. */
+  .chat-msg-row {
+    display: flex; align-items: flex-start; gap: 12px; padding: 2px 10px; border-radius: 8px;
+    transition: background-color 0.1s ease;
+  }
+  .chat-msg-row:not(.grouped) { margin-top: 12px; }
+  .chat-msg-row:hover { background: rgba(127,127,127,0.06); }
+  .chat-msg-gutter { flex-shrink: 0; width: 38px; display: flex; align-items: flex-start; justify-content: center; padding-top: 2px; }
+  .chat-msg-avatar {
+    width: 38px; height: 38px; border-radius: 50%; overflow: hidden; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; font-weight: 800;
+  }
+  .chat-msg-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .chat-msg-hover-time {
+    font-size: 10px; color: var(--subtext); opacity: 0; padding-top: 3px; transition: opacity 0.1s ease;
+  }
+  .chat-msg-row.grouped:hover .chat-msg-hover-time { opacity: 1; }
+  .chat-msg-content { flex: 1; min-width: 0; }
+  .chat-msg-headline { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; }
+  .chat-msg-sender-name { font-size: 14px; font-weight: 700; color: var(--text); cursor: pointer; }
+  .chat-msg-sender-name:hover { text-decoration: underline; color: var(--accent-hover); }
+  .chat-msg-time { font-size: 11px; color: var(--subtext); }
+  .chat-msg-row .chat-bubble { background: none; padding: 0; border-radius: 0; color: var(--text); font-size: 14px; }
+  .chat-msg-row .chat-bubble.chat-bubble-deleted { color: var(--subtext); }
+  .chat-msg-row .chat-bubble-edited-tag { font-size: 10.5px; color: var(--subtext); margin-inline-start: 4px; }
+  .chat-msg-row .chat-bubble-reply-quote { max-width: 340px; }
+
 
   /* ---------- چت: منوی زمینه‌ای ویرایش/حذف پیام ---------- */
   .chat-msg-menu-backdrop {
@@ -1973,6 +1997,13 @@
     display: flex; align-items: center; justify-content: center; color: #fff; font-size: 17px; font-weight: 800;
     font-family: inherit; transition: border-radius 0.22s ease, transform 0.15s ease;
   }
+  .chat-group-rail-icon::before {
+    content: ""; position: absolute; inset-inline-start: -8px; top: 50%; transform: translateY(-50%);
+    width: 4px; height: 8px; border-radius: 4px; background: var(--text);
+    opacity: 0; transition: height 0.18s ease, opacity 0.18s ease;
+  }
+  .chat-group-rail-icon:hover::before { height: 20px; opacity: 0.5; }
+  .chat-group-rail-icon.active::before { height: 26px; opacity: 1; background: var(--accent-hover); }
   .chat-group-rail-icon.active { border-radius: 30%; box-shadow: 0 0 0 2px var(--accent-hover); }
   .chat-group-rail-icon:active { transform: scale(0.92); }
   .chat-group-rail-icon.has-image { overflow: hidden; padding: 0; }
@@ -4549,7 +4580,7 @@ function renderChatMessages(opts = {}) {
   const loadMoreHtml = chatState.hasMoreOlder
     ? `<div class="chat-load-more">${chatState.loadingOlder ? "در حال بارگذاری..." : "برای دیدن پیام‌های قدیمی‌تر اسکرول کن"}</div>`
     : "";
-  el.innerHTML = loadMoreHtml + chatState.messages.map((m) => renderChatBubble(m, myUsername)).join("");
+  el.innerHTML = loadMoreHtml + chatState.messages.map((m, i) => renderChatBubble(m, myUsername, chatState.messages[i - 1])).join("");
   if (opts.preserveScrollFrom) {
     const { oldScrollHeight, oldScrollTop } = opts.preserveScrollFrom;
     el.scrollTop = el.scrollHeight - oldScrollHeight + oldScrollTop;
@@ -4558,7 +4589,16 @@ function renderChatMessages(opts = {}) {
   }
 }
 
-function renderChatBubble(m, myUsername) {
+// تو گروه، اگه پیامِ قبلی هم از همون فرستنده باشه و فاصله‌شون کم باشه، پشتِ سرِهم بدون تکرارِ آواتار/اسم نشون داده می‌شن (مثلِ دیسکورد)
+const CHAT_GROUP_MSG_MERGE_WINDOW_MS = 5 * 60 * 1000;
+function isGroupedWithPrev(m, prev) {
+  if (!prev) return false;
+  if (prev.deleted || m.deleted) return false;
+  if (prev.sender !== m.sender) return false;
+  return Math.abs(m.createdAt - prev.createdAt) < CHAT_GROUP_MSG_MERGE_WINDOW_MS;
+}
+
+function renderChatBubble(m, myUsername, prevMsg) {
   const mine = m.sender === myUsername;
   const isGroup = chatState.active && chatState.active.type === "group";
   const clickable = !m.deleted;
@@ -4606,29 +4646,42 @@ function renderChatBubble(m, myUsername) {
     m.deleted ? " chat-bubble-deleted" : ""
   }${clickable ? " chat-bubble-long-press" : ""}`;
 
-  // تو گروه، کنارِ پیامِ اعضای دیگه (نه پیامِ خودمون) آواتارِ فرستنده رو نشون می‌دیم؛ برای هم‌ترازی، پیام‌های
-  // خودمون هم به‌اندازه‌ی همون آواتار یه فاصله‌ی خالی می‌گیرن
-  let avatarHtml = "";
+  // ---------- چتِ گروهی: چیدمانِ تخت و تمام‌عرض به‌سبکِ دیسکورد ----------
+  // برخلافِ چتِ خصوصی، پیام‌ها راست/چپ نمی‌شن؛ هر پیام با آواتار+اسمِ فرستنده شروع می‌شه،
+  // و پیام‌های پشت‌سرهمِ یک نفر (تو یه بازه‌ی زمانیِ کوتاه) زیرِ همون یه هدر جمع می‌شن.
   if (isGroup) {
-    if (!mine) {
-      const member = chatState.membersData?.members?.find((x) => x.username === m.sender);
-      avatarHtml = `<div class="chat-bubble-group-avatar" style="background:${avatarColor(m.sender)}" onclick="openProfile('${m.sender}')">${avatarInnerHtml(
-        member?.avatarFileId || null,
-        m.sender
-      )}</div>`;
-    } else {
-      avatarHtml = `<div class="chat-bubble-group-avatar-spacer"></div>`;
-    }
+    const grouped = isGroupedWithPrev(m, prevMsg);
+    const member = chatState.membersData?.members?.find((x) => x.username === m.sender);
+    const headAvatarHtml = `<div class="chat-msg-avatar" style="background:${avatarColor(m.sender)}" onclick="openProfile('${m.sender}')">${avatarInnerHtml(
+      member?.avatarFileId || null,
+      m.sender
+    )}</div>`;
+    const timeText = !m.deleted ? formatRelativeTime(m.createdAt) : "";
+    const editedTag = !m.deleted && m.editedAt ? `<span class="chat-bubble-edited-tag">(ویرایش‌شده)</span>` : "";
+    const gutterHtml = grouped
+      ? `<span class="chat-msg-hover-time">${!m.deleted ? formatClockTime(m.createdAt) : ""}</span>`
+      : headAvatarHtml;
+    const headlineHtml = grouped
+      ? ""
+      : `<div class="chat-msg-headline">
+          <span class="chat-msg-sender-name" onclick="openProfile('${m.sender}')">${escapeHtml(mine ? "شما" : m.sender)}</span>
+          <span class="chat-msg-time">${timeText}</span>
+        </div>`;
+    return `<div class="chat-msg-row${grouped ? " grouped" : ""}${mine ? " is-mine" : ""}" id="chatMsg-${m.id}">
+      <div class="chat-msg-gutter">${gutterHtml}</div>
+      <div class="chat-msg-content">
+        ${headlineHtml}
+        <div class="${bubbleClass}"${clickAttr}>${bodyHtml}${editedTag}</div>
+      </div>
+    </div>`;
   }
 
   return `<div class="chat-bubble-row ${mine ? "mine" : "theirs"}" id="chatMsg-${m.id}">
-    ${!mine ? avatarHtml : ""}
     <div class="chat-bubble-wrap">
       ${senderNameHtml}
       <div class="${bubbleClass}"${clickAttr}>${bodyHtml}</div>
       ${metaHtml}
     </div>
-    ${mine ? avatarHtml : ""}
   </div>`;
 }
 
@@ -7635,6 +7688,10 @@ function formatRelativeTime(ts) {
   if (month < 12) return `${month} ماه پیش`;
   const year = Math.floor(month / 12);
   return `${year} سال پیش`;
+}
+
+function formatClockTime(ts) {
+  return new Date(ts).toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" });
 }
 
 // ---------- سیستم استیکر ----------
