@@ -1083,16 +1083,52 @@
   }
 
   /* صفحه پروفایل */
-  /* هدر پروفایل: بدون کادر/پس‌زمینه، فقط وسط‌چین و نزدیک به نوار بالا */
+  /* وقتی صفحه‌ی پروفایل بازه، هدر و نوار سوییچ بخش‌ها مخفی می‌شن تا پروفایل تمام‌صفحه دیده بشه */
+  .profile-fullscreen-active header,
+  .profile-fullscreen-active .top-nav { display: none !important; }
+
+  /* بخش بنر: از لبه‌های .wrap بیرون می‌زنه (بلید تمام‌عرض) و از بالای صفحه شروع می‌شه */
+  .profile-banner-outer {
+    position: relative;
+    margin: calc(-16px - var(--safe-top)) calc(-16px - var(--safe-right)) 0 calc(-16px - var(--safe-left));
+  }
+  .profile-banner {
+    width: 100%; height: 180px; background-size: cover; background-position: center;
+    background-color: var(--card);
+  }
+  .profile-banner-backbtn {
+    position: absolute; top: calc(12px + var(--safe-top)); width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(0,0,0,0.4); color: #fff; border: none; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 5; right: calc(12px + var(--safe-right));
+  }
+  .profile-banner-backbtn svg { width: 18px; height: 18px; }
+
+  .profile-avatar-fade-row { display: flex; align-items: center; margin-top: -52px; padding: 0 20px; position: relative; z-index: 2; }
+  .profile-avatar-fade-row .fade-line { flex: 1; height: 1px; background: var(--border); }
+  .profile-avatar-fade-row .fade-line.start { background: linear-gradient(to left, var(--border), transparent); }
+  .profile-avatar-fade-row .fade-line.end { background: linear-gradient(to right, var(--border), transparent); }
+
+  /* هدر پروفایل: بدون کادر/پس‌زمینه، فقط وسط‌چین */
   .profile-header-clean { text-align: center; padding-top: 2px; margin-bottom: 20px; }
-  #view-profile .back-link { margin-bottom: 10px; }
   .profile-avatar-big {
     width: 104px; height: 104px; border-radius: 50%; color: #fff; font-size: 38px; font-weight: 500;
-    display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; overflow: hidden;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto; overflow: hidden;
+    border: 3px solid var(--bg, var(--card)); flex-shrink: 0;
   }
   .profile-avatar-big img { width: 100%; height: 100%; object-fit: cover; }
-  .profile-username { font-size: 18px; font-weight: 700; }
+  .profile-username { font-size: 18px; font-weight: 700; margin-top: 14px; }
   .profile-bio { color: var(--subtext); font-size: 13px; margin-top: 6px; white-space: pre-wrap; text-align: center; }
+
+  /* شمارنده‌های آپ‌ووت/لایک دریافتی */
+  .profile-counters-row { display: flex; justify-content: center; gap: 28px; margin-top: 14px; }
+  .profile-counter { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .profile-counter-num { font-size: 16px; font-weight: 700; color: var(--text); }
+  .profile-counter-label { font-size: 11px; color: var(--subtext); }
+
+  /* ردیف دکمه‌های چت/گزارش، کنار هم */
+  .profile-actions-row { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 14px; flex-wrap: wrap; }
+  .profile-report-form { margin-top: 10px; text-align: start; }
+
   .profile-edit { margin-top: 16px; text-align: right; border-top: 1px solid var(--border); padding-top: 14px; }
   .theme-picker { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; text-align: right; }
   .theme-picker-label { font-size: 13px; color: var(--subtext); margin-bottom: 10px; }
@@ -1156,10 +1192,16 @@
     display: flex; align-items: center; justify-content: center; padding: 20px;
   }
   .settings-overlay.hidden { display: none; }
+  .settings-overlay:not(.hidden) { animation: fadeIn 0.2s ease; }
+  @keyframes settingsModalZoomIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+  }
   .settings-modal {
     width: 100%; max-width: 380px; max-height: 82vh; overflow-y: auto;
     background: var(--surface); border: 1px dashed var(--border); border-radius: 20px;
     padding: 18px; display: flex; flex-direction: column; gap: 14px;
+    animation: settingsModalZoomIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .settings-modal-header { display: flex; align-items: center; gap: 10px; }
   .settings-modal-title { flex: 1; font-size: 15px; font-weight: 700; color: var(--text); }
@@ -2204,6 +2246,7 @@
 
   @media (min-width: 900px) {
     .wrap { max-width: 1100px; padding-inline: 24px; }
+    .profile-banner-outer { margin-inline: -24px; }
 
     .masonry-wrap { display: flex; align-items: flex-start; gap: 5px; }
     .masonry-col { flex: 1; min-width: 0; display: block; }
@@ -2320,6 +2363,12 @@
 
   /* سوییچ بین تب‌های بالا (رسانه/متن/موزیک/پروفایل/ادمین) */
   .view:not(.hidden) { animation: fadeIn 0.25s ease; }
+  /* صفحه‌ی پروفایل: به‌جای فِیدِ ساده‌ی بقیه‌ی ویوها، با یه زوم آرام از پایین به بالا باز می‌شه */
+  @keyframes profileZoomIn {
+    from { opacity: 0; transform: scale(0.94) translateY(18px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  #view-profile:not(.hidden) { animation: profileZoomIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
   /* مودال‌ها و اورلی‌ها */
   .post-modal-overlay:not(.hidden) { animation: fadeIn 0.2s ease; }
@@ -2651,30 +2700,52 @@
 
   <!-- صفحه پروفایل -->
   <div id="view-profile" class="view hidden">
-    <button class="back-link" onclick="closeProfile()">← بازگشت</button>
+    <div class="profile-banner-outer">
+      <div class="profile-banner" id="profileBanner"></div>
+      <button class="profile-banner-backbtn" onclick="closeProfile()" aria-label="بازگشت">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="profile-avatar-fade-row">
+        <span class="fade-line start"></span>
+        <div class="profile-avatar-big" id="profileAvatarWrap"></div>
+        <span class="fade-line end"></span>
+      </div>
+    </div>
+
     <div class="profile-header-clean">
-      <div class="profile-avatar-big" id="profileAvatarWrap"></div>
       <div class="profile-username" id="profileUsername"></div>
       <div class="profile-bio" id="profileBioView"></div>
 
-      <div id="profileChatBlock" class="hidden" style="margin-top:14px;">
-        <button class="refresh-btn" id="profileChatBtn" onclick="startDirectChat(document.getElementById('reportBlock').dataset.targetUsername)">چت</button>
-      </div>
-
-      <div id="reportBlock" class="hidden" style="margin-top:14px;">
-        <button class="refresh-btn" id="reportToggleBtn" onclick="toggleReportForm()">گزارش کاربر</button>
-        <div id="reportAlreadyMsg" class="hidden" style="font-size:12px; color:var(--subtext); margin-top:8px;">قبلاً این کاربر رو گزارش دادی</div>
-        <div id="reportForm" class="hidden" style="margin-top:10px; text-align:start;">
-          <textarea id="reportReasonInput" maxlength="80" placeholder="دلیل گزارش (حداکثر ۸۰ کاراکتر)" style="min-height:50px;" oninput="updateReportCharCount()"></textarea>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
-            <span style="font-size:11px; color:var(--subtext);" id="reportCharCount">۰/۸۰</span>
-            <button class="primary" style="width:auto; padding:8px 16px;" id="reportSubmitBtn" onclick="submitReport()">ارسال گزارش</button>
-          </div>
-          <div class="error" id="reportError"></div>
+      <div class="profile-counters-row">
+        <div class="profile-counter">
+          <span class="profile-counter-num" id="profileUpvoteCount">۰</span>
+          <span class="profile-counter-label">آپ‌ووت دریافتی</span>
+        </div>
+        <div class="profile-counter">
+          <span class="profile-counter-num" id="profileLikeCount">۰</span>
+          <span class="profile-counter-label">لایک دریافتی</span>
         </div>
       </div>
 
-      <!-- تنظیمات آواتار/بایو/تم فعلاً از نمای اصلیِ پروفایل جدا شدن و مخفی موندن؛
+      <div class="profile-actions-row">
+        <div id="profileChatBlock" class="hidden">
+          <button class="refresh-btn" id="profileChatBtn" onclick="startDirectChat(document.getElementById('reportBlock').dataset.targetUsername)">چت</button>
+        </div>
+        <div id="reportBlock" class="hidden">
+          <button class="refresh-btn" id="reportToggleBtn" onclick="toggleReportForm()">گزارش کاربر</button>
+          <span id="reportAlreadyMsg" class="hidden" style="font-size:12px; color:var(--subtext);">قبلاً این کاربر رو گزارش دادی</span>
+        </div>
+      </div>
+      <div id="reportForm" class="hidden profile-report-form">
+        <textarea id="reportReasonInput" maxlength="80" placeholder="دلیل گزارش (حداکثر ۸۰ کاراکتر)" style="min-height:50px;" oninput="updateReportCharCount()"></textarea>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+          <span style="font-size:11px; color:var(--subtext);" id="reportCharCount">۰/۸۰</span>
+          <button class="primary" style="width:auto; padding:8px 16px;" id="reportSubmitBtn" onclick="submitReport()">ارسال گزارش</button>
+        </div>
+        <div class="error" id="reportError"></div>
+      </div>
+
+      <!-- تنظیمات آواتار/بایو/بنر فعلاً از نمای اصلیِ پروفایل جدا شدن و مخفی موندن؛
            بعداً همین المان‌ها به‌جای «به‌زودی» داخل پنل تنظیمات جدید سوار می‌شن -->
       <div id="profileEditBlock" class="profile-edit hidden">
         <textarea id="profileBioInput" placeholder="یه بایوی کوتاه بنویس..." style="min-height:60px;"></textarea>
@@ -2687,6 +2758,17 @@
           <div class="file-chip hidden" id="avatarChip">
             <span id="avatarFileName"></span>
             <button onclick="clearAvatarFile()">×</button>
+          </div>
+        </div>
+        <div class="composer-tools">
+          <label class="attach-btn" id="bannerAttachLabel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            تغییر بنر
+            <input type="file" id="bannerInput" accept="image/*" class="hidden" onchange="onBannerChosen()" />
+          </label>
+          <div class="file-chip hidden" id="bannerChip">
+            <span id="bannerFileName"></span>
+            <button onclick="clearBannerFile()">×</button>
           </div>
         </div>
         <div class="submit-row">
@@ -2715,6 +2797,7 @@
     </div>
     <div id="profileFeed"></div>
   </div>
+
 
   <!-- صفحه اعلان‌ها -->
   <div id="view-notifications" class="view hidden">
@@ -3385,6 +3468,7 @@ const musicState = { page: 1, loaded: false };
 const MUSIC_PAGE_SIZE = 20;
 
 function switchView(name, forceReload = false) {
+  document.body.classList.remove("profile-fullscreen-active");
   document.querySelectorAll(".view").forEach((el) => el.classList.add("hidden"));
   document.getElementById(`view-${name}`).classList.remove("hidden");
   document.querySelectorAll(".nav-item").forEach((el) => el.classList.remove("active"));
@@ -4853,6 +4937,10 @@ async function loadChatMembers(conversationId) {
       document.getElementById("chatLeaveGroupBtn")?.classList.toggle("hidden", isOwner);
       document.getElementById("chatDeleteGroupBtn")?.classList.toggle("hidden", !isOwner);
       if (document.getElementById("chatMembersPanel")?.classList.contains("open")) renderChatMembersPanel();
+      // چون این fetch مستقل و بدون await در کنارِ لود پیام‌ها اجرا می‌شه، ممکنه پیام‌ها زودتر رندر
+      // شده باشن و avatarFileId اعضا هنوز نبوده؛ برای همین بعد از رسیدنِ اطلاعاتِ اعضا، حباب‌های پیام
+      // رو دوباره می‌سازیم تا آواتار درستشون (به‌جای حرفِ رزرو) نشون داده بشه
+      if (chatState.messages.length > 0) renderChatMessages();
     }
   } catch (e) {
     // دفعه‌ی بعد دوباره امتحان می‌شه
@@ -8308,6 +8396,7 @@ function openProfile(username) {
 
   document.querySelectorAll(".view").forEach((el) => el.classList.add("hidden"));
   document.getElementById("view-profile").classList.remove("hidden");
+  document.body.classList.add("profile-fullscreen-active");
 
   profileState.username = username;
   profileState.page = 1;
@@ -8318,6 +8407,7 @@ function openProfile(username) {
 }
 
 function closeProfile() {
+  document.body.classList.remove("profile-fullscreen-active");
   switchView(lastView);
 }
 
@@ -8329,6 +8419,7 @@ function openNotifications() {
   if (currentVisible && currentVisible.id !== "view-profile" && currentVisible.id !== "view-notifications") {
     lastView = currentVisible.id.replace("view-", "");
   }
+  document.body.classList.remove("profile-fullscreen-active");
   document.querySelectorAll(".view").forEach((el) => el.classList.add("hidden"));
   document.getElementById("view-notifications").classList.remove("hidden");
   updatePushPromptVisibility();
@@ -8451,9 +8542,12 @@ async function loadProfile(username) {
   document.getElementById("profileFeed").innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
   document.getElementById("profileEditBlock").classList.add("hidden");
   document.getElementById("profileSettingsBlock").classList.add("hidden");
+  document.getElementById("profileUpvoteCount").textContent = "۰";
+  document.getElementById("profileLikeCount").textContent = "۰";
   closeSettingsModal();
   resetReportBlock();
   clearAvatarFile();
+  clearBannerFile();
 
   try {
     const res = await fetch(`${WORKER_URL}/api/profile?username=${encodeURIComponent(username)}`, {
@@ -8474,6 +8568,18 @@ async function loadProfile(username) {
       avatarWrap.textContent = username[0].toUpperCase();
     }
 
+    // بنر: اگه عکسی ست نشده بود، یه گرادیانِ هم‌رنگ با تمِ فعلی به‌جاش نشون داده می‌شه
+    const bannerEl = document.getElementById("profileBanner");
+    if (p.banner_file_id) {
+      bannerEl.style.backgroundImage = `url('${WORKER_URL}/api/media/${p.banner_file_id}')`;
+    } else {
+      bannerEl.style.backgroundImage = "none";
+      bannerEl.style.background = bannerPlaceholderGradient();
+    }
+
+    document.getElementById("profileUpvoteCount").textContent = (p.total_upvotes || 0).toLocaleString("fa-IR");
+    document.getElementById("profileLikeCount").textContent = (p.total_likes || 0).toLocaleString("fa-IR");
+
     const isSelf = username === getUsername();
     document.getElementById("profileBioView").textContent = p.bio || (isSelf ? "هنوز بایویی ننوشتی" : "بایویی ثبت نشده");
 
@@ -8493,6 +8599,13 @@ async function loadProfile(username) {
   } catch (e) {
     document.getElementById("profileBioView").textContent = "خطا در بارگذاری پروفایل";
   }
+}
+
+// وقتی کاربر هنوز بنری آپلود نکرده، به‌جاش یه گرادیانِ هم‌خانواده با تمِ رنگیِ فعلاً انتخاب‌شده نشون می‌دیم
+function bannerPlaceholderGradient() {
+  const hue = (currentTheme || "purple-dark").split("-")[0];
+  const info = THEME_HUE_INFO[hue] || THEME_HUE_INFO.purple;
+  return `linear-gradient(135deg, ${info.from}, ${info.to})`;
 }
 
 function resetReportBlock() {
@@ -9240,6 +9353,22 @@ function clearAvatarFile() {
   document.getElementById("avatarAttachLabel").classList.remove("hidden");
 }
 
+let selectedBannerFile = null;
+function onBannerChosen() {
+  const input = document.getElementById("bannerInput");
+  selectedBannerFile = input.files[0] || null;
+  document.getElementById("bannerChip").classList.toggle("hidden", !selectedBannerFile);
+  document.getElementById("bannerAttachLabel").classList.toggle("hidden", !!selectedBannerFile);
+  if (selectedBannerFile) document.getElementById("bannerFileName").textContent = selectedBannerFile.name;
+}
+function clearBannerFile() {
+  selectedBannerFile = null;
+  const input = document.getElementById("bannerInput");
+  if (input) input.value = "";
+  document.getElementById("bannerChip")?.classList.add("hidden");
+  document.getElementById("bannerAttachLabel")?.classList.remove("hidden");
+}
+
 async function saveProfile() {
   const bio = document.getElementById("profileBioInput").value.trim();
   const errEl = document.getElementById("profileError");
@@ -9251,6 +9380,7 @@ async function saveProfile() {
   btn.disabled = true;
   btn.textContent = "در حال ذخیره...";
   if (selectedAvatarFile) fd.append("avatar", await stripImageExif(selectedAvatarFile));
+  if (selectedBannerFile) fd.append("banner", await stripImageExif(selectedBannerFile));
   try {
     const res = await fetch(`${WORKER_URL}/api/profile`, {
       method: "POST",
