@@ -1103,6 +1103,16 @@
   }
   .profile-banner-backbtn svg { width: 18px; height: 18px; }
 
+  /* ---------- پیش‌نمایشِ بنرِ انتخاب‌شده تو فرمِ ویرایش پروفایل ----------
+     دقیقاً مثل خودِ قابِ بنر با cover نشون داده می‌شه: عکس با هر نسبتی که باشه
+     کامل پر می‌کنه (و لازم اومد یه‌کم ازش بریده می‌شه)، نه اینکه تکرار/کپی بشه کنار خودش. */
+  .banner-preview {
+    width: 100%; height: 110px; border-radius: 14px; overflow: hidden;
+    background-color: var(--card); border: 1px solid var(--border);
+    background-size: cover; background-position: center; background-repeat: no-repeat;
+  }
+  .banner-preview.hidden { display: none; }
+
   .profile-avatar-fade-row { display: flex; align-items: center; margin-top: -52px; padding: 0 20px; position: relative; z-index: 2; }
   .profile-avatar-fade-row .fade-line { flex: 1; height: 1px; background: var(--border); }
   .profile-avatar-fade-row .fade-line.start { background: linear-gradient(to left, var(--border), transparent); }
@@ -8931,6 +8941,7 @@ function renderSettingsProfileEdit() {
           <button onclick="clearBannerFile()">×</button>
         </div>
       </div>
+      <div class="banner-preview hidden" id="bannerPreview"></div>
       <div class="submit-row">
         <button class="primary" id="saveProfileBtn" onclick="saveProfile()">ذخیره پروفایل</button>
       </div>
@@ -9365,6 +9376,7 @@ function renderSettingsModal(direction = "none") {
     document.getElementById("bannerChip").classList.toggle("hidden", !selectedBannerFile);
     document.getElementById("bannerAttachLabel").classList.toggle("hidden", !!selectedBannerFile);
     if (selectedBannerFile) document.getElementById("bannerFileName").textContent = selectedBannerFile.name;
+    updateBannerPreview();
   }
   else if (stage === "notifications") refreshNotificationSettingsUI();
   else if (stage === "privacy") loadBlockedUsersList();
@@ -9386,12 +9398,32 @@ function clearAvatarFile() {
 }
 
 let selectedBannerFile = null;
+let selectedBannerPreviewUrl = null; // آدرس موقتِ blob برای پیش‌نمایشِ بنرِ انتخاب‌شده؛ باید بعداً revoke بشه
+
+function updateBannerPreview() {
+  if (selectedBannerPreviewUrl) {
+    URL.revokeObjectURL(selectedBannerPreviewUrl);
+    selectedBannerPreviewUrl = null;
+  }
+  const preview = document.getElementById("bannerPreview");
+  if (!preview) return; // ممکنه کاربر از اون مرحله خارج شده باشه
+  if (selectedBannerFile) {
+    selectedBannerPreviewUrl = URL.createObjectURL(selectedBannerFile);
+    preview.style.backgroundImage = `url('${selectedBannerPreviewUrl}')`;
+    preview.classList.remove("hidden");
+  } else {
+    preview.style.backgroundImage = "none";
+    preview.classList.add("hidden");
+  }
+}
+
 function onBannerChosen() {
   const input = document.getElementById("bannerInput");
   selectedBannerFile = input.files[0] || null;
   document.getElementById("bannerChip").classList.toggle("hidden", !selectedBannerFile);
   document.getElementById("bannerAttachLabel").classList.toggle("hidden", !!selectedBannerFile);
   if (selectedBannerFile) document.getElementById("bannerFileName").textContent = selectedBannerFile.name;
+  updateBannerPreview();
 }
 function clearBannerFile() {
   selectedBannerFile = null;
@@ -9399,6 +9431,7 @@ function clearBannerFile() {
   if (input) input.value = "";
   document.getElementById("bannerChip")?.classList.add("hidden");
   document.getElementById("bannerAttachLabel")?.classList.remove("hidden");
+  updateBannerPreview();
 }
 
 async function saveProfile() {
