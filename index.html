@@ -2557,6 +2557,47 @@
 
   .deels-empty, .deels-loading { text-align: center; color: var(--subtext); font-size: 13px; padding: 60px 0; }
 
+  /* ================= کارتِ موزیکِ Deels: کاور به‌صورتِ پس‌زمینه‌ی بلورشده، دیسکِ چرخان وسط ================= */
+  .deels-music-box { position: relative; width: 100%; height: 100%; overflow: hidden; background: #14101f; }
+  .deels-music-bg {
+    position: absolute; inset: -20px; background-size: cover; background-position: center;
+    filter: blur(26px) brightness(0.55) saturate(1.15); transform: scale(1.15);
+  }
+  .deels-music-box:not(.has-cover) .deels-music-bg { background: linear-gradient(160deg, var(--card), var(--surface)); }
+  .deels-music-overlay {
+    position: relative; z-index: 1; width: 100%; height: 100%; box-sizing: border-box;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: 18px 14px 16px; text-align: center;
+  }
+  .deels-music-title {
+    font-size: 16px; font-weight: 700; color: #fff; line-height: 1.4;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.55); overflow: hidden; text-overflow: ellipsis;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  }
+  .deels-music-disc-wrap { display: flex; align-items: center; justify-content: center; }
+  .deels-music-disc {
+    width: 96px; height: 96px; border-radius: 50%; overflow: hidden;
+    border: 3px solid rgba(255,255,255,0.9); box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    background: var(--card); display: flex; align-items: center; justify-content: center; color: var(--subtext);
+    animation: deelsDiscSpin 9s linear infinite; animation-play-state: paused;
+  }
+  .deels-music-disc.spinning { animation-play-state: running; }
+  .deels-music-disc img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .deels-music-disc svg { width: 34px; height: 34px; }
+  @keyframes deelsDiscSpin { to { transform: rotate(360deg); } }
+  .deels-music-controls { display: flex; align-items: center; justify-content: center; gap: 22px; }
+  .deels-music-seekbtn {
+    background: none; border: none; color: #fff; cursor: pointer; padding: 4px;
+    display: flex; align-items: center; justify-content: center;
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.5));
+  }
+  .deels-music-seekbtn svg { width: 22px; height: 22px; }
+  .deels-music-playbtn.audio-play-btn {
+    width: 46px; height: 46px; background: rgba(255,255,255,0.14); border: 1.5px solid rgba(255,255,255,0.85);
+    color: #fff; backdrop-filter: blur(2px);
+  }
+  .deels-music-playbtn.audio-play-btn:hover { filter: brightness(1.15); }
+
   /* ================= پاپ‌آپ کامنت‌های Deels: بات‌شیتِ چسبیده‌به‌پایین با انیمیشنِ اسلاید ================= */
   /* هم‌خانواده با پاپ‌آپ استیکر (sticker-picker-*) تا از نظرِ ظاهری با بقیه‌ی سایت یکدست بمونه، ولی
      مستقل و مخصوصِ خودشه چون ارتفاعش بیشتره و لیستِ کامنت باید بتونه اسکرول کنه */
@@ -7081,6 +7122,8 @@ const ICON_TRASH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const ICON_REPLY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>`;
 const ICON_MSG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
 const ICON_THUMB = ICON_ARROW_UP;
+const ICON_SEEK_BACK = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="11 19 2 12 11 5 11 19"/><polygon points="22 19 13 12 22 5 22 19"/></svg>`;
+const ICON_SEEK_FWD = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>`;
 
 function renderPost(p, num, opts) {
   const hideText = !!(opts && opts.hideText);
@@ -7167,7 +7210,7 @@ function renderPost(p, num, opts) {
 
 // ================= بخش Deels =================
 // استکِ کارت‌هایی که با سوایپ بالا/پایین رد می‌شن؛ ترتیب تصادفیه (از سرور با sort=random)،
-// بدون آهنگ (excludeAudio)، و کلاینت خودش مرتب می‌کنه که دو پست با نوعِ یکسان پشتِ سرِ هم نیان.
+// شاملِ آهنگ هم می‌شه، و کلاینت خودش مرتب می‌کنه که دو پست با نوعِ یکسان پشتِ سرِ هم نیان.
 const deelsState = {
   timeline: [],   // پست‌هایی که تا الان از سرور اومدن، به همون ترتیبی که قراره نمایش داده بشن
   pointer: -1,    // ایندکسِ پستِ جلوی استکِ فعلی تو timeline
@@ -7195,41 +7238,61 @@ function diversifyDeelsOrder(posts, seedPrevType) {
   return result;
 }
 
+// یه فچِ هم‌زمان بیشتر تو صف نباشه؛ اگه یکی در حال اجراست، بقیه همون Promise رو منتظر می‌مونن
+// به‌جای اینکه هرکدوم جدا فچ بزنن (این خودش یکی از دلایلِ قفل‌شدنِ قبلی بود: فچ‌های موازیِ زیاد)
+let deelsFetchPromise = null;
+
+// طولِ لیستِ exclude رو محدود نگه می‌داریم (به‌جای ۳۰۰ تا)، چون exclude خیلی بزرگ می‌تونه از سقفِ
+// تعدادِ پارامترهای مجازِ کوئریِ D1 رد بشه و باعث بشه فچ‌ها بی‌سروصدا شکست بخورن و صف دیگه پر نشه —
+// دقیقاً همون باگی که بعد از حدودِ ۲۰-۳۰ تا دیلز، صف قفل می‌کرد
+const DEELS_EXCLUDE_CAP = 60;
+// چندتا پستِ بعدی از پیش (فقط مدیاشون، نه رندرِ کارت) تو کشِ مرورگر دانلود بشن
+const DEELS_PRELOAD_AHEAD = 5;
+
 async function fetchDeelsBatch() {
-  if (deelsState.loading) return;
-  deelsState.loading = true;
-  try {
-    const excludeParam = deelsState.seenIds.slice(-300).join(",");
-    const qs = `filter=all&excludeAudio=1&sort=random&pageSize=12${excludeParam ? `&exclude=${encodeURIComponent(excludeParam)}` : ""}`;
-    const res = await fetch(`${WORKER_URL}/api/feed?${qs}`, { headers: { "Authorization": `Bearer ${getToken()}` } });
-    const data = await res.json();
-    let posts = data.posts || [];
-    if (posts.length === 0 && deelsState.seenIds.length > 0) {
-      // به آخرِ پست‌های موجود رسیدیم؛ برای اینکه فید تموم نشه، دوباره از اول (با چینشِ رندومِ تازه) شروع می‌کنیم
-      deelsState.seenIds = [];
-      const res2 = await fetch(`${WORKER_URL}/api/feed?filter=all&excludeAudio=1&sort=random&pageSize=12`, {
-        headers: { "Authorization": `Bearer ${getToken()}` },
+  if (deelsFetchPromise) return deelsFetchPromise;
+  deelsFetchPromise = (async () => {
+    deelsState.loading = true;
+    try {
+      const excludeParam = deelsState.seenIds.slice(-DEELS_EXCLUDE_CAP).join(",");
+      const qs = `filter=all&sort=random&pageSize=12${excludeParam ? `&exclude=${encodeURIComponent(excludeParam)}` : ""}`;
+      const res = await fetch(`${WORKER_URL}/api/feed?${qs}`, { headers: { "Authorization": `Bearer ${getToken()}` } });
+      const data = await res.json();
+      let posts = data.posts || [];
+      if (posts.length === 0 && deelsState.seenIds.length > 0) {
+        // به آخرِ پست‌های موجود رسیدیم؛ برای اینکه فید تموم نشه، دوباره از اول (با چینشِ رندومِ تازه) شروع می‌کنیم
+        deelsState.seenIds = [];
+        const res2 = await fetch(`${WORKER_URL}/api/feed?filter=all&sort=random&pageSize=12`, {
+          headers: { "Authorization": `Bearer ${getToken()}` },
+        });
+        posts = (await res2.json()).posts || [];
+      }
+      if (posts.length === 0) return; // اصلاً پستی تو سایت نیست
+      const diversified = diversifyDeelsOrder(posts, deelsState.lastType);
+      diversified.forEach((p) => {
+        deelsState.timeline.push(p);
+        deelsState.seenIds.push(p.id);
       });
-      posts = (await res2.json()).posts || [];
+      deelsState.lastType = diversified[diversified.length - 1]?.type || deelsState.lastType;
+    } catch (e) {
+      // بی‌صدا؛ دفعه‌ی بعد که کاربر سوایپ کنه دوباره امتحان می‌شه
+    } finally {
+      deelsState.loading = false;
     }
-    if (posts.length === 0) return; // اصلاً پستی (غیر از آهنگ) تو سایت نیست
-    const diversified = diversifyDeelsOrder(posts, deelsState.lastType);
-    diversified.forEach((p) => {
-      deelsState.timeline.push(p);
-      deelsState.seenIds.push(p.id);
-    });
-    deelsState.lastType = diversified[diversified.length - 1]?.type || deelsState.lastType;
-  } catch (e) {
-    // بی‌صدا؛ دفعه‌ی بعد که کاربر سوایپ کنه دوباره امتحان می‌شه
+  })();
+  try {
+    await deelsFetchPromise;
   } finally {
-    deelsState.loading = false;
+    deelsFetchPromise = null;
   }
 }
 
 // مطمئن می‌شه همیشه حداقل ۲ پستِ بعدیِ پستِ فعلی تو صف آماده‌ست (برای لیزی‌لودِ مدیا)
+// مطمئن می‌شه همیشه به‌اندازه‌ی کافی پستِ بعدی تو صف (metadata) آماده‌ست؛ این فقط اطلاعاتِ پست‌هاست،
+// نه دانلودِ خودِ فایل‌ها (اون یه لایه‌ی جدا‌ست: deelsPreloadAhead)
 async function ensureDeelsAhead() {
   let guard = 0;
-  while (deelsState.timeline.length < deelsState.pointer + 4 && guard < 5) {
+  while (deelsState.timeline.length < deelsState.pointer + DEELS_PRELOAD_AHEAD + 2 && guard < 8) {
     await fetchDeelsBatch();
     guard++;
     if (deelsState.timeline.length === 0) break;
@@ -7239,21 +7302,48 @@ async function ensureDeelsAhead() {
 function buildDeelsCard(p) {
   const div = document.createElement("div");
   div.dataset.postId = p.id;
+  div.dataset.postType = p.type;
   let mediaHtml = "";
   if (p.type === "photo") {
     mediaHtml = `<img src="${WORKER_URL}/api/media/${p.file_id}" loading="lazy" />`;
   } else if (p.type === "video") {
-    mediaHtml = `<video src="${WORKER_URL}/api/media/${p.file_id}" preload="auto" muted playsinline loop disableRemotePlayback x-webkit-airplay="deny"></video>`;
+    // preload اولش none هست تا همه‌ی کارت‌های استک هم‌زمان دانلود نشن؛ فقط وقتی کارت جلو (pos-0) بشه
+    // (تویِ deelsSyncFrontMedia) preload/پخشش فعال می‌شه
+    mediaHtml = `<video src="${WORKER_URL}/api/media/${p.file_id}" preload="none" muted playsinline loop disableRemotePlayback x-webkit-airplay="deny"></video>`;
   } else if (p.type === "document") {
     mediaHtml = `<div class="deels-doc-box">${ICON_DOWNLOAD}</div>`;
+  } else if (p.type === "audio") {
+    // حالتِ موزیک: کاورِ بلورشده پسِ‌زمینه‌ی کل کارت رو می‌سازه، وسط یه دیسکِ کوچیک‌ترِ چرخان با خودِ کاور،
+    // بالاش عنوانِ آهنگ، پایین هم کنترل‌های پخش (۱۰ ثانیه عقب / پخش-توقف / ۱۰ ثانیه جلو)
+    const safeId = p.id.replace(/[^a-zA-Z0-9_]/g, "");
+    const coverUrl = p.audio_thumb ? `${WORKER_URL}/api/media/${p.audio_thumb}` : "";
+    const coverImgHtml = coverUrl ? `<img src="${coverUrl}" alt="" />` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
+    const musicTitle = escapeHtml(p.audio_title || p.title || "بدون‌عنوان");
+    mediaHtml = `
+      <div class="deels-music-box${coverUrl ? " has-cover" : ""}">
+        ${coverUrl ? `<div class="deels-music-bg" style="background-image:url('${coverUrl}')"></div>` : `<div class="deels-music-bg"></div>`}
+        <audio id="audioEl-${safeId}" src="${WORKER_URL}/api/media/${p.file_id}" preload="none" disableRemotePlayback x-webkit-airplay="deny"></audio>
+        <div class="deels-music-overlay">
+          <div class="deels-music-title">${musicTitle}</div>
+          <div class="deels-music-disc-wrap"><div class="deels-music-disc" id="deelsDisc-${safeId}">${coverImgHtml}</div></div>
+          <div class="deels-music-controls">
+            <button class="deels-music-seekbtn" onclick="deelsSeekBy('${safeId}',-10)" title="۱۰ ثانیه عقب" aria-label="۱۰ ثانیه عقب">${ICON_SEEK_BACK}</button>
+            <button class="audio-play-btn deels-music-playbtn" id="audioBtn-${safeId}" onclick="toggleAudio('${safeId}')" title="پخش/توقف" aria-label="پخش/توقف">
+              <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+              <span class="icon-loading"></span>
+            </button>
+            <button class="deels-music-seekbtn" onclick="deelsSeekBy('${safeId}',10)" title="۱۰ ثانیه جلو" aria-label="۱۰ ثانیه جلو">${ICON_SEEK_FWD}</button>
+          </div>
+        </div>
+      </div>`;
   } else {
-    // پستِ متنیِ خالی: چند سطر، وسط‌چین، تویِ همون قابی که مدیا توش می‌شینه
+    // پستِ متنیِ خالی: چند سطر، وسط‌چین، تویِ همون قابی که مدیا توش می‌شینه؛ عرضش هم مثلِ بقیه‌ی
+    // کارت‌ها ثابته (قبلاً بسته به طولِ متن متغیر بود، الان یکسانه)
     mediaHtml = `<div class="deels-text-box">${escapeHtml(p.text || "")}</div>`;
-    // طولِ کارت (ارتفاع) مثلِ بقیه‌ی کارت‌ها ثابته، فقط عرضش بسته به کم/زیادیِ متن تغییر می‌کنه
-    div.style.width = deelsTextCardWidth(p.text || "") + "%";
   }
-  const titleHtml = p.title ? `<div class="deels-post-title">${escapeHtml(String(p.title).slice(0, 15))}</div>` : "";
-  const descHtml = (p.text && p.type !== "text") ? `<div class="deels-desc-box">${escapeHtml(p.text)}</div>` : "";
+  const titleHtml = (p.title && p.type !== "audio") ? `<div class="deels-post-title">${escapeHtml(String(p.title).slice(0, 15))}</div>` : "";
+  const descHtml = (p.text && p.type !== "text" && p.type !== "audio") ? `<div class="deels-desc-box">${escapeHtml(p.text)}</div>` : "";
   const tagsHtml = buildTagsChipsHtml(parsePostTags(p.tags));
 
   div.innerHTML = `
@@ -7261,16 +7351,19 @@ function buildDeelsCard(p) {
     ${titleHtml}
     ${descHtml}
     ${tagsHtml ? `<div class="deels-tags-row">${tagsHtml}</div>` : ""}`;
-  return div;
-}
 
-// عرضِ کارتِ متنی: بینِ ۵۶٪ تا ۱۰۰٪ عرضِ استک، بسته به طولِ متنِ پست
-function deelsTextCardWidth(text) {
-  const MIN_PCT = 56, MAX_PCT = 100;
-  const MIN_LEN = 6, MAX_LEN = 200;
-  const len = Math.min(Math.max(text.length, MIN_LEN), MAX_LEN);
-  const ratio = (len - MIN_LEN) / (MAX_LEN - MIN_LEN);
-  return Math.round(MIN_PCT + (MAX_PCT - MIN_PCT) * ratio);
+  // چرخشِ دیسکِ موزیک با شروع/توقفِ واقعیِ صدا هماهنگ می‌شه (نه یه انیمیشنِ همیشگیِ بی‌ربط)
+  if (p.type === "audio") {
+    const safeId = p.id.replace(/[^a-zA-Z0-9_]/g, "");
+    const audioEl = div.querySelector("audio");
+    const discEl = div.querySelector(".deels-music-disc");
+    if (audioEl && discEl) {
+      audioEl.addEventListener("play", () => discEl.classList.add("spinning"));
+      audioEl.addEventListener("pause", () => discEl.classList.remove("spinning"));
+      audioEl.addEventListener("ended", () => discEl.classList.remove("spinning"));
+    }
+  }
+  return div;
 }
 
 // آواتارِ فرستنده دیگه داخلِ کارت نیست؛ یه عنصرِ ثابتِ بیرونِ استک که با هر کارتِ جلو آپدیت می‌شه
@@ -7288,8 +7381,8 @@ function renderDeelsActionBar(p) {
   const actionsEl = document.getElementById("deelsActions");
   if (!p) { actionsEl.innerHTML = ""; return; }
   const safeId = p.id.replace(/[^a-zA-Z0-9_]/g, "");
-  const hasMedia = (p.type === "photo" || p.type === "video" || p.type === "document") && p.file_id;
-  const downloadExtByType = { photo: "jpg", video: "mp4", document: "bin" };
+  const hasMedia = (p.type === "photo" || p.type === "video" || p.type === "document" || p.type === "audio") && p.file_id;
+  const downloadExtByType = { photo: "jpg", video: "mp4", document: "bin", audio: "mp3" };
   const downloadExt = downloadExtByType[p.type];
   const score = (p.upvotes || 0) - (p.downvotes || 0);
   const userVote = p.userVote || null;
@@ -7325,7 +7418,69 @@ function updateDeelsActionBar() {
   updateDeelsSideAvatar(p);
 }
 
-// به‌جای بازکردنِ مودالِ کاملِ پست، فقط یه پاپ‌آپِ سبکِ کامنت‌ها (بات‌شیتِ چسبیده‌به‌پایین با انیمیشنِ اسلاید) باز می‌شه
+// ---------- مدیریتِ منابعِ مدیا: پاک‌سازیِ کارتِ خارج‌شده + فعال/غیرفعال‌کردنِ ویدیوی جلو ----------
+// وقتی کارتی از استک بیرون می‌ره، اگه ویدیو/آهنگ داشته باشه باید صریحاً pause و src-اش پاک بشه؛
+// وگرنه (خصوصاً موبایل) بعد از چندین‌بار سوایپِ سریع، تعدادِ زیادی <video>/<audio> نیمه‌بارشده تو
+// حافظه می‌مونن و مرورگر بعد از یه حدی (تجربتاً حدودِ ۲۰-۳۰ تا) دیگه دیکودرِ جدید نمی‌سازه و استک عملاً قفل می‌شه
+function deelsCleanupCardMedia(el) {
+  if (!el) return;
+  el.querySelectorAll("video").forEach((v) => {
+    try { v.pause(); v.removeAttribute("src"); v.load(); } catch (e) {}
+  });
+  el.querySelectorAll("audio").forEach((a) => {
+    const safeId = a.id.replace("audioEl-", "");
+    if (typeof currentAudio !== "undefined" && currentAudio && currentAudio.safeId === safeId) {
+      cancelPendingPlay(safeId);
+      currentAudio = null;
+    }
+    try { a.pause(); a.removeAttribute("src"); a.load(); } catch (e) {}
+  });
+}
+
+// فقط کارتِ جلوی استک (pos-0) preload/پخشِ ویدیو رو فعال می‌کنه؛ بقیه (pos-1/pos-2) دست‌نخورده می‌مونن
+// تا وقتی نوبتشون بشه — این دقیقاً همون چیزیه که «همه‌چی یکجا لود نشه» می‌خواد
+function deelsSyncFrontMedia() {
+  const front = deelsStackEls[0];
+  [deelsStackEls[1], deelsStackEls[2]].forEach((el) => {
+    const v = el && el.querySelector("video");
+    if (v && !v.paused) v.pause();
+  });
+  if (front) {
+    const v = front.querySelector("video");
+    if (v) {
+      if (v.preload !== "auto") v.preload = "auto";
+      v.play().catch(() => {});
+    }
+  }
+}
+
+// ---------- پریلودِ محدود: فقط ۵ تا پستِ بعدی (نه کلِ صف) از قبل تو کشِ مرورگر دانلود می‌شن ----------
+const deelsPreloadedIds = new Set();
+function deelsPreloadAhead() {
+  for (let i = 1; i <= DEELS_PRELOAD_AHEAD; i++) {
+    const p = deelsState.timeline[deelsState.pointer + i];
+    if (!p || deelsPreloadedIds.has(p.id)) continue;
+    deelsPreloadedIds.add(p.id);
+    if (p.type === "photo" && p.file_id) {
+      const img = new Image();
+      img.src = `${WORKER_URL}/api/media/${p.file_id}`;
+    } else if (p.type === "video" && p.file_id) {
+      fetch(`${WORKER_URL}/api/media/${p.file_id}`).catch(() => {});
+    } else if (p.type === "audio") {
+      if (p.audio_thumb) { const img = new Image(); img.src = `${WORKER_URL}/api/media/${p.audio_thumb}`; }
+      if (p.file_id) fetch(`${WORKER_URL}/api/media/${p.file_id}`).catch(() => {});
+    }
+  }
+}
+
+// وقتی مقدارِ فعلیِ سیک روی آهنگِ درحالِ‌پخش عوض می‌شه (۱۰ ثانیه عقب/جلو)
+function deelsSeekBy(safeId, delta) {
+  const audioEl = document.getElementById(`audioEl-${safeId}`);
+  if (!audioEl || !isFinite(audioEl.duration) || !audioEl.duration) return;
+  audioEl.currentTime = Math.min(Math.max(audioEl.currentTime + delta, 0), audioEl.duration);
+}
+
+
 function openDeelsComments(postId) {
   const safeId = postId.replace(/[^a-zA-Z0-9_]/g, "");
   const body = document.getElementById("deelsCommentsBody");
@@ -7354,15 +7509,18 @@ function closeDeelsComments() {
 async function initDeelsView() {
   deelsState.loaded = true;
   const stack = document.getElementById("deelsStack");
+  // اگه قبلاً استکی وجود داشته (مثلاً forceReload)، قبل از پاک کردن، مدیای هرکدوم رو تمیز کن
+  Object.values(deelsStackEls).forEach(deelsCleanupCardMedia);
   stack.innerHTML = `<div class="deels-loading">در حال بارگذاری...</div>`;
   document.getElementById("deelsActions").innerHTML = "";
   document.getElementById("deelsSideAvatar").innerHTML = "";
   await fetchDeelsBatch();
   if (deelsState.timeline.length === 0) {
-    stack.innerHTML = `<div class="deels-empty">هنوز پستی (غیر از آهنگ) تو سایت نیست</div>`;
+    stack.innerHTML = `<div class="deels-empty">هنوز پستی تو سایت نیست</div>`;
     return;
   }
   deelsState.pointer = 0;
+  deelsPreloadedIds.clear();
   stack.innerHTML = "";
   deelsStackEls = { 0: null, 1: null, 2: null };
   for (let i = 0; i <= 2; i++) {
@@ -7374,6 +7532,8 @@ async function initDeelsView() {
     deelsStackEls[i] = el;
   }
   updateDeelsActionBar();
+  deelsSyncFrontMedia();
+  deelsPreloadAhead();
   ensureDeelsAhead();
 }
 
@@ -7381,7 +7541,15 @@ async function initDeelsView() {
 function deelsSwipeNext(direction) {
   if (deelsState.animating) return;
   const nextPointer = deelsState.pointer + 1;
-  if (nextPointer >= deelsState.timeline.length) { ensureDeelsAhead(); return; }
+  if (nextPointer >= deelsState.timeline.length) {
+    // هنوز پستِ بعدی آماده نیست؛ سعی کن بگیریش و اگه بازم نشد به کاربر بگو (به‌جای سکوتِ کامل که قفل‌شده به‌نظر می‌رسه)
+    ensureDeelsAhead().then(() => {
+      if (deelsState.pointer + 1 >= deelsState.timeline.length) {
+        toast("در حال بارگذاریِ پست‌های بیشتر، یه لحظه صبر کن...", "info");
+      }
+    });
+    return;
+  }
   deelsState.animating = true;
 
   const exitingEl = deelsStackEls[0];
@@ -7402,10 +7570,13 @@ function deelsSwipeNext(direction) {
   }
 
   setTimeout(() => {
+    deelsCleanupCardMedia(exitingEl); // ویدیو/آهنگِ کارتِ خارج‌شده رو کامل آزاد کن، نه فقط از DOM حذف کن
     if (exitingEl) exitingEl.remove();
     deelsState.pointer = nextPointer;
     deelsState.animating = false;
     updateDeelsActionBar();
+    deelsSyncFrontMedia();
+    deelsPreloadAhead();
     ensureDeelsAhead();
   }, 500);
 }
@@ -7417,6 +7588,7 @@ function deelsSwipeUndo() {
   if (prevPointer < 0) return; // اولین پستیم، جایی برای برگشت نیست
   deelsState.animating = true;
 
+  deelsCleanupCardMedia(deelsStackEls[2]);
   if (deelsStackEls[2]) { deelsStackEls[2].remove(); }
   const el0 = deelsStackEls[0];
   const el1 = deelsStackEls[1];
@@ -7434,6 +7606,8 @@ function deelsSwipeUndo() {
     deelsState.pointer = prevPointer;
     deelsState.animating = false;
     updateDeelsActionBar();
+    deelsSyncFrontMedia();
+    deelsPreloadAhead();
   }, 420);
 }
 
