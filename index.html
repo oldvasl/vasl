@@ -12,6 +12,21 @@
 })();
 </script>
 <meta charset="UTF-8" />
+<script>
+// این چک عمداً همینجا، همین اول head، و قبل از هر چیز دیگه‌ایه — نه پایین فایل کنار بقیه‌ی اسکریپت‌ها.
+// چون مرورگر HTML رو از بالا به پایین می‌خونه، اگه این چک پایین فایل بود، تا قبل از رسیدنِ پارسر بهش
+// کل بدنه‌ی صفحه (که هزاران خط مارک‌آپه) از قبل رندر و یه لحظه نمایش داده می‌شد؛ همینجا بودنش یعنی
+// ریدایرکت به login.html قبل از اینکه پارسر اصلاً به تگ <body> برسه انجام می‌شه، بدون هیچ فلشی.
+(function () {
+  try {
+    if (!localStorage.getItem("token")) {
+      window.location.replace("login.html");
+    }
+  } catch (e) {
+    window.location.replace("login.html");
+  }
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>دهات</title>
 <link rel="manifest" href="manifest.json" />
@@ -3261,7 +3276,7 @@
 </div>
 
 <script>
-const WORKER_URL = "https://dehaat-proxy.toopzsupport.workers.dev";
+const WORKER_URL = "https://VLC.alipviv8698.workers.dev";
 
 if (!localStorage.getItem("token")) {
   window.location.href = "login.html";
