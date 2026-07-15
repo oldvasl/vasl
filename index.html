@@ -338,6 +338,8 @@
     line-height: 1.7;
   }
   .wrap { max-width: 560px; margin: 0 auto; padding: calc(16px + var(--safe-top)) calc(16px + var(--safe-right)) calc(60px + var(--safe-bottom)) calc(16px + var(--safe-left)); }
+  /* تو دیلز، صفحه اسکرول نمی‌شه؛ فقط ژستِ سوایپِ روی خودِ استکِ کارت‌ها کار می‌کنه */
+  body.deels-view-active { overflow: hidden; }
 
   header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .brand { display: flex; align-items: center; gap: 10px; }
@@ -1901,6 +1903,9 @@
   .chat-msg-row {
     display: flex; align-items: flex-start; gap: 8px; padding: 1px 8px; border-radius: 8px;
     transition: background-color 0.1s ease;
+    /* کل ردیف (آواتار + محتوا) رو چپ‌به‌راست می‌کنیم، نه فقط متنِ پیام رو؛ این‌جوری آواتار هم مثلِ دیسکورد
+       سمتِ چپ می‌شینه و اسم/پیام کنارش به سمتِ راست ادامه پیدا می‌کنه، نه اینکه فقط متن تنها جابه‌جا بشه */
+    direction: ltr;
   }
   .chat-msg-row:not(.grouped) { margin-top: 8px; }
   .chat-msg-row:hover { background: rgba(127,127,127,0.06); }
@@ -1919,7 +1924,7 @@
   .chat-msg-sender-name { font-size: 12.5px; font-weight: 700; color: var(--text); cursor: pointer; }
   .chat-msg-sender-name:hover { text-decoration: underline; color: var(--accent-hover); }
   .chat-msg-time { font-size: 10px; color: var(--subtext); }
-  .chat-msg-row .chat-bubble { background: none; padding: 0; border-radius: 0; color: var(--text); font-size: 13px; }
+  .chat-msg-row .chat-bubble { background: none; padding: 0; border-radius: 0; color: var(--text); font-size: 13px; text-align: left; }
   .chat-msg-row .chat-bubble.chat-bubble-deleted { color: var(--subtext); }
   .chat-msg-row .chat-bubble-edited-tag { font-size: 10px; color: var(--subtext); margin-inline-start: 4px; }
   .chat-msg-row .chat-bubble-reply-quote { max-width: 280px; padding: 4px 7px; }
@@ -2461,18 +2466,21 @@
   .back-to-top, .refresh-fab { transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.15s ease; }
 
   /* ================= بخش Deels: استکِ کارت‌های سوایپ‌شونده ================= */
-  .deels-stack-outer { display: flex; flex-direction: column; align-items: center; padding: 6px 0 4px; }
+  .deels-stack-outer { display: flex; flex-direction: column; align-items: center; padding: 6px 0 4px; position: relative; }
   .deels-stack {
-    position: relative; width: 100%; max-width: 380px;
-    height: min(62vh, 560px); min-height: 340px;
+    position: relative; width: 100%; max-width: 270px;
+    height: min(53vh, 460px); min-height: 300px;
     touch-action: pan-x; user-select: none;
   }
+  /* left/right/width/margin (به‌جایِ inset) عمداً اینطوریه: کارت‌هایِ متنی عرضِ خودشون رو با style.width
+     (inline) ست می‌کنن و با margin:auto وسط‌چین می‌مونن؛ کارت‌هایِ رسانه‌ای/سند با width:100% پیش‌فرض تمامِ عرض رو می‌گیرن */
   .deels-card {
-    position: absolute; inset: 0; border-radius: 22px; overflow: hidden;
+    position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; margin: 0 auto;
+    border-radius: 22px; overflow: hidden;
     background: var(--card); border: 1px solid var(--border);
     box-shadow: 0 12px 30px rgba(0,0,0,0.28);
     display: flex; flex-direction: column; padding: 10px 10px 14px;
-    transition: transform 0.38s cubic-bezier(.22,.68,0,1.01), opacity 0.32s ease;
+    transition: transform 0.38s cubic-bezier(.22,.68,0,1.01), opacity 0.32s ease, width 0.2s ease;
     cursor: grab;
   }
   .deels-card:active { cursor: grabbing; }
@@ -2480,14 +2488,36 @@
   .deels-pos-0 { transform: translateY(0) scale(1) rotate(0deg); z-index: 3; }
   .deels-pos-1 { transform: translateY(14px) scale(0.94) rotate(-3deg); z-index: 2; }
   .deels-pos-2 { transform: translateY(26px) scale(0.89) rotate(3deg); z-index: 1; }
-  .deels-exit-up { transform: translateY(-135%) rotate(-7deg) !important; opacity: 0; z-index: 5 !important; }
-  .deels-enter-top { transform: translateY(-135%) rotate(-7deg); opacity: 0; z-index: 5; }
+
+  /* سوایپِ چپ/راست: کارتِ جلو از روی بقیه رد می‌شه، کنار می‌ره و می‌شینه پشتِ استک (جایِ کارتِ عقبی)؛
+     کارت‌هایِ پشتش هم‌زمان (با کلاسِ pos-0/pos-1) یه‌کم بزرگ می‌شن و میان جلو */
+  @keyframes deelsCycleRight {
+    0%   { transform: translateY(0) scale(1) rotate(0deg); }
+    55%  { transform: translateX(118%) translateY(6px) scale(0.92) rotate(16deg); }
+    100% { transform: translateY(26px) scale(0.89) rotate(3deg); }
+  }
+  @keyframes deelsCycleLeft {
+    0%   { transform: translateY(0) scale(1) rotate(0deg); }
+    55%  { transform: translateX(-118%) translateY(6px) scale(0.92) rotate(-16deg); }
+    100% { transform: translateY(26px) scale(0.89) rotate(3deg); }
+  }
+  .deels-cycle-right { animation: deelsCycleRight 0.5s cubic-bezier(.22,.68,0,1.01) forwards; z-index: 1 !important; }
+  .deels-cycle-left  { animation: deelsCycleLeft  0.5s cubic-bezier(.22,.68,0,1.01) forwards; z-index: 1 !important; }
+
+  /* سوایپِ بالا/پایین (برگشت): کارتِ قبلی از پشتِ استک بیرون میاد و بزرگ می‌شه تا جایِ کارتِ جلو رو بگیره،
+     استکِ فعلی (۲ کارتِ باقیمونده) هم‌زمان یه‌کم کوچیک می‌شه و می‌ره عقب */
+  @keyframes deelsEnterBack {
+    0%   { transform: translateY(34px) scale(0.84) rotate(0deg); opacity: 0.65; }
+    100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+  }
+  .deels-enter-back { animation: deelsEnterBack 0.42s cubic-bezier(.22,.68,0,1.01) forwards; z-index: 3; }
 
   .deels-media-box {
     flex: 1; min-height: 0; border-radius: 14px; overflow: hidden;
     background: var(--surface); display: flex; align-items: center; justify-content: center;
   }
-  .deels-media-box img, .deels-media-box video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* contain به‌جایِ cover: رسانه توی قابِ محدودِ خودش جا می‌شه بدون کراپ، و همه‌ی پست‌ها اندازه‌ی یکسانی نشون می‌دن */
+  .deels-media-box img, .deels-media-box video { width: 100%; height: 100%; object-fit: contain; display: block; }
   .deels-text-box {
     width: 100%; height: 100%; padding: 18px; box-sizing: border-box; overflow-y: auto;
     display: flex; align-items: center; justify-content: center; text-align: center;
@@ -2503,13 +2533,14 @@
   }
   .deels-tags-row { margin-top: 6px; }
 
-  .deels-sender-avatar {
-    position: absolute; bottom: -14px; right: 14px; width: 44px; height: 44px; border-radius: 50%;
-    background: var(--card); border: 2px solid var(--bg, var(--card)); overflow: hidden; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: #fff;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 4;
+  /* آواتارِ فرستنده دیگه داخلِ کارت نیست؛ بیرون از استک، کنارِ صفحه و بالایِ ردیفِ دکمه‌ها می‌شینه */
+  .deels-side-avatar {
+    position: absolute; right: 6px; bottom: 92px; width: 46px; height: 46px; border-radius: 50%;
+    background: var(--card); border: 2px solid var(--border); overflow: hidden; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 6;
   }
-  .deels-sender-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .deels-side-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
   .deels-actions { display: flex; justify-content: center; gap: 14px; margin-top: 22px; }
   .deels-action-item { display: flex; flex-direction: column; align-items: center; gap: 5px; }
@@ -2525,6 +2556,33 @@
   .deels-action-count { font-size: 11px; color: var(--subtext); font-family: ui-monospace, Menlo, monospace; }
 
   .deels-empty, .deels-loading { text-align: center; color: var(--subtext); font-size: 13px; padding: 60px 0; }
+
+  /* ================= پاپ‌آپ کامنت‌های Deels: بات‌شیتِ چسبیده‌به‌پایین با انیمیشنِ اسلاید ================= */
+  /* هم‌خانواده با پاپ‌آپ استیکر (sticker-picker-*) تا از نظرِ ظاهری با بقیه‌ی سایت یکدست بمونه، ولی
+     مستقل و مخصوصِ خودشه چون ارتفاعش بیشتره و لیستِ کامنت باید بتونه اسکرول کنه */
+  .deels-comments-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 230;
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; transition: opacity 0.25s ease;
+  }
+  .deels-comments-overlay.open { opacity: 1; }
+  .deels-comments-sheet {
+    width: 100%; max-width: 480px; height: 78vh; max-height: 78vh; background: var(--card-gradient);
+    border: 1px solid var(--border); border-radius: 20px 20px 0 0; padding: 10px 16px calc(14px + var(--safe-bottom));
+    box-shadow: 0 -12px 32px rgba(0,0,0,0.35);
+    display: flex; flex-direction: column; gap: 10px;
+    transform: translateY(105%);
+    transition: transform 0.32s cubic-bezier(.22,1,.36,1);
+  }
+  .deels-comments-overlay.open .deels-comments-sheet { transform: translateY(0); }
+  .deels-comments-handle {
+    width: 36px; height: 4px; border-radius: 999px; background: var(--border); margin: 2px auto 0; flex-shrink: 0;
+  }
+  .deels-comments-head { display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-weight: 600; color: var(--text); flex-shrink: 0; }
+  .deels-comments-close { background: none; border: none; color: var(--subtext); cursor: pointer; padding: 2px; display: flex; }
+  .deels-comments-close svg { width: 18px; height: 18px; }
+  .deels-comments-sheet .comments-list { flex: 1; overflow-y: auto; max-height: none; }
+  .deels-comments-sheet .comment-input-bar { flex-shrink: 0; }
 </style>
 </head>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
@@ -2629,6 +2687,7 @@
   <div id="view-deels" class="view hidden">
     <div class="deels-stack-outer">
       <div class="deels-stack" id="deelsStack"></div>
+      <div class="deels-side-avatar" id="deelsSideAvatar"></div>
       <div class="deels-actions" id="deelsActions"></div>
     </div>
   </div>
@@ -3013,6 +3072,20 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
   </button>
   <div class="post-modal-content" id="postModalContent"></div>
+</div>
+
+<!-- پاپ‌آپ کامنت‌های بخشِ Deels: بات‌شیتِ چسبیده‌به‌پایین -->
+<div id="deelsCommentsOverlay" class="deels-comments-overlay hidden" onclick="if(event.target===this) closeDeelsComments()">
+  <div class="deels-comments-sheet">
+    <div class="deels-comments-handle"></div>
+    <div class="deels-comments-head">
+      <span>کامنت‌ها</span>
+      <button class="deels-comments-close" onclick="closeDeelsComments()" aria-label="بستن">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="deelsCommentsBody" style="display:flex; flex-direction:column; flex:1; min-height:0; gap:10px;"></div>
+  </div>
 </div>
 
 <!-- پاپ‌آپ انتخاب استیکر برای کامنت -->
@@ -3589,6 +3662,8 @@ function switchView(name, forceReload = false) {
   // فقط تو سگ‌تونز، چون دکمه‌ی فول‌اسکرین هم هست، یه چیدمان سه‌تایی جداگانه اعمال می‌شه
   document.body.classList.toggle("desktop-fab-big", name === "media" || name === "text" || name === "music");
   document.body.classList.toggle("music-view-active", name === "music");
+  // تو دیلز نباید کل صفحه اسکرول بشه، وگرنه ژست سوایپ‌عمودیِ روی کارت با اسکرولِ صفحه قاطی می‌شه
+  document.body.classList.toggle("deels-view-active", name === "deels");
 
   if ((name === "media" || name === "text") && (forceReload || !feedState[name].loaded)) {
     loadFeedView(name, true);
@@ -7174,11 +7249,9 @@ function buildDeelsCard(p) {
   } else {
     // پستِ متنیِ خالی: چند سطر، وسط‌چین، تویِ همون قابی که مدیا توش می‌شینه
     mediaHtml = `<div class="deels-text-box">${escapeHtml(p.text || "")}</div>`;
+    // طولِ کارت (ارتفاع) مثلِ بقیه‌ی کارت‌ها ثابته، فقط عرضش بسته به کم/زیادیِ متن تغییر می‌کنه
+    div.style.width = deelsTextCardWidth(p.text || "") + "%";
   }
-  const initial = p.username ? p.username[0].toUpperCase() : "?";
-  const avatarHtml = p.avatar_file_id
-    ? `<img src="${WORKER_URL}/api/media/${p.avatar_file_id}" />`
-    : initial;
   const titleHtml = p.title ? `<div class="deels-post-title">${escapeHtml(String(p.title).slice(0, 15))}</div>` : "";
   const descHtml = (p.text && p.type !== "text") ? `<div class="deels-desc-box">${escapeHtml(p.text)}</div>` : "";
   const tagsHtml = buildTagsChipsHtml(parsePostTags(p.tags));
@@ -7187,9 +7260,28 @@ function buildDeelsCard(p) {
     <div class="deels-media-box">${mediaHtml}</div>
     ${titleHtml}
     ${descHtml}
-    ${tagsHtml ? `<div class="deels-tags-row">${tagsHtml}</div>` : ""}
-    <div class="deels-sender-avatar" style="background:${p.avatar_file_id ? "transparent" : avatarColor(p.username || "")}" onclick="openProfile('${jsAttr(p.username)}')">${avatarHtml}</div>`;
+    ${tagsHtml ? `<div class="deels-tags-row">${tagsHtml}</div>` : ""}`;
   return div;
+}
+
+// عرضِ کارتِ متنی: بینِ ۵۶٪ تا ۱۰۰٪ عرضِ استک، بسته به طولِ متنِ پست
+function deelsTextCardWidth(text) {
+  const MIN_PCT = 56, MAX_PCT = 100;
+  const MIN_LEN = 6, MAX_LEN = 200;
+  const len = Math.min(Math.max(text.length, MIN_LEN), MAX_LEN);
+  const ratio = (len - MIN_LEN) / (MAX_LEN - MIN_LEN);
+  return Math.round(MIN_PCT + (MAX_PCT - MIN_PCT) * ratio);
+}
+
+// آواتارِ فرستنده دیگه داخلِ کارت نیست؛ یه عنصرِ ثابتِ بیرونِ استک که با هر کارتِ جلو آپدیت می‌شه
+function updateDeelsSideAvatar(p) {
+  const el = document.getElementById("deelsSideAvatar");
+  if (!el) return;
+  if (!p) { el.innerHTML = ""; el.style.visibility = "hidden"; el.onclick = null; return; }
+  el.style.visibility = "";
+  el.style.background = p.avatar_file_id ? "transparent" : avatarColor(p.username || "");
+  el.innerHTML = avatarInnerHtml(p.avatar_file_id, p.username);
+  el.onclick = () => openProfile(p.username);
 }
 
 function renderDeelsActionBar(p) {
@@ -7228,14 +7320,35 @@ function renderDeelsActionBar(p) {
 }
 
 function updateDeelsActionBar() {
-  renderDeelsActionBar(deelsState.timeline[deelsState.pointer]);
+  const p = deelsState.timeline[deelsState.pointer];
+  renderDeelsActionBar(p);
+  updateDeelsSideAvatar(p);
 }
 
-// پست تو مودالِ استاندارد باز می‌شه و بلافاصله بخشِ کامنت‌هاش هم باز می‌شه
-async function openDeelsComments(postId) {
-  await openPostModal(postId);
+// به‌جای بازکردنِ مودالِ کاملِ پست، فقط یه پاپ‌آپِ سبکِ کامنت‌ها (بات‌شیتِ چسبیده‌به‌پایین با انیمیشنِ اسلاید) باز می‌شه
+function openDeelsComments(postId) {
   const safeId = postId.replace(/[^a-zA-Z0-9_]/g, "");
-  toggleComments(postId, safeId);
+  const body = document.getElementById("deelsCommentsBody");
+  body.innerHTML = `
+    <div class="comment-input-bar">
+      <button class="comment-emoji-btn" onclick="commentEmojiClicked('${postId}','${safeId}')" title="ایموجی" aria-label="ایموجی">${ICON_SMILE}</button>
+      <input type="text" id="commentInput-${safeId}" placeholder="افکارتو بنویس..." onkeydown="if(event.key==='Enter') submitComment('${postId}','${safeId}')" />
+      <button class="comment-send-btn" onclick="submitComment('${postId}','${safeId}')" title="ارسال" aria-label="ارسال">${ICON_SEND}</button>
+    </div>
+    <div class="error" id="commentError-${safeId}"></div>
+    <div class="comments-list" id="commentsList-${safeId}"></div>`;
+
+  const overlay = document.getElementById("deelsCommentsOverlay");
+  overlay.classList.remove("hidden");
+  void overlay.offsetWidth; // فورس ری‌فلو تا مرورگر تغییرِ display رو قبل از شروعِ ترنزیشن اعمال کنه
+  overlay.classList.add("open");
+  loadComments(postId, safeId);
+}
+
+function closeDeelsComments() {
+  const overlay = document.getElementById("deelsCommentsOverlay");
+  overlay.classList.remove("open");
+  setTimeout(() => overlay.classList.add("hidden"), 320); // بعد از اتمامِ انیمیشنِ اسلاید-به-پایین پنهانش کن
 }
 
 async function initDeelsView() {
@@ -7243,6 +7356,7 @@ async function initDeelsView() {
   const stack = document.getElementById("deelsStack");
   stack.innerHTML = `<div class="deels-loading">در حال بارگذاری...</div>`;
   document.getElementById("deelsActions").innerHTML = "";
+  document.getElementById("deelsSideAvatar").innerHTML = "";
   await fetchDeelsBatch();
   if (deelsState.timeline.length === 0) {
     stack.innerHTML = `<div class="deels-empty">هنوز پستی (غیر از آهنگ) تو سایت نیست</div>`;
@@ -7263,14 +7377,15 @@ async function initDeelsView() {
   ensureDeelsAhead();
 }
 
-function deelsSwipeUp() {
+// سوایپِ چپ/راست: رفتن به پستِ بعدی؛ کارتِ جلو کنار می‌ره و پشتِ استک قرار می‌گیره
+function deelsSwipeNext(direction) {
   if (deelsState.animating) return;
   const nextPointer = deelsState.pointer + 1;
   if (nextPointer >= deelsState.timeline.length) { ensureDeelsAhead(); return; }
   deelsState.animating = true;
 
   const exitingEl = deelsStackEls[0];
-  if (exitingEl) exitingEl.className = "deels-card deels-exit-up";
+  if (exitingEl) exitingEl.className = `deels-card ${direction === "left" ? "deels-cycle-left" : "deels-cycle-right"}`;
 
   const el1 = deelsStackEls[1];
   const el2 = deelsStackEls[2];
@@ -7292,10 +7407,11 @@ function deelsSwipeUp() {
     deelsState.animating = false;
     updateDeelsActionBar();
     ensureDeelsAhead();
-  }, 400);
+  }, 500);
 }
 
-function deelsSwipeDown() {
+// سوایپِ بالا/پایین: برگشت به پستِ قبلی؛ کارتِ قبلی از پشتِ استک بیرون میاد و بزرگ می‌شه
+function deelsSwipeUndo() {
   if (deelsState.animating) return;
   const prevPointer = deelsState.pointer - 1;
   if (prevPointer < 0) return; // اولین پستیم، جایی برای برگشت نیست
@@ -7309,9 +7425,8 @@ function deelsSwipeDown() {
 
   const prevPost = deelsState.timeline[prevPointer];
   const prevEl = buildDeelsCard(prevPost);
-  prevEl.className = "deels-card deels-enter-top";
-  document.getElementById("deelsStack").prepend(prevEl);
-  requestAnimationFrame(() => { prevEl.className = "deels-card deels-pos-0"; });
+  prevEl.className = "deels-card deels-enter-back";
+  document.getElementById("deelsStack").appendChild(prevEl);
 
   deelsStackEls = { 0: prevEl, 1: el0, 2: el1 };
 
@@ -7319,10 +7434,10 @@ function deelsSwipeDown() {
     deelsState.pointer = prevPointer;
     deelsState.animating = false;
     updateDeelsActionBar();
-  }, 400);
+  }, 420);
 }
 
-// ---------- ژست سوایپِ عمودی روی استکِ Deels ----------
+// ---------- ژست سوایپِ چهارجهته روی استکِ Deels: چپ/راست=بعدی، بالا/پایین=برگشت ----------
 (function setupDeelsSwipeGestures() {
   let startX = null, startY = null, dragging = false, currentEl = null;
   const THRESHOLD = 65;
@@ -7342,8 +7457,11 @@ function deelsSwipeDown() {
     const pt = e.touches ? e.touches[0] : e;
     const dy = pt.clientY - startY;
     const dx = pt.clientX - startX;
-    if (Math.abs(dy) > Math.abs(dx)) {
-      if (e.cancelable) e.preventDefault();
+    if (e.cancelable) e.preventDefault();
+    if (Math.abs(dx) > Math.abs(dy)) {
+      const clamped = Math.max(Math.min(dx, 140), -140);
+      currentEl.style.transform = `translateX(${clamped}px) rotate(${clamped / 16}deg)`;
+    } else {
       const clamped = dy < 0 ? Math.max(dy, -170) : Math.min(dy * 0.35, 60);
       currentEl.style.transform = `translateY(${clamped}px) rotate(${clamped / 22}deg)`;
     }
@@ -7355,10 +7473,15 @@ function deelsSwipeDown() {
     currentEl = null;
     const pt = e.changedTouches ? e.changedTouches[0] : e;
     const dy = pt.clientY - startY;
+    const dx = pt.clientX - startX;
     el.style.transition = "";
     el.style.transform = "";
-    if (dy < -THRESHOLD) deelsSwipeUp();
-    else if (dy > THRESHOLD) deelsSwipeDown();
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > THRESHOLD) deelsSwipeNext("right");
+      else if (dx < -THRESHOLD) deelsSwipeNext("left");
+    } else {
+      if (Math.abs(dy) > THRESHOLD) deelsSwipeUndo();
+    }
   }
 
   document.addEventListener("touchstart", (e) => { if (e.target.closest("#deelsStack")) onStart(e); }, { passive: true });
@@ -8489,8 +8612,8 @@ function renderCommentItem(c, isReply, replyToUsername, postId, safeId, repliesC
 
   const initial = c.username ? c.username[0].toUpperCase() : "?";
   const avatarHtml = c.avatar_file_id
-    ? `<div class="avatar" style="overflow:hidden;"><img src="${WORKER_URL}/api/media/${c.avatar_file_id}" style="width:100%;height:100%;object-fit:cover;" /></div>`
-    : `<div class="avatar" style="background:${avatarColor(c.username || "")}">${initial}</div>`;
+    ? `<div class="avatar" style="overflow:hidden;cursor:pointer;" onclick="openProfile('${jsAttr(c.username)}')"><img src="${WORKER_URL}/api/media/${c.avatar_file_id}" style="width:100%;height:100%;object-fit:cover;" /></div>`
+    : `<div class="avatar" style="background:${avatarColor(c.username || "")};cursor:pointer;" onclick="openProfile('${jsAttr(c.username)}')">${initial}</div>`;
 
   const replyToHint = replyToUsername
     ? `<div class="comment-item2-replyhint">↩ در پاسخ به ${escapeHtml(replyToUsername)}</div>`
