@@ -2519,10 +2519,23 @@
   /* contain به‌جایِ cover: رسانه توی قابِ محدودِ خودش جا می‌شه بدون کراپ، و همه‌ی پست‌ها اندازه‌ی یکسانی نشون می‌دن */
   .deels-media-box img, .deels-media-box video { width: 100%; height: 100%; object-fit: contain; display: block; }
   .deels-text-box {
-    width: 100%; height: 100%; padding: 18px; box-sizing: border-box; overflow-y: auto;
+    width: 88%; max-height: 52%; padding: 16px 18px; box-sizing: border-box; overflow-y: auto;
     display: flex; align-items: center; justify-content: center; text-align: center;
-    white-space: pre-wrap; font-size: 15px; line-height: 1.8; color: var(--text);
+    white-space: pre-wrap; font-size: 14.5px; line-height: 1.8; color: var(--text);
+    border: 1px solid var(--border); border-radius: 16px; background: var(--surface);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
   }
+  .deels-divider-box {
+    width: 100%; height: 100%; box-sizing: border-box; padding: 28px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    text-align: center; background: var(--surface);
+  }
+  .deels-divider-icon {
+    width: 50px; height: 50px; border-radius: 50%; background: var(--accent-gradient); color: #fff;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .deels-divider-icon svg { width: 24px; height: 24px; }
+  .deels-divider-text { font-size: 14.5px; line-height: 2; font-weight: 600; color: var(--text); white-space: pre-line; }
   .deels-doc-box { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--subtext); }
   .deels-doc-box svg { width: 44px; height: 44px; }
 
@@ -3693,6 +3706,7 @@ const musicState = { page: 1, loaded: false };
 const MUSIC_PAGE_SIZE = 20;
 
 function switchView(name, forceReload = false) {
+  if (deelsState.loaded) flushDeelsSeenMarks();
   document.body.classList.remove("profile-fullscreen-active");
   document.querySelectorAll(".view").forEach((el) => el.classList.add("hidden"));
   document.getElementById(`view-${name}`).classList.remove("hidden");
@@ -5932,7 +5946,7 @@ function restorePlayerState() {
 
 // هر جور که کاربر از سایت خارج بشه (بستن تب، رفتن به اپ دیگه، رفرش) موقعیتِ فعلی ذخیره بشه
 window.addEventListener("pagehide", () => savePlayerState(true));
-window.addEventListener("beforeunload", () => savePlayerState(true));
+window.addEventListener("beforeunload", () => { savePlayerState(true); if (typeof flushDeelsSeenMarks === "function") flushDeelsSeenMarks(); });
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) savePlayerState(true);
 });
@@ -7124,6 +7138,7 @@ const ICON_MSG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const ICON_THUMB = ICON_ARROW_UP;
 const ICON_SEEK_BACK = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="11 19 2 12 11 5 11 19"/><polygon points="22 19 13 12 22 5 22 19"/></svg>`;
 const ICON_SEEK_FWD = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>`;
+const ICON_HISTORY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l3 3"/></svg>`;
 
 function renderPost(p, num, opts) {
   const hideText = !!(opts && opts.hideText);
@@ -7209,13 +7224,19 @@ function renderPost(p, num, opts) {
 }
 
 // ================= بخش Deels =================
-// استکِ کارت‌هایی که با سوایپ بالا/پایین رد می‌شن؛ ترتیب تصادفیه (از سرور با sort=random)،
-// شاملِ آهنگ هم می‌شه، و کلاینت خودش مرتب می‌کنه که دو پست با نوعِ یکسان پشتِ سرِ هم نیان.
+// استکِ کارت‌هایی که با سوایپ بالا/پایین رد می‌شن. الگوریتم دو فاز داره:
+//   فازِ ۱ («unseen»): فقط پست‌هایی که کاربر تا حالا تو Deels ندیده (رندوم)
+//   وقتی پست‌های ندیده تموم شد: یه کارتِ سیستمی («از این به بعد پست‌های دیده‌شده») اضافه می‌شه
+//   فازِ ۲ («seen»): پست‌ها رندوم (شاملِ تکراری‌ها) تا کاربر بی‌نهایت اسکرول کنه
+// تویِ هر فاز هم، ترتیب طوری می‌چینه که هیچ نوعی (متن/آهنگ/عکس/ویدیو/سند) بیشتر از ۲ تا پشتِ‌سرِهم نیاد.
 const deelsState = {
   timeline: [],   // پست‌هایی که تا الان از سرور اومدن، به همون ترتیبی که قراره نمایش داده بشن
   pointer: -1,    // ایندکسِ پستِ جلوی استکِ فعلی تو timeline
   seenIds: [],    // شناسه‌ی پست‌هایی که قبلاً گرفته شدیم (برای exclude تو فچِ بعدی، تا تکراری نیاد)
   lastType: null, // نوعِ آخرین پستی که به صف اضافه شده (برای رعایتِ تنوع بینِ دو تا فچِ جداگونه)
+  lastTypeRun: 0, // چند تا پشتِ‌سرهم از همون نوع، تا الان
+  phase: "unseen", // "unseen" | "seen"
+  pendingSeenMarks: [], // آیدیِ پست‌هایی که سوایپ شدن ولی هنوز به سرور خبر داده نشده که «دیده شد»
   loading: false,
   loaded: false,
   animating: false,
@@ -7223,19 +7244,37 @@ const deelsState = {
 // رفرنسِ زنده‌ی سه‌تا کارتی که الان تو DOM هستن: 0 = جلو، 1 و 2 = پشتِ استک
 let deelsStackEls = { 0: null, 1: null, 2: null };
 
-// آرایه‌ی پست‌های تازه‌رسیده رو طوری می‌چینه که (تا جایی که ممکنه) دو پستِ هم‌نوع پشتِ‌سرِهم نیفتن
-function diversifyDeelsOrder(posts, seedPrevType) {
-  const arr = [...posts];
+// آرایه‌ی پست‌های تازه‌رسیده رو طوری می‌چینه که هیچ نوعی بیش از ۲ بار پشتِ‌سرِهم نیاد؛ با حریصانه هر بار
+// از بزرگ‌ترین سطلِ باقی‌مونده (غیر از نوعی که به سقفِ رانش رسیده) انتخاب می‌کنه — این نسخه برخلافِ حالتِ قبلی
+// (که فقط «با آخرین آیتم فرق کنه» رو چک می‌کرد) وقتی یه نوع تو دسته زیاد باشه هم خراب نمی‌شه
+function diversifyDeelsOrder(posts, seedType, seedRun) {
+  const buckets = {};
+  posts.forEach((p) => { (buckets[p.type] = buckets[p.type] || []).push(p); });
+  const MAX_RUN = 2;
   const result = [];
-  let prevType = seedPrevType || null;
-  while (arr.length) {
-    let idx = arr.findIndex((p) => p.type !== prevType);
-    if (idx === -1) idx = 0; // چاره‌ای نیست، مجبوریم تکرار کنیم (مثلاً کل دسته یه نوعن)
-    const [item] = arr.splice(idx, 1);
+  let curType = seedType || null;
+  let curRun = seedRun || 0;
+  const hasAny = () => Object.values(buckets).some((b) => b.length > 0);
+  while (hasAny()) {
+    const forbidden = curRun >= MAX_RUN ? curType : null;
+    let candidates = Object.keys(buckets).filter((t) => buckets[t].length > 0 && t !== forbidden);
+    if (candidates.length === 0) candidates = Object.keys(buckets).filter((t) => buckets[t].length > 0);
+    candidates.sort((a, b) => buckets[b].length - buckets[a].length);
+    const pickType = candidates[0];
+    const item = buckets[pickType].shift();
     result.push(item);
-    prevType = item.type;
+    if (pickType === curType) curRun++; else { curType = pickType; curRun = 1; }
   }
   return result;
+}
+
+// یه کارتِ واقعی نیست؛ خودِ کلاینت می‌سازتش تا مرزِ بینِ «پست‌های ندیده» و «پست‌های دیده‌شده» رو مشخص کنه
+function buildDeelsDividerPost() {
+  return {
+    id: `system-divider-${Date.now()}`,
+    type: "system",
+    text: "به آخرِ پست‌های ندیده رسیدی 🎉\nاز این دیلز به بعد، پست‌هایی رو می‌بینی که قبلاً مشاهده کرده بودی",
+  };
 }
 
 // یه فچِ هم‌زمان بیشتر تو صف نباشه؛ اگه یکی در حال اجراست، بقیه همون Promise رو منتظر می‌مونن
@@ -7244,7 +7283,8 @@ let deelsFetchPromise = null;
 
 // طولِ لیستِ exclude رو محدود نگه می‌داریم (به‌جای ۳۰۰ تا)، چون exclude خیلی بزرگ می‌تونه از سقفِ
 // تعدادِ پارامترهای مجازِ کوئریِ D1 رد بشه و باعث بشه فچ‌ها بی‌سروصدا شکست بخورن و صف دیگه پر نشه —
-// دقیقاً همون باگی که بعد از حدودِ ۲۰-۳۰ تا دیلز، صف قفل می‌کرد
+// دقیقاً همون باگی که بعد از حدودِ ۲۰-۳۰ تا دیلز، صف قفل می‌کرد. (پست‌های «ندیده» با unseenOnly تویِ خودِ
+// سرور فیلتر می‌شن، پس این محدودیت باعثِ نادیده‌گرفتنِ تاریخچه‌ی طولانی نمی‌شه)
 const DEELS_EXCLUDE_CAP = 60;
 // چندتا پستِ بعدی از پیش (فقط مدیاشون، نه رندرِ کارت) تو کشِ مرورگر دانلود بشن
 const DEELS_PRELOAD_AHEAD = 5;
@@ -7255,12 +7295,25 @@ async function fetchDeelsBatch() {
     deelsState.loading = true;
     try {
       const excludeParam = deelsState.seenIds.slice(-DEELS_EXCLUDE_CAP).join(",");
-      const qs = `filter=all&sort=random&pageSize=12${excludeParam ? `&exclude=${encodeURIComponent(excludeParam)}` : ""}`;
+      const unseenPart = deelsState.phase === "unseen" ? "&unseenOnly=1" : "";
+      const qs = `filter=all&sort=random&pageSize=12${unseenPart}${excludeParam ? `&exclude=${encodeURIComponent(excludeParam)}` : ""}`;
       const res = await fetch(`${WORKER_URL}/api/feed?${qs}`, { headers: { "Authorization": `Bearer ${getToken()}` } });
       const data = await res.json();
       let posts = data.posts || [];
-      if (posts.length === 0 && deelsState.seenIds.length > 0) {
-        // به آخرِ پست‌های موجود رسیدیم؛ برای اینکه فید تموم نشه، دوباره از اول (با چینشِ رندومِ تازه) شروع می‌کنیم
+
+      if (posts.length === 0 && deelsState.phase === "unseen") {
+        // پست‌های ندیده تموم شد: یه کارتِ سیستمیِ گذار اضافه کن، برو فازِ «دیده‌شده»
+        deelsState.phase = "seen";
+        deelsState.timeline.push(buildDeelsDividerPost());
+        deelsState.lastType = "system";
+        deelsState.lastTypeRun = 1;
+        deelsState.seenIds = [];
+        const res2 = await fetch(`${WORKER_URL}/api/feed?filter=all&sort=random&pageSize=12`, {
+          headers: { "Authorization": `Bearer ${getToken()}` },
+        });
+        posts = (await res2.json()).posts || [];
+      } else if (posts.length === 0 && deelsState.seenIds.length > 0) {
+        // تویِ فازِ «دیده‌شده» هم به آخر رسیدیم (یا استثنائاً exclude بزرگ شده)؛ دوباره از اول، چینشِ رندومِ تازه
         deelsState.seenIds = [];
         const res2 = await fetch(`${WORKER_URL}/api/feed?filter=all&sort=random&pageSize=12`, {
           headers: { "Authorization": `Bearer ${getToken()}` },
@@ -7268,12 +7321,19 @@ async function fetchDeelsBatch() {
         posts = (await res2.json()).posts || [];
       }
       if (posts.length === 0) return; // اصلاً پستی تو سایت نیست
-      const diversified = diversifyDeelsOrder(posts, deelsState.lastType);
+      const diversified = diversifyDeelsOrder(posts, deelsState.lastType, deelsState.lastTypeRun);
       diversified.forEach((p) => {
         deelsState.timeline.push(p);
         deelsState.seenIds.push(p.id);
       });
-      deelsState.lastType = diversified[diversified.length - 1]?.type || deelsState.lastType;
+      if (diversified.length) {
+        let run = 1;
+        for (let i = diversified.length - 1; i > 0; i--) {
+          if (diversified[i].type === diversified[i - 1].type) run++; else break;
+        }
+        deelsState.lastType = diversified[diversified.length - 1].type;
+        deelsState.lastTypeRun = run;
+      }
     } catch (e) {
       // بی‌صدا؛ دفعه‌ی بعد که کاربر سوایپ کنه دوباره امتحان می‌شه
     } finally {
@@ -7287,7 +7347,30 @@ async function fetchDeelsBatch() {
   }
 }
 
-// مطمئن می‌شه همیشه حداقل ۲ پستِ بعدیِ پستِ فعلی تو صف آماده‌ست (برای لیزی‌لودِ مدیا)
+// وقتی کاربر از یه پست رد می‌شه (سوایپ به بعدی)، آیدیش تو صفِ ارسال‌نشده‌ها می‌شینه؛ بعد از چندتا
+// یا بعد از یه‌کم سکون، یکجا به سرور خبر داده می‌شه که «دیده شد» (دیگه تو فازِ unseenِ دفعاتِ بعد نمیاد)
+let deelsSeenFlushTimer = null;
+function queueDeelsSeenMark(postId) {
+  if (!postId) return;
+  deelsState.pendingSeenMarks.push(postId);
+  if (deelsSeenFlushTimer) clearTimeout(deelsSeenFlushTimer);
+  if (deelsState.pendingSeenMarks.length >= 5) {
+    flushDeelsSeenMarks();
+  } else {
+    deelsSeenFlushTimer = setTimeout(flushDeelsSeenMarks, 2000);
+  }
+}
+function flushDeelsSeenMarks() {
+  if (deelsSeenFlushTimer) { clearTimeout(deelsSeenFlushTimer); deelsSeenFlushTimer = null; }
+  if (deelsState.pendingSeenMarks.length === 0) return;
+  const ids = deelsState.pendingSeenMarks.splice(0, deelsState.pendingSeenMarks.length);
+  fetch(`${WORKER_URL}/api/deels/mark-seen`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+    body: JSON.stringify({ ids }),
+  }).catch(() => {});
+}
+
 // مطمئن می‌شه همیشه به‌اندازه‌ی کافی پستِ بعدی تو صف (metadata) آماده‌ست؛ این فقط اطلاعاتِ پست‌هاست،
 // نه دانلودِ خودِ فایل‌ها (اون یه لایه‌ی جدا‌ست: deelsPreloadAhead)
 async function ensureDeelsAhead() {
@@ -7337,14 +7420,20 @@ function buildDeelsCard(p) {
           </div>
         </div>
       </div>`;
+  } else if (p.type === "system") {
+    // کارتِ سیستمی: مرزِ بینِ فازِ «پست‌های ندیده» و «پست‌های دیده‌شده»، یه پیامِ ساده وسطِ کارت
+    mediaHtml = `<div class="deels-divider-box">
+        <div class="deels-divider-icon">${ICON_HISTORY}</div>
+        <div class="deels-divider-text">${escapeHtml(p.text || "")}</div>
+      </div>`;
   } else {
     // پستِ متنیِ خالی: چند سطر، وسط‌چین، تویِ همون قابی که مدیا توش می‌شینه؛ عرضش هم مثلِ بقیه‌ی
     // کارت‌ها ثابته (قبلاً بسته به طولِ متن متغیر بود، الان یکسانه)
     mediaHtml = `<div class="deels-text-box">${escapeHtml(p.text || "")}</div>`;
   }
-  const titleHtml = (p.title && p.type !== "audio") ? `<div class="deels-post-title">${escapeHtml(String(p.title).slice(0, 15))}</div>` : "";
-  const descHtml = (p.text && p.type !== "text" && p.type !== "audio") ? `<div class="deels-desc-box">${escapeHtml(p.text)}</div>` : "";
-  const tagsHtml = buildTagsChipsHtml(parsePostTags(p.tags));
+  const titleHtml = (p.title && p.type !== "audio" && p.type !== "system") ? `<div class="deels-post-title">${escapeHtml(String(p.title).slice(0, 15))}</div>` : "";
+  const descHtml = (p.text && p.type !== "text" && p.type !== "audio" && p.type !== "system") ? `<div class="deels-desc-box">${escapeHtml(p.text)}</div>` : "";
+  const tagsHtml = p.type === "system" ? "" : buildTagsChipsHtml(parsePostTags(p.tags));
 
   div.innerHTML = `
     <div class="deels-media-box">${mediaHtml}</div>
@@ -7414,6 +7503,11 @@ function renderDeelsActionBar(p) {
 
 function updateDeelsActionBar() {
   const p = deelsState.timeline[deelsState.pointer];
+  if (p && p.type === "system") {
+    renderDeelsActionBar(null);
+    updateDeelsSideAvatar(null);
+    return;
+  }
   renderDeelsActionBar(p);
   updateDeelsSideAvatar(p);
 }
@@ -7511,9 +7605,16 @@ async function initDeelsView() {
   const stack = document.getElementById("deelsStack");
   // اگه قبلاً استکی وجود داشته (مثلاً forceReload)، قبل از پاک کردن، مدیای هرکدوم رو تمیز کن
   Object.values(deelsStackEls).forEach(deelsCleanupCardMedia);
+  flushDeelsSeenMarks();
   stack.innerHTML = `<div class="deels-loading">در حال بارگذاری...</div>`;
   document.getElementById("deelsActions").innerHTML = "";
   document.getElementById("deelsSideAvatar").innerHTML = "";
+  // هر بار که وارد دیلز می‌شیم، از اول (فازِ «ندیده‌ها») شروع می‌کنیم
+  deelsState.timeline = [];
+  deelsState.seenIds = [];
+  deelsState.lastType = null;
+  deelsState.lastTypeRun = 0;
+  deelsState.phase = "unseen";
   await fetchDeelsBatch();
   if (deelsState.timeline.length === 0) {
     stack.innerHTML = `<div class="deels-empty">هنوز پستی تو سایت نیست</div>`;
@@ -7550,6 +7651,8 @@ function deelsSwipeNext(direction) {
     });
     return;
   }
+  const leavingPost = deelsState.timeline[deelsState.pointer];
+  if (leavingPost && leavingPost.type !== "system") queueDeelsSeenMark(leavingPost.id);
   deelsState.animating = true;
 
   const exitingEl = deelsStackEls[0];
