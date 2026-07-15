@@ -3270,6 +3270,14 @@ if (!localStorage.getItem("token")) {
 function getToken() { return localStorage.getItem("token"); }
 function getUsername() { return localStorage.getItem("username"); }
 
+// مدیا حالا خصوصیه و نیاز به توکن داره. چون تگ‌های <img>/<audio>/<video> نمی‌تونن هدر Authorization
+// بفرستن، توکن رو به‌صورت کوئری‌استرینگ به آدرس فایل اضافه می‌کنیم. همه‌جای صفحه به‌جای ساختن مستقیم
+// آدرس /api/media/، باید از همین تابع استفاده کنه.
+function mediaUrl(fileId) {
+  if (!fileId) return "";
+  return `${WORKER_URL}/api/media/${encodeURIComponent(fileId)}?token=${encodeURIComponent(getToken() || "")}`;
+}
+
 // ---------- پوش نوتیفیکیشن ----------
 const VAPID_PUBLIC_KEY = "BAD4XiVtPogFVjWF4CBIoKzfwp1DouspsYByGHvgzaYgW7vntQP18phaHvKrfKvFkTEZ4b6zUEC5GyG2nPG9xx0";
 
@@ -3475,7 +3483,7 @@ function applyHeaderAvatar(uname, avatarFileId) {
   if (!headerAvatarEl || !uname) return;
   if (avatarFileId) {
     headerAvatarEl.style.background = "transparent";
-    headerAvatarEl.innerHTML = `<img src="${WORKER_URL}/api/media/${avatarFileId}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
+    headerAvatarEl.innerHTML = `<img src="${mediaUrl(avatarFileId)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
   } else {
     headerAvatarEl.innerHTML = "";
     headerAvatarEl.textContent = uname[0].toUpperCase();
@@ -4448,7 +4456,7 @@ function toast(message, type = "info") {
 // آواتارِ یک کاربر رو یا به‌صورت عکس (اگه avatar_file_id داشته باشه) یا حرف اول با رنگِ ثابت می‌سازه
 function avatarInnerHtml(avatarFileId, name) {
   if (avatarFileId) {
-    return `<img src="${WORKER_URL}/api/media/${avatarFileId}" alt="" loading="lazy" />`;
+    return `<img src="${mediaUrl(avatarFileId)}" alt="" loading="lazy" />`;
   }
   return escapeHtml((name || "؟").trim().charAt(0).toUpperCase());
 }
@@ -4513,7 +4521,7 @@ function renderChatGroupRail() {
       const badge =
         c.unreadCount > 0 ? `<span class="chat-group-rail-badge">${c.unreadCount > 99 ? "۹۹+" : c.unreadCount}</span>` : "";
       const inner = c.avatarFileId
-        ? `<img src="${WORKER_URL}/api/media/${c.avatarFileId}" alt="" loading="lazy" />`
+        ? `<img src="${mediaUrl(c.avatarFileId)}" alt="" loading="lazy" />`
         : escapeHtml(initial);
       return `
       <button class="chat-group-rail-icon${isActive ? " active" : ""}${c.avatarFileId ? " has-image" : ""}" style="background:${isActive || c.avatarFileId ? "" : color}"
@@ -4827,13 +4835,13 @@ function renderChatBubble(m, myUsername, prevMsg) {
   if (m.deleted) {
     bodyHtml = `<div class="chat-bubble-text">این پیام حذف شد</div>`;
   } else if (m.msgType === "sticker") {
-    const src = m.isExternal ? m.fileId : `${WORKER_URL}/api/media/${m.fileId}`;
+    const src = m.isExternal ? m.fileId : `${mediaUrl(m.fileId)}`;
     bodyHtml = `<img class="chat-bubble-sticker" src="${src}" alt="استیکر" loading="lazy" />`;
   } else if (m.msgType === "image") {
-    bodyHtml = `<img class="chat-bubble-image" src="${WORKER_URL}/api/media/${m.fileId}" alt="" loading="lazy" />`;
+    bodyHtml = `<img class="chat-bubble-image" src="${mediaUrl(m.fileId)}" alt="" loading="lazy" />`;
     if (m.text) bodyHtml += `<div class="chat-bubble-text">${escapeHtml(m.text)}</div>`;
   } else if (m.msgType === "audio") {
-    bodyHtml = `<audio class="chat-bubble-audio" controls src="${WORKER_URL}/api/media/${m.fileId}"></audio>`;
+    bodyHtml = `<audio class="chat-bubble-audio" controls src="${mediaUrl(m.fileId)}"></audio>`;
     if (m.text) bodyHtml += `<div class="chat-bubble-text">${escapeHtml(m.text)}</div>`;
   } else {
     bodyHtml = `<div class="chat-bubble-text">${escapeHtml(m.text || "")}</div>`;
@@ -5785,7 +5793,7 @@ function updateMediaSessionMetadata(safeId) {
   if (!meta) return;
   const artwork = meta.thumbFileId
     ? [96, 128, 192, 256, 384, 512].map((size) => ({
-        src: `${WORKER_URL}/api/media/${meta.thumbFileId}`,
+        src: `${mediaUrl(meta.thumbFileId)}`,
         sizes: `${size}x${size}`,
         type: "image/jpeg",
       }))
@@ -5919,7 +5927,7 @@ function restorePlayerState() {
 
   const audioEl = document.createElement("audio");
   audioEl.id = `audioEl-${restoredSafeId}`;
-  audioEl.src = `${WORKER_URL}/api/media/${state.fileId}`;
+  audioEl.src = `${mediaUrl(state.fileId)}`;
   audioEl.preload = "metadata";
   audioEl.style.display = "none";
   container.appendChild(audioEl);
@@ -5957,14 +5965,14 @@ setInterval(() => { if (currentAudio) savePlayerState(true); }, 5000);
 function buildAudioPlayer(fileId, safeId, thumbFileId, title, performer, postId, feeling) {
   audioMetaRegistry[safeId] = { postId, title: title || "", performer: performer || "", thumbFileId: thumbFileId || null, fileId, originalSafeId: safeId, feeling: feeling || "" };
   const coverHtml = thumbFileId
-    ? `<img src="${WORKER_URL}/api/media/${thumbFileId}" alt="" />`
+    ? `<img src="${mediaUrl(thumbFileId)}" alt="" />`
     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
   const metaHtml = title || performer
     ? `<div class="audio-meta">${escapeHtml(title || "")}${performer ? " — " + escapeHtml(performer) : ""}</div>`
     : "";
   return `
     <div class="audio-player">
-      <audio id="audioEl-${safeId}" src="${WORKER_URL}/api/media/${fileId}" preload="metadata" disableRemotePlayback x-webkit-airplay="deny"></audio>
+      <audio id="audioEl-${safeId}" src="${mediaUrl(fileId)}" preload="metadata" disableRemotePlayback x-webkit-airplay="deny"></audio>
       <div class="audio-cover-wrap" onclick="toggleAudio('${safeId}')">
         <div class="audio-cover" onclick="event.stopPropagation(); openFullPlayer('${safeId}')" title="پخش تمام‌صفحه">${coverHtml}</div>
         <button class="audio-play-btn" id="audioBtn-${safeId}" onclick="event.stopPropagation(); toggleAudio('${safeId}')">
@@ -5989,7 +5997,7 @@ function buildAudioPlayer(fileId, safeId, thumbFileId, title, performer, postId,
 function buildVideoPlayer(fileId, safeId) {
   return `
     <div class="video-player" id="videoPlayer-${safeId}">
-      <video id="videoEl-${safeId}" src="${WORKER_URL}/api/media/${fileId}" playsinline preload="metadata" disableRemotePlayback x-webkit-airplay="deny" onclick="toggleVideo('${safeId}')"></video>
+      <video id="videoEl-${safeId}" src="${mediaUrl(fileId)}" playsinline preload="metadata" disableRemotePlayback x-webkit-airplay="deny" onclick="toggleVideo('${safeId}')"></video>
       <button class="video-center-btn" onclick="toggleVideo('${safeId}')" aria-label="پخش">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
       </button>
@@ -6362,7 +6370,7 @@ function renderMiniPlayer(safeId, playing) {
   if (!wrap || !coverEl || !titleEl || !performerEl || !playBtn) return;
 
   coverEl.innerHTML = meta.thumbFileId
-    ? `<img src="${WORKER_URL}/api/media/${meta.thumbFileId}" alt="" />`
+    ? `<img src="${mediaUrl(meta.thumbFileId)}" alt="" />`
     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
   titleEl.textContent = meta.title || "بدون‌عنوان";
   performerEl.textContent = meta.performer || "";
@@ -6474,7 +6482,7 @@ function renderFullPlayer(safeId, playing) {
   const art = document.getElementById("fullPlayerArt");
   const loaderHtml = `<div class="art-loading"><div class="art-loading-spinner"></div></div>`;
   if (meta.thumbFileId) {
-    art.innerHTML = `<img src="${WORKER_URL}/api/media/${meta.thumbFileId}" alt="" />${loaderHtml}`;
+    art.innerHTML = `<img src="${mediaUrl(meta.thumbFileId)}" alt="" />${loaderHtml}`;
     applyAmbientCoverColors(panel, null); // تا وقتی رنگ واقعی استخراج بشه، رنگ‌های تمِ سایت به‌عنوان فالبک نشون داده می‌شن
     extractCoverColors(meta.thumbFileId).then((colors) => {
       // اگه کاربر تا وقتی رنگ‌ها آماده بشن آهنگ رو عوض کرده باشه، رنگ رو اعمال نکن
@@ -6607,7 +6615,7 @@ function extractCoverColors(thumbFileId) {
       }
     };
     img.onerror = () => resolve(null);
-    img.src = `${WORKER_URL}/api/media/${thumbFileId}`;
+    img.src = `${mediaUrl(thumbFileId)}`;
   });
 }
 
@@ -6757,7 +6765,7 @@ async function loadRandomQueueTracks() {
       if (!document.getElementById(`audioEl-${safeId}`)) {
         const audioEl = document.createElement("audio");
         audioEl.id = `audioEl-${safeId}`;
-        audioEl.src = `${WORKER_URL}/api/media/${p.file_id}`;
+        audioEl.src = `${mediaUrl(p.file_id)}`;
         audioEl.preload = "none";
         pool.appendChild(audioEl);
       }
@@ -6778,7 +6786,7 @@ async function loadRandomQueueTracks() {
 
 function renderQueueItemRow(p, safeId) {
   const coverHtml = p.audio_thumb
-    ? `<img src="${WORKER_URL}/api/media/${p.audio_thumb}" alt="" />`
+    ? `<img src="${mediaUrl(p.audio_thumb)}" alt="" />`
     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
   const titleText = p.audio_title || "بدون‌عنوان";
   const subParts = [];
@@ -6832,7 +6840,7 @@ function renderNowPlayingQueueItem() {
   }
 
   const coverHtml = meta.thumbFileId
-    ? `<img src="${WORKER_URL}/api/media/${meta.thumbFileId}" alt="" />`
+    ? `<img src="${mediaUrl(meta.thumbFileId)}" alt="" />`
     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
   const titleText = escapeHtml(meta.title || "بدون‌عنوان");
   const subText = meta.performer ? escapeHtml(meta.performer) : "در حال پخش";
@@ -7149,7 +7157,7 @@ function renderPost(p, num, opts) {
 
   const deleteBtn = canDelete ? `<button class="delete-btn" onclick="deletePost('${p.id}','${safeId}')">حذف</button>` : "";
   const avatarHtml = p.avatar_file_id
-    ? `<div class="avatar" style="overflow:hidden;"><img src="${WORKER_URL}/api/media/${p.avatar_file_id}" style="width:100%;height:100%;object-fit:cover;" /></div>`
+    ? `<div class="avatar" style="overflow:hidden;"><img src="${mediaUrl(p.avatar_file_id)}" style="width:100%;height:100%;object-fit:cover;" /></div>`
     : `<div class="avatar" style="background:${avatarColor(p.username || "")}">${initial}</div>`;
   const titleHtml = p.title ? `<span class="entry-title">${escapeHtml(String(p.title).slice(0, 15))}</span>` : "";
   const header = `
@@ -7174,7 +7182,7 @@ function renderPost(p, num, opts) {
   const downloadExtByType = { photo: "jpg", video: "mp4", audio: "mp3", document: "bin" };
   const downloadExt = downloadExtByType[p.type];
   const downloadBtn = hasMedia
-    ? `<button class="action-pill download" onclick="downloadPostMedia('${WORKER_URL}/api/media/${p.file_id}','${safeId}','${downloadExt}')" title="دانلود" aria-label="دانلود">${ICON_DOWNLOAD}</button>`
+    ? `<button class="action-pill download" onclick="downloadPostMedia('${mediaUrl(p.file_id)}','${safeId}','${downloadExt}')" title="دانلود" aria-label="دانلود">${ICON_DOWNLOAD}</button>`
     : `<button class="action-pill download disabled" disabled title="فایلی برای دانلود نیست" aria-label="دانلود">${ICON_DOWNLOAD}</button>`;
 
   const actionBar = `
@@ -7211,13 +7219,13 @@ function renderPost(p, num, opts) {
 
   let mediaHtml = "";
   if (p.type === "photo") {
-    mediaHtml = `<div class="entry-media"><img src="${WORKER_URL}/api/media/${p.file_id}" loading="lazy" /></div>`;
+    mediaHtml = `<div class="entry-media"><img src="${mediaUrl(p.file_id)}" loading="lazy" /></div>`;
   } else if (p.type === "video") {
     mediaHtml = `<div class="entry-media">${buildVideoPlayer(p.file_id, safeId)}</div>`;
   } else if (p.type === "audio") {
     mediaHtml = `<div class="entry-media has-audio">${buildAudioPlayer(p.file_id, safeId, p.audio_thumb, p.audio_title, p.audio_performer, p.id, p.audio_feeling)}</div>`;
   } else if (p.type === "document") {
-    mediaHtml = `<div class="entry-doc">فایل پیوست — <a href="${WORKER_URL}/api/media/${p.file_id}" target="_blank">دانلود</a></div>`;
+    mediaHtml = `<div class="entry-doc">فایل پیوست — <a href="${mediaUrl(p.file_id)}" target="_blank">دانلود</a></div>`;
   }
 
   return `<div class="post-card" id="post-${safeId}">${header}${mediaHtml}${textHtml}${tagsHtml}${timeHtml}<div class="comments-wrap">${actionBar}${commentsBlock}</div></div>`;
@@ -7388,24 +7396,24 @@ function buildDeelsCard(p) {
   div.dataset.postType = p.type;
   let mediaHtml = "";
   if (p.type === "photo") {
-    mediaHtml = `<img src="${WORKER_URL}/api/media/${p.file_id}" loading="lazy" />`;
+    mediaHtml = `<img src="${mediaUrl(p.file_id)}" loading="lazy" />`;
   } else if (p.type === "video") {
     // preload اولش none هست تا همه‌ی کارت‌های استک هم‌زمان دانلود نشن؛ فقط وقتی کارت جلو (pos-0) بشه
     // (تویِ deelsSyncFrontMedia) preload/پخشش فعال می‌شه
-    mediaHtml = `<video src="${WORKER_URL}/api/media/${p.file_id}" preload="none" muted playsinline loop disableRemotePlayback x-webkit-airplay="deny"></video>`;
+    mediaHtml = `<video src="${mediaUrl(p.file_id)}" preload="none" muted playsinline loop disableRemotePlayback x-webkit-airplay="deny"></video>`;
   } else if (p.type === "document") {
     mediaHtml = `<div class="deels-doc-box">${ICON_DOWNLOAD}</div>`;
   } else if (p.type === "audio") {
     // حالتِ موزیک: کاورِ بلورشده پسِ‌زمینه‌ی کل کارت رو می‌سازه، وسط یه دیسکِ کوچیک‌ترِ چرخان با خودِ کاور،
     // بالاش عنوانِ آهنگ، پایین هم کنترل‌های پخش (۱۰ ثانیه عقب / پخش-توقف / ۱۰ ثانیه جلو)
     const safeId = p.id.replace(/[^a-zA-Z0-9_]/g, "");
-    const coverUrl = p.audio_thumb ? `${WORKER_URL}/api/media/${p.audio_thumb}` : "";
+    const coverUrl = p.audio_thumb ? `${mediaUrl(p.audio_thumb)}` : "";
     const coverImgHtml = coverUrl ? `<img src="${coverUrl}" alt="" />` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
     const musicTitle = escapeHtml(p.audio_title || p.title || "بدون‌عنوان");
     mediaHtml = `
       <div class="deels-music-box${coverUrl ? " has-cover" : ""}">
         ${coverUrl ? `<div class="deels-music-bg" style="background-image:url('${coverUrl}')"></div>` : `<div class="deels-music-bg"></div>`}
-        <audio id="audioEl-${safeId}" src="${WORKER_URL}/api/media/${p.file_id}" preload="none" disableRemotePlayback x-webkit-airplay="deny"></audio>
+        <audio id="audioEl-${safeId}" src="${mediaUrl(p.file_id)}" preload="none" disableRemotePlayback x-webkit-airplay="deny"></audio>
         <div class="deels-music-overlay">
           <div class="deels-music-title">${musicTitle}</div>
           <div class="deels-music-disc-wrap"><div class="deels-music-disc" id="deelsDisc-${safeId}">${coverImgHtml}</div></div>
@@ -7479,7 +7487,7 @@ function renderDeelsActionBar(p) {
   const likesCount = p.likes || 0;
 
   const downloadBtn = hasMedia
-    ? `<button class="deels-action-btn" onclick="downloadPostMedia('${WORKER_URL}/api/media/${p.file_id}','${safeId}','${downloadExt}')" title="دانلود" aria-label="دانلود">${ICON_DOWNLOAD}</button>`
+    ? `<button class="deels-action-btn" onclick="downloadPostMedia('${mediaUrl(p.file_id)}','${safeId}','${downloadExt}')" title="دانلود" aria-label="دانلود">${ICON_DOWNLOAD}</button>`
     : `<button class="deels-action-btn disabled" disabled title="فایلی برای دانلود نیست" aria-label="دانلود">${ICON_DOWNLOAD}</button>`;
 
   actionsEl.innerHTML = `
@@ -7557,12 +7565,12 @@ function deelsPreloadAhead() {
     deelsPreloadedIds.add(p.id);
     if (p.type === "photo" && p.file_id) {
       const img = new Image();
-      img.src = `${WORKER_URL}/api/media/${p.file_id}`;
+      img.src = `${mediaUrl(p.file_id)}`;
     } else if (p.type === "video" && p.file_id) {
-      fetch(`${WORKER_URL}/api/media/${p.file_id}`).catch(() => {});
+      fetch(`${mediaUrl(p.file_id)}`).catch(() => {});
     } else if (p.type === "audio") {
-      if (p.audio_thumb) { const img = new Image(); img.src = `${WORKER_URL}/api/media/${p.audio_thumb}`; }
-      if (p.file_id) fetch(`${WORKER_URL}/api/media/${p.file_id}`).catch(() => {});
+      if (p.audio_thumb) { const img = new Image(); img.src = `${mediaUrl(p.audio_thumb)}`; }
+      if (p.file_id) fetch(`${mediaUrl(p.file_id)}`).catch(() => {});
     }
   }
 }
@@ -7887,7 +7895,7 @@ function renderMusicRow(p) {
   };
 
   const coverHtml = p.audio_thumb
-    ? `<img src="${WORKER_URL}/api/media/${p.audio_thumb}" alt="" />`
+    ? `<img src="${mediaUrl(p.audio_thumb)}" alt="" />`
     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
 
   const titleText = p.audio_title || "بدون‌عنوان";
@@ -7898,7 +7906,7 @@ function renderMusicRow(p) {
 
   return `
     <div class="music-row">
-      <audio id="audioEl-${safeId}" src="${WORKER_URL}/api/media/${p.file_id}" preload="none" disableRemotePlayback x-webkit-airplay="deny"></audio>
+      <audio id="audioEl-${safeId}" src="${mediaUrl(p.file_id)}" preload="none" disableRemotePlayback x-webkit-airplay="deny"></audio>
       <div class="music-row-cover" onclick="openFullPlayer('${safeId}')" title="پخش تمام‌صفحه">${coverHtml}</div>
       <div class="music-row-info" onclick="toggleAudio('${safeId}')" title="پخش/توقف">
         <div class="music-row-title">${escapeHtml(titleText)}</div>
@@ -8253,8 +8261,8 @@ function onAdminStickerSearch() {
 
 function renderAdminStickerItem(s) {
   const media = s.is_animated
-    ? `<video src="${WORKER_URL}/api/media/${s.file_id}" autoplay loop muted playsinline disableRemotePlayback x-webkit-airplay="deny"></video>`
-    : `<img src="${WORKER_URL}/api/media/${s.file_id}" loading="lazy" />`;
+    ? `<video src="${mediaUrl(s.file_id)}" autoplay loop muted playsinline disableRemotePlayback x-webkit-airplay="deny"></video>`
+    : `<img src="${mediaUrl(s.file_id)}" loading="lazy" />`;
   const label = s.name ? s.name : s.username;
   return `
     <div class="admin-sticker-item">
@@ -8535,7 +8543,7 @@ function buildGroupedStickerItems(customList, defaultList) {
       kind: "custom",
       id: s.id,
       owner: s.username,
-      src: `${WORKER_URL}/api/media/${s.file_id}`,
+      src: `${mediaUrl(s.file_id)}`,
       animated: !!s.is_animated,
       name: s.name || "",
       groupKey: s.username === myUsername ? "mine" : "rest",
@@ -8889,7 +8897,7 @@ function renderCommentItem(c, isReply, replyToUsername, postId, safeId, repliesC
 
   const initial = c.username ? c.username[0].toUpperCase() : "?";
   const avatarHtml = c.avatar_file_id
-    ? `<div class="avatar" style="overflow:hidden;cursor:pointer;" onclick="openProfile('${jsAttr(c.username)}')"><img src="${WORKER_URL}/api/media/${c.avatar_file_id}" style="width:100%;height:100%;object-fit:cover;" /></div>`
+    ? `<div class="avatar" style="overflow:hidden;cursor:pointer;" onclick="openProfile('${jsAttr(c.username)}')"><img src="${mediaUrl(c.avatar_file_id)}" style="width:100%;height:100%;object-fit:cover;" /></div>`
     : `<div class="avatar" style="background:${avatarColor(c.username || "")};cursor:pointer;" onclick="openProfile('${jsAttr(c.username)}')">${initial}</div>`;
 
   const replyToHint = replyToUsername
@@ -8946,7 +8954,7 @@ function renderCommentItem(c, isReply, replyToUsername, postId, safeId, repliesC
 
 // ---------- ساخت آدرس/تگ رسانه‌ی استیکر داخل یک کامنت ----------
 function commentStickerSrc(c) {
-  return c.sticker_is_external ? c.sticker_src : `${WORKER_URL}/api/media/${c.sticker_src}`;
+  return c.sticker_is_external ? c.sticker_src : `${mediaUrl(c.sticker_src)}`;
 }
 function commentStickerMediaHtml(c) {
   const src = commentStickerSrc(c);
@@ -9382,7 +9390,7 @@ async function loadProfile(username) {
     const avatarWrap = document.getElementById("profileAvatarWrap");
     if (p.avatar_file_id) {
       avatarWrap.style.background = "transparent";
-      avatarWrap.innerHTML = `<img src="${WORKER_URL}/api/media/${p.avatar_file_id}" />`;
+      avatarWrap.innerHTML = `<img src="${mediaUrl(p.avatar_file_id)}" />`;
     } else {
       avatarWrap.style.background = avatarColor(username);
       avatarWrap.textContent = username[0].toUpperCase();
@@ -9391,7 +9399,7 @@ async function loadProfile(username) {
     // بنر: اگه عکسی ست نشده بود، یه گرادیانِ هم‌رنگ با تمِ فعلی به‌جاش نشون داده می‌شه
     const bannerEl = document.getElementById("profileBanner");
     if (p.banner_file_id) {
-      bannerEl.style.backgroundImage = `url('${WORKER_URL}/api/media/${p.banner_file_id}')`;
+      bannerEl.style.backgroundImage = `url('${mediaUrl(p.banner_file_id)}')`;
     } else {
       bannerEl.style.backgroundImage = "none";
       bannerEl.style.background = bannerPlaceholderGradient(p.theme);
@@ -9545,13 +9553,13 @@ function renderProfileGridItem(p) {
   let mediaHtml = "";
   let badge = "";
   if (p.type === "photo") {
-    mediaHtml = `<img src="${WORKER_URL}/api/media/${p.file_id}" loading="lazy" />`;
+    mediaHtml = `<img src="${mediaUrl(p.file_id)}" loading="lazy" />`;
   } else if (p.type === "video") {
-    mediaHtml = `<video src="${WORKER_URL}/api/media/${p.file_id}" preload="metadata" muted playsinline disableRemotePlayback x-webkit-airplay="deny"></video>`;
+    mediaHtml = `<video src="${mediaUrl(p.file_id)}" preload="metadata" muted playsinline disableRemotePlayback x-webkit-airplay="deny"></video>`;
     badge = `<div class="grid-item-badge">${ICON_PLAY}</div>`;
   } else if (p.type === "audio") {
     mediaHtml = p.audio_thumb
-      ? `<img src="${WORKER_URL}/api/media/${p.audio_thumb}" loading="lazy" />`
+      ? `<img src="${mediaUrl(p.audio_thumb)}" loading="lazy" />`
       : `<div class="grid-item-noart">${ICON_MUSIC}</div>`;
     badge = `<div class="grid-item-badge">${ICON_MUSIC}</div>`;
   } else {
