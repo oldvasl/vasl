@@ -3261,7 +3261,7 @@
 </div>
 
 <script>
-const WORKER_URL = "https://VLC.alipviv8698.workers.dev";
+const WORKER_URL = "https://dehaat-proxy.toopzsupport.workers.dev";
 
 if (!localStorage.getItem("token")) {
   window.location.href = "login.html";
@@ -3460,7 +3460,9 @@ async function selectTheme(theme) {
 
 async function syncThemeFromServer() {
   try {
-    const res = await fetch(`${WORKER_URL}/api/profile?username=${encodeURIComponent(getUsername())}`);
+    const res = await fetch(`${WORKER_URL}/api/profile?username=${encodeURIComponent(getUsername())}`, {
+      headers: { "Authorization": `Bearer ${getToken()}` },
+    });
     const data = await res.json();
     if (res.ok && data.profile) {
       const serverTheme = normalizeThemeValue(data.profile.theme);
@@ -8760,7 +8762,9 @@ async function deleteMyStickerFromPicker(id) {
 async function fetchCustomStickerPage(page, search = "") {
   const params = new URLSearchParams({ page: String(page), pageSize: String(CUSTOM_STICKER_PAGE_SIZE) });
   if (search) params.set("search", search);
-  const res = await fetch(`${WORKER_URL}/api/stickers?${params.toString()}`);
+  const res = await fetch(`${WORKER_URL}/api/stickers?${params.toString()}`, {
+    headers: { "Authorization": `Bearer ${getToken()}` },
+  });
   const data = await res.json();
   return { stickers: data.stickers || [], hasMore: !!data.hasMore };
 }
