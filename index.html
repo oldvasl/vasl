@@ -3473,23 +3473,27 @@ async function selectTheme(theme) {
   }
 }
 
+function applyThemeAndAvatar(profile) {
+  if (profile) {
+    const serverTheme = normalizeThemeValue(profile.theme);
+    if (serverTheme && serverTheme !== currentTheme) {
+      applyTheme(serverTheme);
+    } else {
+      markActiveSwatch(currentTheme);
+    }
+    applyHeaderAvatar(getUsername() || "", profile.avatar_file_id);
+  } else {
+    markActiveSwatch(currentTheme);
+  }
+}
+
 async function syncThemeFromServer() {
   try {
     const res = await fetch(`${WORKER_URL}/api/profile?username=${encodeURIComponent(getUsername())}`, {
       headers: { "Authorization": `Bearer ${getToken()}` },
     });
     const data = await res.json();
-    if (res.ok && data.profile) {
-      const serverTheme = normalizeThemeValue(data.profile.theme);
-      if (serverTheme && serverTheme !== currentTheme) {
-        applyTheme(serverTheme);
-      } else {
-        markActiveSwatch(currentTheme);
-      }
-      applyHeaderAvatar(getUsername() || "", data.profile.avatar_file_id);
-    } else {
-      markActiveSwatch(currentTheme);
-    }
+    applyThemeAndAvatar(res.ok ? data.profile : null);
   } catch (e) {
     markActiveSwatch(currentTheme);
   }
@@ -3508,7 +3512,6 @@ function applyHeaderAvatar(uname, avatarFileId) {
   }
 }
 applyHeaderAvatar(getUsername() || "");
-checkNotificationsBadge();
 
 // نکته امنیتی: تشخیص ادمین بودن دیگه سمت کلاینت هاردکد نیست و از سرور استعلام می‌شه،
 // چون حالا هر ادمینی (نه فقط مالک سایت) می‌تونه به پنل مدیریت دسترسی داشته باشه.
@@ -3516,21 +3519,9 @@ checkNotificationsBadge();
 let isAdmin = false;
 let isSuperAdmin = false;
 
-async function initAdminStatus() {
-  try {
-    const res = await fetch(`${WORKER_URL}/api/admin/me`, {
-      headers: { "Authorization": `Bearer ${getToken()}` },
-    });
-    const data = await res.json();
-    if (res.ok) {
-      isAdmin = !!data.is_admin;
-      isSuperAdmin = !!data.is_super_admin;
-    }
-  } catch (e) {
-    // اگه استعلام شکست بخوره، محتاطانه فرض می‌کنیم ادمین نیست
-    isAdmin = false;
-    isSuperAdmin = false;
-  }
+function applyAdminStatus(data) {
+  isAdmin = !!(data && data.is_admin);
+  isSuperAdmin = !!(data && data.is_super_admin);
 
   if (isAdmin && !document.getElementById("navBtn-admin")) {
     const nav = document.querySelector(".top-nav");
@@ -3542,6 +3533,19 @@ async function initAdminStatus() {
     `);
     if (typeof positionTopNavIndicator === "function") requestAnimationFrame(positionTopNavIndicator);
   }
+}
+
+async function initAdminStatus() {
+  let data = null;
+  try {
+    const res = await fetch(`${WORKER_URL}/api/admin/me`, {
+      headers: { "Authorization": `Bearer ${getToken()}` },
+    });
+    if (res.ok) data = await res.json();
+  } catch (e) {
+    // اگه استعلام شکست بخوره، محتاطانه فرض می‌کنیم ادمین نیست
+  }
+  applyAdminStatus(data);
 }
 
 window.addEventListener("scroll", () => {
@@ -4190,24 +4194,66 @@ function updateUploadPreview() {
   card.innerHTML = `${header}${mediaHtml}${textHtml}${tagsHtml}${timeHtml}`;
 }
 
-// ---------- پاکسازی متادیتا قبل از آپلود ----------
-// عکس: با کشیدنش روی canvas و خروجی گرفتن دوباره، همه‌ی EXIF (از جمله موقعیت GPS) به‌طور کامل حذف می‌شه
-async function stripImageExif(file) {
+// ---------- فشرده‌سازیِ عکس قبل از آپلود ----------
+// عکس‌های خامِ موبایل معمولاً ۴۰۰۰+ پیکسل عرض دارن، در حالی که هیچ‌جای دهات بیشتر از ~1200px
+// نمایشش نمی‌ده. اینجا عکس رو (با کیفیتِ بالای Canvas resize) به حداکثر ابعادِ منطقی کوچیک می‌کنیم
+// و به JPEG کیفیت‌بالا (که چشم فرقش رو با اصل تشخیص نمی‌ده) تبدیل می‌کنیم — این معمولاً یه عکسِ
+// ۶-۸ مگابایتی رو به چند صد کیلوبایت می‌رسونه. اگه عکس واقعاً شفافیت داشته باشه (مثل اکثر استیکرها)،
+// به‌جای JPEG، PNG خروجی می‌گیریم تا شفافیت از بین نره. به‌عنوان اثر جانبی، چون عکس دوباره از صفر
+// روی canvas رسم و انکود می‌شه، تمام متادیتای EXIF (از جمله موقعیت GPS) هم به‌طور کامل حذف می‌شه.
+async function compressImage(file, opts) {
+  const maxDimension = (opts && opts.maxDimension) || 1920;
+  const quality = (opts && opts.quality) || 0.88;
+
+  if (!file || !file.type.startsWith("image/")) return file;
+  if (file.type === "image/gif") return file; // gif رو دست‌نخورده می‌ذاریم چون ممکنه انیمیت باشه
+
   try {
     const bitmap = await createImageBitmap(file);
+    let width = bitmap.width;
+    let height = bitmap.height;
+
+    if (width > maxDimension || height > maxDimension) {
+      const scale = maxDimension / Math.max(width, height);
+      width = Math.max(1, Math.round(width * scale));
+      height = Math.max(1, Math.round(height * scale));
+    }
+
     const canvas = document.createElement("canvas");
-    canvas.width = bitmap.width;
-    canvas.height = bitmap.height;
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext("2d");
-    ctx.drawImage(bitmap, 0, 0);
-    const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, outType, 0.92));
-    if (!blob) return file;
-    const newName = file.name.replace(/\.(heic|heif)$/i, outType === "image/png" ? ".png" : ".jpg");
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high"; // بهترین کیفیتِ ممکن موقع کوچیک‌کردن
+    ctx.drawImage(bitmap, 0, 0, width, height);
+
+    const outType = imageHasTransparency(ctx, width, height) ? "image/png" : "image/jpeg";
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, outType, quality));
+    if (!blob || blob.size >= file.size) return file; // اگه فشرده‌سازی کمکی نکرد، فایل اصلی رو نگه دار
+
+    const newName = file.name.replace(/\.(heic|heif|png|jpe?g|webp)$/i, outType === "image/png" ? ".png" : ".jpg");
     return new File([blob], newName, { type: outType, lastModified: Date.now() });
   } catch (e) {
-    return file; // اگه پاکسازی جواب نداد، همون فایل اصلی رو می‌فرستیم تا کاربر تو ارسال گیر نکنه
+    return file; // هر مشکلی پیش اومد، فایل اصلی رو می‌فرستیم تا کاربر تو ارسال گیر نکنه
   }
+}
+
+// چک می‌کنه عکس واقعاً پیکسلِ شفاف/نیمه‌شفاف داره یا نه (نمونه‌برداری برای سرعت، نه پیکسل‌به‌پیکسل)
+function imageHasTransparency(ctx, width, height) {
+  try {
+    const data = ctx.getImageData(0, 0, width, height).data;
+    for (let i = 3; i < data.length; i += 4 * 23) {
+      if (data[i] < 255) return true;
+    }
+    return false;
+  } catch (e) {
+    return false;
+  }
+}
+
+// نگه‌داشتیمش برای سازگاری با کدهای قدیمی؛ همون compressImage با تنظیماتِ پیش‌فرضه
+async function stripImageExif(file) {
+  return compressImage(file, { maxDimension: 1920, quality: 0.88 });
 }
 
 // ویدیو: با ffmpeg.wasm (فقط موقع نیاز، از CDN لود می‌شه) اتم‌های متادیتا حذف می‌شن (بدون افت کیفیت، چون فقط remux می‌شه نه ترنسکود)
@@ -5195,8 +5241,9 @@ async function onChatAudioChosen(event) {
 
 async function uploadAndSendChatMedia(file, msgType) {
   try {
+    const fileToSend = msgType === "image" ? await compressImage(file, { maxDimension: 1600, quality: 0.85 }) : file;
     const fd = new FormData();
-    fd.append("file", file);
+    fd.append("file", fileToSend);
     const res = await fetch(`${WORKER_URL}/api/chat/upload`, {
       method: "POST",
       headers: { Authorization: `Bearer ${getToken()}` },
@@ -5628,7 +5675,7 @@ async function createChatGroup(title, avatarFile) {
   try {
     const fd = new FormData();
     fd.append("title", title);
-    if (avatarFile) fd.append("avatar", await stripImageExif(avatarFile));
+    if (avatarFile) fd.append("avatar", await compressImage(avatarFile, { maxDimension: 512, quality: 0.85 }));
     const res = await fetch(`${WORKER_URL}/api/chat/group`, {
       method: "POST",
       headers: { Authorization: `Bearer ${getToken()}` },
@@ -7809,6 +7856,30 @@ function appendMediaPost(html) {
   cols[0].insertAdjacentHTML("beforeend", html);
 }
 
+function renderMediaFeedPage(data, reset) {
+  const footerEl = document.getElementById("mediaFeedFooter");
+  feedState.media.loaded = true;
+
+  if (reset && (!data.posts || data.posts.length === 0)) {
+    footerEl.innerHTML = `<div class="empty-state">هنوز رسانه‌ای ثبت نشده — اولین نفر باش.</div>`;
+    return;
+  }
+  if (reset) footerEl.innerHTML = "";
+
+  const startIndex = (feedState.media.page - 1) * PAGE_SIZE;
+  data.posts.forEach((p, i) => {
+    appendMediaPost(renderPost(p, data.total - (startIndex + i)));
+  });
+  bindAllAudioPlayers(document.getElementById("mediaFeed"));
+  bindAllVideoPlayers(document.getElementById("mediaFeed"));
+
+  const oldBtn = document.getElementById("loadMoreBtn-media");
+  if (oldBtn) oldBtn.remove();
+  if (data.hasMore) {
+    footerEl.insertAdjacentHTML("beforeend", `<button class="load-more-btn" id="loadMoreBtn-media" onclick="loadMoreFeed('media')">بارگذاری بیشتر</button>`);
+  }
+}
+
 async function loadFeedView(kind, reset = true) {
   if (kind === "media") {
     const footerEl = document.getElementById("mediaFeedFooter");
@@ -7822,26 +7893,7 @@ async function loadFeedView(kind, reset = true) {
         headers: { "Authorization": `Bearer ${getToken()}` },
       });
       const data = await res.json();
-      feedState.media.loaded = true;
-
-      if (reset && (!data.posts || data.posts.length === 0)) {
-        footerEl.innerHTML = `<div class="empty-state">هنوز رسانه‌ای ثبت نشده — اولین نفر باش.</div>`;
-        return;
-      }
-      if (reset) footerEl.innerHTML = "";
-
-      const startIndex = (feedState.media.page - 1) * PAGE_SIZE;
-      data.posts.forEach((p, i) => {
-        appendMediaPost(renderPost(p, data.total - (startIndex + i)));
-      });
-      bindAllAudioPlayers(document.getElementById("mediaFeed"));
-      bindAllVideoPlayers(document.getElementById("mediaFeed"));
-
-      const oldBtn = document.getElementById("loadMoreBtn-media");
-      if (oldBtn) oldBtn.remove();
-      if (data.hasMore) {
-        footerEl.insertAdjacentHTML("beforeend", `<button class="load-more-btn" id="loadMoreBtn-media" onclick="loadMoreFeed('media')">بارگذاری بیشتر</button>`);
-      }
+      renderMediaFeedPage(data, reset);
     } catch (e) {
       if (reset) footerEl.innerHTML = `<div class="empty-state">فید بارگذاری نشد. اتصال اینترنتت رو چک کن.</div>`;
     }
@@ -8883,8 +8935,9 @@ async function submitStickerUpload() {
   btn.textContent = "در حال آپلود...";
 
   try {
+    const compressedSticker = await compressImage(pendingStickerFile, { maxDimension: 512, quality: 0.9 });
     const fd = new FormData();
-    fd.append("file", pendingStickerFile);
+    fd.append("file", compressedSticker);
     if (nameInput.value.trim()) fd.append("name", nameInput.value.trim());
 
     const res = await fetch(`${WORKER_URL}/api/sticker`, {
@@ -9371,15 +9424,17 @@ function loadMoreNotifications() {
   loadNotifications(false);
 }
 
+function applyNotificationBadge(unreadCount) {
+  document.getElementById("bellDot").classList.toggle("hidden", !(unreadCount > 0));
+}
+
 async function checkNotificationsBadge() {
   try {
     const res = await fetch(`${WORKER_URL}/api/notifications?page=1&pageSize=1`, {
       headers: { "Authorization": `Bearer ${getToken()}` },
     });
     const data = await res.json();
-    if (res.ok && data.unread_count > 0) {
-      document.getElementById("bellDot").classList.remove("hidden");
-    }
+    if (res.ok) applyNotificationBadge(data.unread_count);
   } catch (e) {}
 }
 
@@ -10327,7 +10382,7 @@ async function saveProfile() {
   fd.append("bio", bio);
   btn.disabled = true;
   btn.textContent = "در حال ذخیره...";
-  if (selectedAvatarFile) fd.append("avatar", await stripImageExif(selectedAvatarFile));
+  if (selectedAvatarFile) fd.append("avatar", await compressImage(selectedAvatarFile, { maxDimension: 512, quality: 0.85 }));
   if (selectedBannerFile) fd.append("banner", selectedBannerFile);
   try {
     const res = await fetch(`${WORKER_URL}/api/profile`, {
@@ -10484,10 +10539,34 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") checkForNewVersion();
 });
 
+// ---------- بوت‌استرپِ صفحه با یه درخواست به‌جای ۴تا (پروفایل/تم، وضعیتِ ادمین، اعلانِ نخونده، فیدِ اول) ----------
+// اگه بوت‌استرپ به هر دلیلی شکست بخوره (مثلاً ورکر جدید هنوز آپدیت نشده)، به روش قدیمیِ ۴ درخواستِ
+// جدا برمی‌گردیم؛ یعنی این تغییر هیچ‌وقت باعثِ خرابیِ کاملِ لود شدنِ صفحه نمی‌شه.
+async function bootstrapApp() {
+  feedState.media.page = 1;
+  ["mediaCol0", "mediaCol1", "mediaCol2"].forEach((id) => { document.getElementById(id).innerHTML = ""; });
+  document.getElementById("mediaFeedFooter").innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
+
+  try {
+    const res = await fetch(`${WORKER_URL}/api/bootstrap?pageSize=${PAGE_SIZE}`, {
+      headers: { "Authorization": `Bearer ${getToken()}` },
+    });
+    if (!res.ok) throw new Error("bootstrap failed");
+    const data = await res.json();
+
+    applyAdminStatus(data);
+    applyThemeAndAvatar(data.profile);
+    applyNotificationBadge(data.unread_notifications);
+    renderMediaFeedPage(data.feed, true);
+  } catch (e) {
+    // برگشت به روشِ قدیمی، جدا جدا
+    await Promise.all([initAdminStatus(), syncThemeFromServer(), checkNotificationsBadge(), loadFeedView("media", true)]);
+  }
+}
+
 (async () => {
   const splashStart = Date.now();
-  await initAdminStatus();
-  syncThemeFromServer();
+  await bootstrapApp();
   switchView("media");
   restorePlayerState();
   startGlobalChatBadgePolling();
