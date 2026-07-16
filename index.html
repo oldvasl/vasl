@@ -3063,6 +3063,7 @@
       <button class="filter-chip" id="adminTab-users" onclick="setAdminTab('users')">کاربران</button>
       <button class="filter-chip" id="adminTab-reports" onclick="setAdminTab('reports')">گزارش‌ها</button>
       <button class="filter-chip" id="adminTab-stickers" onclick="setAdminTab('stickers')">استیکرها</button>
+      <button class="filter-chip hidden" id="adminTab-groups" onclick="setAdminTab('groups')">گروه‌ها</button>
     </div>
 
     <div id="adminPostsSection">
@@ -3088,8 +3089,35 @@
       <input type="text" id="adminStickerSearch" placeholder="جستجوی نام استیکر یا کاربر..." oninput="onAdminStickerSearch()" style="margin-bottom:12px;" />
       <div class="admin-sticker-grid" id="adminStickersList"></div>
     </div>
+
+    <div id="adminGroupsSection" class="hidden">
+      <input type="text" id="adminGroupSearch" placeholder="جستجوی نام گروه..." oninput="onAdminGroupSearch()" style="margin-bottom:12px;" />
+      <div id="adminGroupsList"></div>
+    </div>
   </div>
 
+</div>
+
+<!-- نظارتِ ادمین روی یک گروه (فقط‌خواندنی، بدون امکان ارسال/ویرایش پیام) -->
+<div id="adminGroupMonitor" class="chat-conversation">
+  <div class="chat-conv-main" id="adminGroupMonitorMain">
+    <div class="chat-conv-header">
+      <button class="chat-conv-back" onclick="closeAdminGroupMonitor()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <div class="chat-conv-avatar-wrap">
+        <div class="chat-conv-avatar" id="adminGroupMonitorAvatar"></div>
+      </div>
+      <div class="chat-conv-titles">
+        <span class="chat-conv-title" id="adminGroupMonitorTitle"></span>
+        <span class="chat-conv-subtitle" id="adminGroupMonitorSubtitle"></span>
+      </div>
+      <div class="chat-conv-header-actions">
+        <span style="font-size:11px; color:var(--subtext);">نمای نظارتی · فقط‌خواندنی</span>
+      </div>
+    </div>
+    <div class="chat-conv-messages" id="adminGroupMonitorMessages"></div>
+  </div>
 </div>
 
 <button id="backToTop" class="back-to-top" onclick="window.scrollTo({top:0, behavior:'smooth'})" aria-label="بازگشت به بالا">
@@ -3522,6 +3550,8 @@ let isSuperAdmin = false;
 function applyAdminStatus(data) {
   isAdmin = !!(data && data.is_admin);
   isSuperAdmin = !!(data && data.is_super_admin);
+
+  document.getElementById("adminTab-groups").classList.toggle("hidden", !isSuperAdmin);
 
   if (isAdmin && !document.getElementById("navBtn-admin")) {
     const nav = document.querySelector(".top-nav");
@@ -8093,10 +8123,12 @@ function setAdminTab(tab) {
   document.getElementById("adminTab-users").classList.toggle("active", tab === "users");
   document.getElementById("adminTab-reports").classList.toggle("active", tab === "reports");
   document.getElementById("adminTab-stickers").classList.toggle("active", tab === "stickers");
+  document.getElementById("adminTab-groups").classList.toggle("active", tab === "groups");
   document.getElementById("adminPostsSection").classList.toggle("hidden", tab !== "posts");
   document.getElementById("adminUsersSection").classList.toggle("hidden", tab !== "users");
   document.getElementById("adminReportsSection").classList.toggle("hidden", tab !== "reports");
   document.getElementById("adminStickersSection").classList.toggle("hidden", tab !== "stickers");
+  document.getElementById("adminGroupsSection").classList.toggle("hidden", tab !== "groups");
 
   if (tab === "users" && !adminUsersState.loaded) {
     loadAdminUsers(true);
@@ -8106,6 +8138,9 @@ function setAdminTab(tab) {
   }
   if (tab === "stickers" && !adminStickersState.loaded) {
     loadAdminStickers(true);
+  }
+  if (tab === "groups" && !adminGroupsState.loaded) {
+    loadAdminGroups(true);
   }
 }
 
@@ -8314,6 +8349,275 @@ async function dismissReport(id) {
   } catch (e) {
     alert("اتصال به سرور برقرار نشد");
   }
+}
+
+// ---------- گروه‌های چت در پنل مدیریت (لیستِ همه‌ی گروه‌ها + نظارتِ فقط‌خواندنی) ----------
+const adminGroupsState = { page: 1, search: "", loaded: false };
+let adminGroupSearchTimer = null;
+
+function onAdminGroupSearch() {
+  clearTimeout(adminGroupSearchTimer);
+  adminGroupSearchTimer = setTimeout(() => {
+    adminGroupsState.search = document.getElementById("adminGroupSearch").value.trim();
+    loadAdminGroups(true);
+  }, 350);
+}
+
+function renderAdminGroupRow(g) {
+  const created = g.createdAt ? new Date(g.createdAt).toLocaleDateString("fa-IR") : "-";
+  const lastMsg = g.lastMessageAt ? formatRelativeTime(g.lastMessageAt) : "بدون پیام";
+  return `
+    <div class="admin-user-row" style="cursor:pointer;" onclick="openAdminGroupMonitor('${jsAttr(g.id)}', '${jsAttr(g.title || "بدون‌نام")}', ${g.memberCount}, '${jsAttr(g.avatarFileId || "")}')">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div class="chat-msg-avatar" style="background:${avatarColor(g.title || g.id)}; flex-shrink:0;">${avatarInnerHtml(g.avatarFileId, g.title)}</div>
+        <div>
+          <span class="admin-user-name">${escapeHtml(g.title || "بدون‌نام")}</span>
+          <div class="admin-user-date">سازنده: ${escapeHtml(g.createdBy)} · ${g.memberCount} عضو · ساخت: ${created}</div>
+          <div class="admin-user-date">آخرین پیام: ${lastMsg}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function loadAdminGroups(reset = true) {
+  const listEl = document.getElementById("adminGroupsList");
+  if (reset) {
+    adminGroupsState.page = 1;
+    listEl.innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
+  }
+  try {
+    const res = await fetch(
+      `${WORKER_URL}/api/admin/chat/groups?search=${encodeURIComponent(adminGroupsState.search)}&page=${adminGroupsState.page}&pageSize=20`,
+      { headers: { "Authorization": `Bearer ${getToken()}` } }
+    );
+    const data = await res.json();
+    adminGroupsState.loaded = true;
+
+    if (!res.ok) {
+      listEl.innerHTML = `<div class="empty-state">${escapeHtml(data.error || "دسترسی نداری")}</div>`;
+      return;
+    }
+
+    if (reset && (!data.groups || data.groups.length === 0)) {
+      listEl.innerHTML = `<div class="empty-state">گروهی وجود نداره</div>`;
+      return;
+    }
+    if (reset) listEl.innerHTML = "";
+
+    listEl.insertAdjacentHTML("beforeend", data.groups.map(renderAdminGroupRow).join(""));
+
+    const oldBtn = document.getElementById("loadMoreBtn-adminGroups");
+    if (oldBtn) oldBtn.remove();
+    if (data.hasMore) {
+      listEl.insertAdjacentHTML("beforeend", `<button class="load-more-btn" id="loadMoreBtn-adminGroups" onclick="loadMoreAdminGroups()">بارگذاری بیشتر</button>`);
+    }
+  } catch (e) {
+    if (reset) listEl.innerHTML = `<div class="empty-state">بارگذاری نشد</div>`;
+  }
+}
+
+function loadMoreAdminGroups() {
+  adminGroupsState.page++;
+  loadAdminGroups(false);
+}
+
+// ---------- نظارتِ ادمین روی یک گروه (فقط‌خواندنی) ----------
+const adminGroupMonitorState = {
+  conversationId: null,
+  messages: [],
+  oldestLoadedAt: null,
+  newestLoadedAt: 0,
+  hasMoreOlder: false,
+  loadingOlder: false,
+  pollTimer: null,
+};
+
+async function openAdminGroupMonitor(conversationId, title, memberCount, avatarFileId) {
+  adminGroupMonitorState.conversationId = conversationId;
+  adminGroupMonitorState.messages = [];
+  adminGroupMonitorState.oldestLoadedAt = null;
+  adminGroupMonitorState.newestLoadedAt = 0;
+  adminGroupMonitorState.hasMoreOlder = false;
+  adminGroupMonitorState.loadingOlder = false;
+
+  document.getElementById("adminGroupMonitorTitle").textContent = title || "گروه";
+  document.getElementById("adminGroupMonitorSubtitle").textContent = memberCount ? `${memberCount} عضو` : "";
+  const avatarEl = document.getElementById("adminGroupMonitorAvatar");
+  avatarEl.style.background = avatarColor(title || conversationId);
+  avatarEl.innerHTML = avatarInnerHtml(avatarFileId || null, title);
+
+  const messagesEl = document.getElementById("adminGroupMonitorMessages");
+  messagesEl.innerHTML = `<div class="chat-loading">در حال بارگذاری...</div>`;
+  document.getElementById("adminGroupMonitor").classList.add("open");
+  messagesEl.onscroll = () => {
+    if (messagesEl.scrollTop < 80) loadOlderAdminGroupMessages();
+  };
+
+  await loadInitialAdminGroupMessages(conversationId);
+  startAdminGroupPolling(conversationId);
+}
+
+function closeAdminGroupMonitor() {
+  document.getElementById("adminGroupMonitor").classList.remove("open");
+  stopAdminGroupPolling();
+  adminGroupMonitorState.conversationId = null;
+}
+
+function startAdminGroupPolling(conversationId) {
+  stopAdminGroupPolling();
+  adminGroupMonitorState.pollTimer = setInterval(() => pollAdminGroupMessages(conversationId), 5000);
+}
+function stopAdminGroupPolling() {
+  if (adminGroupMonitorState.pollTimer) {
+    clearInterval(adminGroupMonitorState.pollTimer);
+    adminGroupMonitorState.pollTimer = null;
+  }
+}
+
+async function loadInitialAdminGroupMessages(conversationId) {
+  try {
+    const res = await fetch(`${WORKER_URL}/api/admin/chat/messages?conversation=${encodeURIComponent(conversationId)}`, {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "خطا در بارگذاریِ پیام‌ها");
+    adminGroupMonitorState.messages = data.messages || [];
+    adminGroupMonitorState.hasMoreOlder = !!data.hasMore;
+    adminGroupMonitorState.oldestLoadedAt = adminGroupMonitorState.messages.length ? adminGroupMonitorState.messages[0].createdAt : null;
+    adminGroupMonitorState.newestLoadedAt = adminGroupMonitorState.messages.length
+      ? adminGroupMonitorState.messages[adminGroupMonitorState.messages.length - 1].createdAt
+      : 0;
+    renderAdminGroupMonitorMessages();
+  } catch (e) {
+    document.getElementById("adminGroupMonitorMessages").innerHTML = `<div class="chat-loading">${escapeHtml(e.message || "خطا در بارگذاری")}</div>`;
+  }
+}
+
+async function loadOlderAdminGroupMessages() {
+  const st = adminGroupMonitorState;
+  if (!st.conversationId || st.loadingOlder || !st.hasMoreOlder) return;
+  st.loadingOlder = true;
+  const el = document.getElementById("adminGroupMonitorMessages");
+  const oldScrollHeight = el.scrollHeight;
+  const oldScrollTop = el.scrollTop;
+  renderAdminGroupMonitorMessages();
+  try {
+    const before = st.oldestLoadedAt || Date.now();
+    const res = await fetch(
+      `${WORKER_URL}/api/admin/chat/messages?conversation=${encodeURIComponent(st.conversationId)}&before=${before}`,
+      { headers: { Authorization: `Bearer ${getToken()}` } }
+    );
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "خطا");
+    const older = data.messages || [];
+    st.hasMoreOlder = !!data.hasMore;
+    if (older.length) {
+      st.messages = [...older, ...st.messages];
+      st.oldestLoadedAt = older[0].createdAt;
+      st.loadingOlder = false;
+      renderAdminGroupMonitorMessages({ preserveScrollFrom: { oldScrollHeight, oldScrollTop } });
+      return;
+    }
+  } catch (e) {
+    // بی‌خیال، دفعه‌ی بعدی که اسکرول کرد دوباره امتحان می‌شه
+  }
+  st.loadingOlder = false;
+  renderAdminGroupMonitorMessages();
+}
+
+async function pollAdminGroupMessages(conversationId) {
+  const st = adminGroupMonitorState;
+  if (st.conversationId !== conversationId) return;
+  try {
+    const res = await fetch(
+      `${WORKER_URL}/api/admin/chat/messages?conversation=${encodeURIComponent(conversationId)}&after=${st.newestLoadedAt || 0}`,
+      { headers: { Authorization: `Bearer ${getToken()}` } }
+    );
+    const data = await res.json();
+    if (!res.ok) return;
+    if (data.messages && data.messages.length) {
+      st.messages.push(...data.messages);
+      st.newestLoadedAt = data.messages[data.messages.length - 1].createdAt;
+      renderAdminGroupMonitorMessages();
+    }
+  } catch (e) {
+    // نادیده بگیر، دورِ بعدیِ پولینگ دوباره امتحان می‌کنه
+  }
+}
+
+function renderAdminGroupMonitorMessages(opts = {}) {
+  const el = document.getElementById("adminGroupMonitorMessages");
+  if (!el) return;
+  const st = adminGroupMonitorState;
+  if (st.messages.length === 0) {
+    el.innerHTML = `<div class="chat-loading">هنوز پیامی تو این گروه رد و بدل نشده</div>`;
+    return;
+  }
+  const loadMoreHtml = st.hasMoreOlder
+    ? `<div class="chat-load-more">${st.loadingOlder ? "در حال بارگذاری..." : "برای دیدن پیام‌های قدیمی‌تر اسکرول کن"}</div>`
+    : "";
+  el.innerHTML = loadMoreHtml + st.messages.map((m, i) => renderAdminGroupMonitorBubble(m, st.messages[i - 1])).join("");
+  if (opts.preserveScrollFrom) {
+    const { oldScrollHeight, oldScrollTop } = opts.preserveScrollFrom;
+    el.scrollTop = el.scrollHeight - oldScrollHeight + oldScrollTop;
+  } else {
+    el.scrollTop = el.scrollHeight;
+  }
+}
+
+// نسخه‌ی فقط‌خواندنیِ حبابِ پیام برای نمای نظارتیِ ادمین: بدون کلیک برای ویرایش/حذف، بدون تیکِ خوانده‌شدن
+function renderAdminGroupMonitorBubble(m, prevMsg) {
+  let bodyHtml = "";
+  if (m.deleted) {
+    bodyHtml = `<div class="chat-bubble-text">این پیام حذف شد</div>`;
+  } else if (m.msgType === "sticker") {
+    const src = m.isExternal ? m.fileId : `${mediaUrl(m.fileId)}`;
+    bodyHtml = `<img class="chat-bubble-sticker" src="${src}" alt="استیکر" loading="lazy" />`;
+  } else if (m.msgType === "image") {
+    bodyHtml = `<img class="chat-bubble-image" src="${mediaUrl(m.fileId)}" alt="" loading="lazy" />`;
+    if (m.text) bodyHtml += `<div class="chat-bubble-text">${escapeHtml(m.text)}</div>`;
+  } else if (m.msgType === "audio") {
+    bodyHtml = `<audio class="chat-bubble-audio" controls src="${mediaUrl(m.fileId)}"></audio>`;
+    if (m.text) bodyHtml += `<div class="chat-bubble-text">${escapeHtml(m.text)}</div>`;
+  } else {
+    bodyHtml = `<div class="chat-bubble-text">${escapeHtml(m.text || "")}</div>`;
+  }
+
+  const replyQuoteHtml = !m.deleted && m.replyTo
+    ? `<div class="chat-bubble-reply-quote">
+        <div class="chat-bubble-reply-quote-sender">${escapeHtml(m.replyTo.sender)}</div>
+        <div class="chat-bubble-reply-quote-text">${escapeHtml(m.replyTo.deleted ? "پیام حذف‌شده" : chatReplyPreviewText(m.replyTo))}</div>
+      </div>`
+    : "";
+  bodyHtml = replyQuoteHtml + bodyHtml;
+
+  const grouped = isGroupedWithPrev(m, prevMsg);
+  const headAvatarHtml = `<div class="chat-msg-avatar" style="background:${avatarColor(m.sender)}" onclick="openProfile('${m.sender}')">${avatarInnerHtml(
+    null,
+    m.sender
+  )}</div>`;
+  const timeText = !m.deleted ? formatRelativeTime(m.createdAt) : "";
+  const editedTag = !m.deleted && m.editedAt ? `<span class="chat-bubble-edited-tag">(ویرایش‌شده)</span>` : "";
+  const gutterHtml = grouped
+    ? `<span class="chat-msg-hover-time">${!m.deleted ? formatClockTime(m.createdAt) : ""}</span>`
+    : headAvatarHtml;
+  const headlineHtml = grouped
+    ? ""
+    : `<div class="chat-msg-headline">
+        <span class="chat-msg-sender-name" onclick="openProfile('${m.sender}')">${escapeHtml(m.sender)}</span>
+        <span class="chat-msg-time">${timeText}</span>
+      </div>`;
+  const bubbleClass = `chat-bubble${m.msgType === "sticker" && !m.deleted ? " chat-bubble-sticker-wrap" : ""}${
+    m.deleted ? " chat-bubble-deleted" : ""
+  }`;
+
+  return `<div class="chat-msg-row${grouped ? " grouped" : ""}" id="adminGroupMsg-${m.id}">
+    <div class="chat-msg-gutter">${gutterHtml}</div>
+    <div class="chat-msg-content">
+      ${headlineHtml}
+      <div class="${bubbleClass}">${bodyHtml}${editedTag}</div>
+    </div>
+  </div>`;
 }
 
 // ---------- استیکرها در پنل مدیریت (برای همه‌ی ادمین‌ها؛ صفحه‌بندی‌شده برای پشتیبانی از تعداد زیاد) ----------
