@@ -16,6 +16,7 @@
   "fallbackType": "customtabs",
   "features": {},
   "enableNotifications": true,
+  "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "./android.keystore",
     "alias": "android"
