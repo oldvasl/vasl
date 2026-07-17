@@ -157,9 +157,50 @@
   .sound-toggle .icon-muted { display: none; }
   .sound-toggle.muted .icon-on { display: none; }
   .sound-toggle.muted .icon-muted { display: block; }
+  /* --- اسپلش ویدیویی قبل از ورود --- */
+  .splash-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: #000;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.6s ease;
+  }
+  .splash-overlay.fade-out { opacity: 0; pointer-events: none; }
+  .splash-overlay video {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  body.splash-active { overflow: hidden; }
 </style>
 </head>
-<body>
+<body class="splash-active">
+
+<div class="splash-overlay" id="splashOverlay">
+  <video id="splashVideo" src="splash.mp4" autoplay muted playsinline webkit-playsinline></video>
+</div>
+<script>
+// این اسکریپت عمداً بلافاصله بعد از خودِ اُوِرلی اومده، نه پایین فایل کنار بقیه‌ی اسکریپت‌ها،
+// چون باید همون لحظه که ویدیو تو DOM ساخته می‌شه پلی و گوش‌سپاری روش شروع بشه؛ صفحه‌ی اصلی
+// (فرم لاگین و بقیه‌ی المان‌ها) زیر این اُوِرلیِ سیاه در حال لود شدنه و کاربر چیزی جز ویدیو نمی‌بینه.
+(function () {
+  var overlay = document.getElementById("splashOverlay");
+  var video = document.getElementById("splashVideo");
+  if (!overlay || !video) return;
+  var done = false;
+  function finishSplash() {
+    if (done) return;
+    done = true;
+    overlay.classList.add("fade-out");
+    document.body.classList.remove("splash-active");
+    setTimeout(function () { overlay.remove(); }, 650);
+  }
+  video.addEventListener("ended", finishSplash);
+  video.addEventListener("error", finishSplash);
+  // اگه اتوپلی به هر دلیلی (مثلاً محدودیت مرورگر) بلاک بشه، فوراً رد شو تا کاربر پشت صفحه‌ی سیاه گیر نکنه
+  var playPromise = video.play();
+  if (playPromise && playPromise.catch) playPromise.catch(finishSplash);
+  // شبکه‌ی ایمنی: اگه ایونت‌ها به هر دلیلی شلیک نشن، حداکثر بعد از طول ویدیو + کمی حاشیه رد شو
+  setTimeout(finishSplash, 12000);
+})();
+</script>
 
 <div class="bg-anim"><div class="bg-blob"></div><div class="bg-blob"></div><div class="bg-blob"></div></div>
 <div id="debugBanner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:99; background:#EF4444; color:#fff; font-family:monospace; font-size:12px; padding:8px 10px; direction:ltr; text-align:left; word-break:break-all; max-height:40vh; overflow:auto;"></div>
