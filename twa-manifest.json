@@ -1,0 +1,25 @@
+{
+  "packageId": "cum.aghey.dehat",
+  "host": "oldvasl.github.io",
+  "name": "Dehat",
+  "launcherName": "dehat",
+  "display": "standalone",
+  "themeColor": "#000000",
+  "navigationColor": "#000000",
+  "backgroundColor": "#ffffff",
+  "startUrl": "/vasl/",
+  "iconUrl": "https://oldvasl.github.io/vasl/icon-512.png",
+  "maskableIconUrl": "https://oldvasl.github.io/vasl/icon-512-maskable.png",
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://oldvasl.github.io/vasl/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "enableNotifications": true,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1
+}
