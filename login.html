@@ -160,13 +160,15 @@
   /* --- اسپلش ویدیویی قبل از ورود --- */
   .splash-overlay {
     position: fixed; inset: 0; z-index: 9999;
+    width: 100vw; height: 100vh; height: 100dvh;
     background: #000;
     display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
     transition: opacity 0.6s ease;
   }
   .splash-overlay.fade-out { opacity: 0; pointer-events: none; }
   .splash-overlay video {
-    width: 100%; height: 100%; object-fit: cover; display: block;
+    width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;
   }
   body.splash-active { overflow: hidden; }
 </style>
@@ -174,7 +176,7 @@
 <body class="splash-active">
 
 <div class="splash-overlay" id="splashOverlay">
-  <video id="splashVideo" src="splash.mp4" autoplay muted playsinline webkit-playsinline></video>
+  <video id="splashVideo" src="splash.mp4" autoplay playsinline webkit-playsinline></video>
 </div>
 <script>
 // این اسکریپت عمداً بلافاصله بعد از خودِ اُوِرلی اومده، نه پایین فایل کنار بقیه‌ی اسکریپت‌ها،
@@ -190,13 +192,33 @@
     done = true;
     overlay.classList.add("fade-out");
     document.body.classList.remove("splash-active");
-    setTimeout(function () { overlay.remove(); }, 650);
+    setTimeout(function () {
+      overlay.remove();
+      // آهنگ لاگین عمداً همینجا و نه زودتر استارت می‌خوره، تا دقیقاً بعد از محو کامل شدن
+      // اسپلش پخش بشه؛ تابع tryAutoplay پایین همین فایل (کنار المان bgMusic) تعریف شده و
+      // چون یه function declaration معمولیه، تا این لحظه (که خیلی بعد از پارس کل صفحه‌ست) در دسترسه.
+      if (typeof tryAutoplay === "function") tryAutoplay();
+    }, 650);
   }
   video.addEventListener("ended", finishSplash);
   video.addEventListener("error", finishSplash);
-  // اگه اتوپلی به هر دلیلی (مثلاً محدودیت مرورگر) بلاک بشه، فوراً رد شو تا کاربر پشت صفحه‌ی سیاه گیر نکنه
-  var playPromise = video.play();
-  if (playPromise && playPromise.catch) playPromise.catch(finishSplash);
+  // اول سعی می‌کنیم مستقیم با صدا پلی کنیم. خیلی مرورگرها این حالت رو (بدون تعامل قبلی کاربر با
+  // سایت) بلاک می‌کنن؛ اگه بلاک شد، به‌جای رد کردن کل اسپلش، اول بی‌صدا پلی می‌کنیم (این تضمینیه)
+  // و بلافاصله سعی می‌کنیم صداش رو باز کنیم — همون ترفندی که پایین‌تر برای bgMusic هم استفاده شده.
+  function tryUnmutedThenFallback() {
+    var p = video.play();
+    if (p && p.catch) {
+      p.catch(function () {
+        video.muted = true;
+        video.play()
+          .then(function () {
+            setTimeout(function () { video.muted = false; }, 100);
+          })
+          .catch(finishSplash);
+      });
+    }
+  }
+  tryUnmutedThenFallback();
   // شبکه‌ی ایمنی: اگه ایونت‌ها به هر دلیلی شلیک نشن، حداکثر بعد از طول ویدیو + کمی حاشیه رد شو
   setTimeout(finishSplash, 12000);
 })();
@@ -557,7 +579,8 @@ function startOnUserGesture() {
   bgMusic.muted = false;
   bgMusic.play().catch(() => {});
 }
-tryAutoplay();
+// توجه: tryAutoplay() دیگه اینجا مستقیم صدا زده نمی‌شه — فراخوانیش به تابع finishSplash
+// (بالای فایل، کنار المان اسپلش) منتقل شده تا آهنگ دقیقاً بعد از محو شدن ویدیوی اسپلش شروع بشه.
 
 function toggleSound() {
   const btn = document.getElementById("soundToggle");
