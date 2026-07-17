@@ -39,13 +39,34 @@ jobs:
           echo "جستجوی twa-manifest.json در کل ریپو:"
           find . -iname "twa-manifest.json"
 
-      - name: دانلود Android SDK و ساخت پروژه
+      - name: نصب Android SDK Command-line Tools
+        uses: android-actions/setup-android@v3
+
+      - name: نصب ابزار expect
+        run: sudo apt-get update && sudo apt-get install -y expect
+
+      - name: ساخت اسکریپت پاسخ‌گویی خودکار به سوالات Bubblewrap
         run: |
-          bubblewrap doctor || true
-          printf '\n\n' | bubblewrap build \
-            --skipPwaValidation \
-            --skipVersionUpgrade \
-            --manifest ./twa-manifest.json
+          cat > run-build.exp << 'EOF'
+          #!/usr/bin/expect -f
+          set timeout 1800
+          spawn bubblewrap build --skipPwaValidation --skipVersionUpgrade --manifest ./twa-manifest.json
+          expect {
+            -re "install the JDK.*\\(Y/n\\)" { send "n\r"; exp_continue }
+            -re "Path to your existing JDK.*:" { send "$env(JAVA_HOME)\r"; exp_continue }
+            -re "install the Android SDK.*\\(Y/n\\)" { send "n\r"; exp_continue }
+            -re "Path to your existing Android SDK.*:" { send "$env(ANDROID_HOME)\r"; exp_continue }
+            -re "\\(y/N\\)" { send "y\r"; exp_continue }
+            -re "\\(Y/n\\)" { send "y\r"; exp_continue }
+            eof
+          }
+          catch wait result
+          exit [lindex $result 3]
+          EOF
+          chmod +x run-build.exp
+
+      - name: دانلود Android SDK و ساخت پروژه
+        run: ./run-build.exp
         env:
           # bubblewrap موقع build از این متغیرها برای پسورد کیستور استفاده می‌کنه
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
