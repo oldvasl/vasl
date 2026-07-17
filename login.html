@@ -359,6 +359,54 @@
 <script src="subtitle-words.html"></script>
 <script>
 const WORKER_URL = "https://dehaat-proxy.toopzsupport.workers.dev";
+
+// ================= شبکه: تلاش خودکار مجدد در صورت خطای اتصال =================
+// بعضی از اینترنت‌ها (با یا بدون فیلترشکن) گاهی همون درخواست اولِ TCP/TLS رو با
+// خطای شبکه (مثل "invalid response") قطع می‌کنن، در حالی که یه اتصال تازه معمولاً
+// جواب می‌گیره. این wrapper به‌جای مجبور کردن کاربر به رفرش دستی یا خاموش‌روشن کردن
+// فیلترشکن، خودش به‌صورت خودکار و بی‌صدا با یه اتصال تازه چند بار دیگه تلاش می‌کنه.
+// نکته‌ی مهم: این کار فقط رو خطاهای واقعیِ اتصال (وقتی fetch اصلاً جوابی نگرفته)
+// انجام می‌شه، نه رو جواب‌های معتبر سرور (مثل خطای 401/403/500)؛ یعنی هیچ منطق
+// موجودِ if(!res.ok) توی بقیه‌ی کد دست نمی‌خوره و رفتارش عوض نمی‌شه.
+(function () {
+  const nativeFetch = window.fetch.bind(window);
+  const MAX_RETRIES = 2;
+  const RETRY_DELAY_MS = 700;
+  const PER_ATTEMPT_TIMEOUT_MS = 15000;
+
+  function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  window.fetch = async function (input, init) {
+    let lastErr;
+    const externalSignal = init && init.signal;
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), PER_ATTEMPT_TIMEOUT_MS);
+      if (externalSignal) {
+        if (externalSignal.aborted) controller.abort();
+        else externalSignal.addEventListener("abort", () => controller.abort(), { once: true });
+      }
+      try {
+        const mergedInit = init ? { ...init, signal: controller.signal } : { signal: controller.signal };
+        const res = await nativeFetch(input, mergedInit);
+        clearTimeout(timeoutId);
+        return res; // هر جوابی از سرور برگرده (حتی خطای 4xx/5xx) یعنی اتصال برقرار شده؛ دیگه retry لازم نیست
+      } catch (err) {
+        clearTimeout(timeoutId);
+        lastErr = err;
+        // اگه خودِ کد صداکننده درخواست رو کنسل کرده بود (نه ما با تایم‌اوت)، دیگه تلاش نکن
+        if (externalSignal && externalSignal.aborted) throw err;
+        if (attempt < MAX_RETRIES) {
+          await delay(RETRY_DELAY_MS * (attempt + 1));
+          continue;
+        }
+      }
+    }
+    throw lastErr;
+  };
+})();
 const TURNSTILE_SITEKEY = "0x4AAAAAADzYo0FCb7d3eKh0";
 
 // ---------- رندر صریح Turnstile ----------
