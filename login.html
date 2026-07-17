@@ -286,6 +286,15 @@
     gate.removeEventListener("keydown", onGateKeydown);
     gate.classList.add("opening");
 
+    // همین‌جا، تو دلِ کلیک واقعی کاربر، آهنگ login.mp3 رو یه بار پلی و بلافاصله پاز می‌کنیم.
+    // این کار مرورگر رو مجاب می‌کنه این المان صوتی رو «تاییدشده با ژست کاربر» علامت بزنه، پس
+    // هر وقت بعداً (حتی بدون ژست جدید) دوباره play() صداش کنیم، بدون بلاک شدن با صدا پخش می‌شه.
+    var bg = document.getElementById("bgMusic");
+    if (bg) {
+      bg.muted = false;
+      bg.play().then(function () { bg.pause(); bg.currentTime = 0; }).catch(function () {});
+    }
+
     setTimeout(function () {
       gate.classList.add("hide");
       setTimeout(function () {
@@ -628,26 +637,15 @@ async function login() {
 const bgMusic = document.getElementById("bgMusic");
 bgMusic.volume = 0.5;
 
-// ترفند رایج برای بیشینه کردن شانس پخش خودکارِ صدادار: مرورگرها پخش خودکارِ بی‌صدا رو همیشه مجاز می‌دونن،
-// پس اول با mute شروع می‌کنیم (این تضمینیه) و بلافاصله سعی می‌کنیم صداش رو باز کنیم. تو خیلی از مرورگرها
-// (مخصوصاً اگه کاربر قبلاً با سایت تعامل داشته) همین باعث می‌شه صدا واقعاً بدون نیاز به کلیک پخش بشه.
-// اگه هیچ‌کدوم جواب نداد (خیلی از مرورگرها این حالت رو هم می‌بندن)، با اولین لمس/کلیک روی صفحه شروع می‌شه.
+// چون bgMusic از قبل، تو دلِ کلیکِ کاربر روی درِ ورودی (بالای فایل)، یه بار play()+pause()
+// شده، مرورگر این المان رو «مجاز به پخش صدادار» علامت زده؛ پس دیگه لازم نیست با ترفند
+// mute-then-unmute کار کنیم — این ترفند قبلی گاهی باعث می‌شد آهنگ بعد از چند ثانیه قطع بشه،
+// چون درخواستِ باز کردنِ صدا در وسط پخش، خودِ پخش رو هم بی‌اعتبار می‌کرد.
 function tryAutoplay() {
-  bgMusic.muted = true;
-  bgMusic.play()
-    .then(() => {
-      // چند میلی‌ثانیه بعد از شروعِ بی‌صدا، سعی می‌کنیم صداش رو باز کنیم
-      setTimeout(() => {
-        if (document.getElementById("soundToggle").classList.contains("muted")) return;
-        bgMusic.muted = false;
-        // بعضی مرورگرها با باز شدن صدا، خودشون پخش رو متوقف می‌کنن؛ اگه این اتفاق افتاد، دوباره تلاش می‌کنیم
-        bgMusic.play().catch(() => {});
-        if (bgMusic.paused) armGestureFallback();
-      }, 300);
-    })
-    .catch(() => {
-      armGestureFallback();
-    });
+  bgMusic.muted = false;
+  bgMusic.play().catch(() => {
+    armGestureFallback();
+  });
 }
 function armGestureFallback() {
   document.addEventListener("click", startOnUserGesture, { once: true });
