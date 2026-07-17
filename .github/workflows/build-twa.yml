@@ -1,0 +1,50 @@
+name: Build TWA APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "twa-manifest.json"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: چک‌اوت
+        uses: actions/checkout@v4
+
+      - name: نصب جاوا
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: نصب Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: نصب Bubblewrap CLI
+        run: npm install -g @bubblewrap/cli
+
+      - name: بازسازی فایل کیستور از Secret
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android.keystore
+
+      - name: دانلود Android SDK و ساخت پروژه
+        run: |
+          bubblewrap doctor || true
+          yes | bubblewrap build \
+            --skipPwaValidation \
+            --manifest ./twa-manifest.json
+        env:
+          # bubblewrap موقع build از این متغیرها برای پسورد کیستور استفاده می‌کنه
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      - name: پیدا کردن و آپلود APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: |
+            app-release-signed.apk
+          if-no-files-found: warn
