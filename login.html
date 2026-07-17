@@ -160,7 +160,6 @@
   /* --- اسپلش ویدیویی قبل از ورود --- */
   .splash-overlay {
     position: fixed; inset: 0; z-index: 9999;
-    width: 100vw; height: 100vh; height: 100dvh;
     background: #000;
     overflow: hidden;
     transition: opacity 0.6s ease;
@@ -204,7 +203,17 @@
     }, 650);
   }
   video.addEventListener("ended", finishSplash);
-  video.addEventListener("error", finishSplash);
+  video.addEventListener("error", function () {
+    // اگه ویدیو لود نشه (مثلاً مسیرش اشتباهه یا فایل رو ریپو نیست)، خطاش رو رو همون
+    // نوار قرمز debugBanner (که پایین‌تر تو فایل تعریف شده) نشون بده تا رو موبایل هم دیده بشه
+    var banner = document.getElementById("debugBanner");
+    if (banner) {
+      var code = video.error ? video.error.code : "?";
+      banner.style.display = "block";
+      banner.textContent = "خطای بارگذاری ویدیوی اسپلش (کد " + code + ") — مسیر: " + video.currentSrc;
+    }
+    finishSplash();
+  });
   // همیشه اول با muted=true پلی می‌کنیم — این تنها حالتیه که همه‌ی مرورگرها بدون تعامل قبلی
   // کاربر تضمینش می‌کنن. بلافاصله بعدش سعی می‌کنیم صدا رو باز کنیم؛ اگه باز کردنِ صدا باعث شد
   // مرورگر خودش پخش رو متوقف کنه (بعضی مرورگرها این کارو می‌کنن)، دوباره mute می‌کنیم و
