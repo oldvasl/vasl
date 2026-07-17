@@ -180,39 +180,32 @@
      چون همون لحظه یه user-gesture واقعیه، ویدیوی اسپلش می‌تونه با صدا پلی بشه --- */
   .door-gate {
     position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 10000;
-    background: radial-gradient(circle at 50% 42%, var(--surface) 0%, var(--primary) 65%, #08040F 100%);
+    background: #000;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px;
     cursor: pointer; text-align: center; padding: 20px;
     transition: none;
   }
   .door-gate.hide { opacity: 0; pointer-events: none; }
   .door-gate-text {
-    color: var(--text); font-size: 16px; font-weight: 500; margin: 0;
+    color: #fff; font-size: 16px; font-weight: 500; margin: 0;
     animation: fadeInUp 0.6s ease both;
     transition: opacity 0.3s ease;
   }
   .door-gate.opening .door-gate-text { opacity: 0; }
   .door-wrap {
-    position: relative; width: min(50vw, 190px);
+    position: relative; width: min(46vw, 170px);
   }
   .door-gate.opening .door-wrap { animation: none; }
   @keyframes doorFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-  .door-portal {
-    position: absolute; inset: 8% 18%;
-    background: radial-gradient(circle, var(--accent) 0%, transparent 72%);
-    opacity: 0; transition: opacity 0.6s ease; z-index: -1;
-  }
-  .door-gate.opening .door-portal { opacity: 0.65; }
   .door-svg {
     width: 100%; height: auto; overflow: visible; display: block;
-    filter: drop-shadow(0 0 16px rgba(139, 92, 246, 0.4));
+    filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.25));
   }
-  #doorLeftLeaf, #doorRightLeaf {
+  #doorLeaf {
     transition: transform 0.75s cubic-bezier(0.65, 0, 0.35, 1);
-    transform-box: fill-box; transform-origin: center;
+    transform-box: fill-box; transform-origin: left center;
   }
-  .door-gate.opening #doorLeftLeaf { transform: perspective(420px) rotateY(-75deg); transform-origin: left center; }
-  .door-gate.opening #doorRightLeaf { transform: perspective(420px) rotateY(75deg); transform-origin: right center; }
+  .door-gate.opening #doorLeaf { transform: perspective(420px) rotateY(-100deg); }
 </style>
 </head>
 <body class="splash-active">
@@ -220,21 +213,13 @@
 <div class="door-gate" id="doorGate" role="button" tabindex="0" aria-label="برای ورود به دهات کلیک کنید">
   <p class="door-gate-text">برای ورود به دهات کلیک کنید</p>
   <div class="door-wrap">
-    <div class="door-portal"></div>
     <svg class="door-svg" viewBox="0 0 200 320" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="100" cy="10" r="6" fill="var(--accent-hover)"/>
-      <rect x="14" y="20" width="172" height="286" rx="10" fill="none" stroke="var(--accent)" stroke-width="5"/>
-      <g id="doorLeftLeaf">
-        <rect x="20" y="26" width="80" height="274" fill="var(--card)" stroke="var(--border)" stroke-width="2"/>
-        <rect x="30" y="40" width="60" height="100" fill="none" stroke="var(--border)" stroke-width="1.5"/>
-        <rect x="30" y="150" width="60" height="140" fill="none" stroke="var(--border)" stroke-width="1.5"/>
-        <circle cx="90" cy="163" r="5" fill="var(--accent-hover)"/>
-      </g>
-      <g id="doorRightLeaf">
-        <rect x="100" y="26" width="80" height="274" fill="var(--card)" stroke="var(--border)" stroke-width="2"/>
-        <rect x="110" y="40" width="60" height="100" fill="none" stroke="var(--border)" stroke-width="1.5"/>
-        <rect x="110" y="150" width="60" height="140" fill="none" stroke="var(--border)" stroke-width="1.5"/>
-        <circle cx="110" cy="163" r="5" fill="var(--accent-hover)"/>
+      <rect x="14" y="20" width="172" height="286" rx="10" fill="none" stroke="#fff" stroke-width="3" opacity="0.5"/>
+      <g id="doorLeaf">
+        <rect x="20" y="26" width="160" height="274" fill="#fff"/>
+        <rect x="34" y="42" width="132" height="102" fill="none" stroke="#000" stroke-width="1.5" opacity="0.15"/>
+        <rect x="34" y="150" width="132" height="138" fill="none" stroke="#000" stroke-width="1.5" opacity="0.15"/>
+        <circle cx="168" cy="163" r="5" fill="#000" opacity="0.55"/>
       </g>
     </svg>
   </div>
@@ -280,13 +265,9 @@
     finishSplash();
   });
 
-  function openDoor() {
-    gate.removeEventListener("click", openDoor);
-    gate.removeEventListener("keydown", onGateKeydown);
-    gate.classList.add("opening");
-
-    // نکته‌ی کلیدی: این تابع مستقیماً داخل هندلر کلیک/تاچ کاربر صدا زده می‌شه — یعنی همین
-    // لحظه یه user-gesture واقعیه و مرورگر اجازه‌ی پخش صدادار رو می‌ده (بر خلاف اتوپلی معمولی).
+  function playSplashVideo() {
+    // نکته‌ی کلیدی: این تابع در نهایت از دلِ همون کلیک/تاچِ کاربر روی در صدا زده می‌شه (با یه
+    // فاصله‌ی کوتاه)، پس هنوز تو بازه‌ی user-gesture معتبریم و مرورگر اجازه‌ی پخش صدادار می‌ده.
     video.muted = false;
     var p = video.play();
     if (p && p.catch) {
@@ -298,10 +279,20 @@
     }
     // شبکه‌ی ایمنی: اگه ایونت‌ها به هر دلیلی شلیک نشن، حداکثر بعد از طول ویدیو + کمی حاشیه رد شو
     setTimeout(finishSplash, 12000);
+  }
+
+  function openDoor() {
+    gate.removeEventListener("click", openDoor);
+    gate.removeEventListener("keydown", onGateKeydown);
+    gate.classList.add("opening");
 
     setTimeout(function () {
       gate.classList.add("hide");
-      setTimeout(function () { gate.remove(); }, 550);
+      setTimeout(function () {
+        gate.remove();
+        // یک ثانیه بعد از محو کامل شدن در، ویدیو پلی می‌شه
+        setTimeout(playSplashVideo, 1000);
+      }, 550);
     }, 700);
   }
   function onGateKeydown(e) {
