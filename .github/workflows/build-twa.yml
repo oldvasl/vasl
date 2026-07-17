@@ -42,8 +42,9 @@ jobs:
       - name: دانلود Android SDK و ساخت پروژه
         run: |
           bubblewrap doctor || true
-          yes | bubblewrap build \
+          bubblewrap build \
             --skipPwaValidation \
+            --skipVersionUpgrade \
             --manifest ./twa-manifest.json
         env:
           # bubblewrap موقع build از این متغیرها برای پسورد کیستور استفاده می‌کنه
