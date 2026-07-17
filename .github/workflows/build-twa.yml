@@ -52,12 +52,12 @@ jobs:
           set timeout 1800
           spawn bubblewrap build --skipPwaValidation --skipVersionUpgrade --manifest ./twa-manifest.json
           expect {
-            -re "install the JDK.*\\(Y/n\\)" { send "n\r"; exp_continue }
-            -re "Path to your existing JDK.*:" { send "$env(JAVA_HOME)\r"; exp_continue }
-            -re "install the Android SDK.*\\(Y/n\\)" { send "n\r"; exp_continue }
-            -re "Path to your existing Android SDK.*:" { send "$env(ANDROID_HOME)\r"; exp_continue }
-            -re "\\(y/N\\)" { send "y\r"; exp_continue }
-            -re "\\(Y/n\\)" { send "y\r"; exp_continue }
+            -re {install the JDK[^\r\n]*\(Y/n\)} { send "n\r"; exp_continue }
+            -re {Path to your existing JDK[^\r\n]*:} { send "$env(JAVA_HOME)\r"; exp_continue }
+            -re {install the Android SDK[^\r\n]*\(Y/n\)} { send "n\r"; exp_continue }
+            -re {Path to your existing Android SDK[^\r\n]*:} { send "$env(ANDROID_HOME)\r"; exp_continue }
+            -re {\(y/N\)} { send "y\r"; exp_continue }
+            -re {\(Y/n\)} { send "y\r"; exp_continue }
             eof
           }
           catch wait result
