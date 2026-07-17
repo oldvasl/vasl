@@ -175,22 +175,86 @@
     display: block;
   }
   body.splash-active { overflow: hidden; }
+
+  /* --- صفحه‌ی «در ورودی» قبل از اسپلش: با کلیک روی این، هم درِ SVG باز می‌شه هم
+     چون همون لحظه یه user-gesture واقعیه، ویدیوی اسپلش می‌تونه با صدا پلی بشه --- */
+  .door-gate {
+    position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 10000;
+    background: radial-gradient(circle at 50% 42%, var(--surface) 0%, var(--primary) 65%, #08040F 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px;
+    cursor: pointer; text-align: center; padding: 20px;
+    transition: opacity 0.5s ease;
+  }
+  .door-gate.hide { opacity: 0; pointer-events: none; }
+  .door-gate-text {
+    color: var(--text); font-size: 16px; font-weight: 500; margin: 0;
+    animation: fadeInUp 0.6s ease both;
+    transition: opacity 0.3s ease;
+  }
+  .door-gate.opening .door-gate-text { opacity: 0; }
+  .door-wrap {
+    position: relative; width: min(50vw, 190px);
+    animation: doorFloat 2.6s ease-in-out infinite;
+  }
+  .door-gate.opening .door-wrap { animation: none; }
+  @keyframes doorFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  .door-portal {
+    position: absolute; inset: 8% 18%;
+    background: radial-gradient(circle, var(--accent) 0%, transparent 72%);
+    opacity: 0; transition: opacity 0.6s ease; z-index: -1;
+  }
+  .door-gate.opening .door-portal { opacity: 0.65; }
+  .door-svg {
+    width: 100%; height: auto; overflow: visible; display: block;
+    filter: drop-shadow(0 0 16px rgba(139, 92, 246, 0.4));
+  }
+  #doorLeftLeaf, #doorRightLeaf {
+    transition: transform 0.75s cubic-bezier(0.65, 0, 0.35, 1);
+    transform-box: fill-box; transform-origin: center;
+  }
+  .door-gate.opening #doorLeftLeaf { transform: perspective(420px) rotateY(-75deg); transform-origin: left center; }
+  .door-gate.opening #doorRightLeaf { transform: perspective(420px) rotateY(75deg); transform-origin: right center; }
 </style>
 </head>
 <body class="splash-active">
 
+<div class="door-gate" id="doorGate" role="button" tabindex="0" aria-label="برای ورود به دهات کلیک کنید">
+  <p class="door-gate-text">برای ورود به دهات کلیک کنید</p>
+  <div class="door-wrap">
+    <div class="door-portal"></div>
+    <svg class="door-svg" viewBox="0 0 200 320" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="100" cy="10" r="6" fill="var(--accent-hover)"/>
+      <rect x="14" y="20" width="172" height="286" rx="10" fill="none" stroke="var(--accent)" stroke-width="5"/>
+      <g id="doorLeftLeaf">
+        <rect x="20" y="26" width="80" height="274" fill="var(--card)" stroke="var(--border)" stroke-width="2"/>
+        <rect x="30" y="40" width="60" height="100" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+        <rect x="30" y="150" width="60" height="140" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+        <circle cx="90" cy="163" r="5" fill="var(--accent-hover)"/>
+      </g>
+      <g id="doorRightLeaf">
+        <rect x="100" y="26" width="80" height="274" fill="var(--card)" stroke="var(--border)" stroke-width="2"/>
+        <rect x="110" y="40" width="60" height="100" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+        <rect x="110" y="150" width="60" height="140" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+        <circle cx="110" cy="163" r="5" fill="var(--accent-hover)"/>
+      </g>
+    </svg>
+  </div>
+</div>
+
 <div class="splash-overlay" id="splashOverlay">
-  <video id="splashVideo" src="splash.mp4" playsinline webkit-playsinline></video>
+  <video id="splashVideo" src="splash.mp4" preload="auto" playsinline webkit-playsinline></video>
 </div>
 <script>
-// این اسکریپت عمداً بلافاصله بعد از خودِ اُوِرلی اومده، نه پایین فایل کنار بقیه‌ی اسکریپت‌ها،
-// چون باید همون لحظه که ویدیو تو DOM ساخته می‌شه پلی و گوش‌سپاری روش شروع بشه؛ صفحه‌ی اصلی
-// (فرم لاگین و بقیه‌ی المان‌ها) زیر این اُوِرلیِ سیاه در حال لود شدنه و کاربر چیزی جز ویدیو نمی‌بینه.
+// این اسکریپت عمداً بلافاصله بعد از خودِ در و اُوِرلی اومده، نه پایین فایل کنار بقیه‌ی اسکریپت‌ها،
+// چون باید همون لحظه که این المان‌ها تو DOM ساخته می‌شن گوش‌سپاری‌شون شروع بشه؛ صفحه‌ی اصلی
+// (فرم لاگین و بقیه‌ی المان‌ها) زیر این لایه‌ها در حال لود شدنه و کاربر چیزی جز در/ویدیو نمی‌بینه.
 (function () {
+  var gate = document.getElementById("doorGate");
   var overlay = document.getElementById("splashOverlay");
   var video = document.getElementById("splashVideo");
-  if (!overlay || !video) return;
+  if (!gate || !overlay || !video) return;
   var done = false;
+
   function finishSplash() {
     if (done) return;
     done = true;
@@ -216,28 +280,36 @@
     }
     finishSplash();
   });
-  // همیشه اول با muted=true پلی می‌کنیم — این تنها حالتیه که همه‌ی مرورگرها بدون تعامل قبلی
-  // کاربر تضمینش می‌کنن. بلافاصله بعدش سعی می‌کنیم صدا رو باز کنیم؛ اگه باز کردنِ صدا باعث شد
-  // مرورگر خودش پخش رو متوقف کنه (بعضی مرورگرها این کارو می‌کنن)، دوباره mute می‌کنیم و
-  // play() رو صدا می‌زنیم تا ویدیو در هر صورت (با یا بی‌صدا) ادامه پیدا کنه و هیچ‌وقت گیر نکنه.
-  function startSplashVideo() {
-    video.muted = true;
+
+  function openDoor() {
+    gate.removeEventListener("click", openDoor);
+    gate.removeEventListener("keydown", onGateKeydown);
+    gate.classList.add("opening");
+
+    // نکته‌ی کلیدی: این تابع مستقیماً داخل هندلر کلیک/تاچ کاربر صدا زده می‌شه — یعنی همین
+    // لحظه یه user-gesture واقعیه و مرورگر اجازه‌ی پخش صدادار رو می‌ده (بر خلاف اتوپلی معمولی).
+    video.muted = false;
     var p = video.play();
-    if (p && p.catch) p.catch(finishSplash);
+    if (p && p.catch) {
+      p.catch(function () {
+        // اگه به هر دلیلی بازم بلاک شد، حداقل بی‌صدا پلی بشه تا اسپلش گیر نکنه
+        video.muted = true;
+        video.play().catch(finishSplash);
+      });
+    }
+    // شبکه‌ی ایمنی: اگه ایونت‌ها به هر دلیلی شلیک نشن، حداکثر بعد از طول ویدیو + کمی حاشیه رد شو
+    setTimeout(finishSplash, 12000);
+
     setTimeout(function () {
-      video.muted = false;
-      var p2 = video.play();
-      if (p2 && p2.catch) {
-        p2.catch(function () {
-          video.muted = true;
-          video.play().catch(function () {});
-        });
-      }
-    }, 150);
+      gate.classList.add("hide");
+      setTimeout(function () { gate.remove(); }, 550);
+    }, 700);
   }
-  startSplashVideo();
-  // شبکه‌ی ایمنی: اگه ایونت‌ها به هر دلیلی شلیک نشن، حداکثر بعد از طول ویدیو + کمی حاشیه رد شو
-  setTimeout(finishSplash, 12000);
+  function onGateKeydown(e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDoor(); }
+  }
+  gate.addEventListener("click", openDoor);
+  gate.addEventListener("keydown", onGateKeydown);
 })();
 </script>
 
