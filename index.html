@@ -4403,7 +4403,7 @@ function postWithProgress(fd, onProgress) {
 // توی ورکر (handlePost) انجام می‌شه، چون کلاینت همیشه قابل دستکاریه. اینجا فقط تجربه‌ی بهتر می‌دیم: کاربر
 // اصلاً درخواست بیهوده به سرور نمی‌زنه و زمان دقیق باقی‌مونده رو می‌بینه.
 const POST_COOLDOWN_STORAGE_KEY = "postCooldownUntil";
-const POST_COOLDOWN_SECONDS = 180; // هر ۳ دقیقه یک پست
+const POST_COOLDOWN_SECONDS = 60; // ۳ دقیقه یک پست
 let postCooldownIntervalId = null;
 
 function getPostCooldownRemainingSeconds() {
