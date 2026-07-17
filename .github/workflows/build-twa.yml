@@ -42,7 +42,7 @@ jobs:
       - name: دانلود Android SDK و ساخت پروژه
         run: |
           bubblewrap doctor || true
-          printf 'n\n\ny\n' | bubblewrap build \
+          printf '\n\n' | bubblewrap build \
             --skipPwaValidation \
             --skipVersionUpgrade \
             --manifest ./twa-manifest.json
