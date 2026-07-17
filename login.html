@@ -176,7 +176,7 @@
 <body class="splash-active">
 
 <div class="splash-overlay" id="splashOverlay">
-  <video id="splashVideo" src="splash.mp4" autoplay playsinline webkit-playsinline></video>
+  <video id="splashVideo" src="splash.mp4" playsinline webkit-playsinline></video>
 </div>
 <script>
 // این اسکریپت عمداً بلافاصله بعد از خودِ اُوِرلی اومده، نه پایین فایل کنار بقیه‌ی اسکریپت‌ها،
@@ -202,23 +202,26 @@
   }
   video.addEventListener("ended", finishSplash);
   video.addEventListener("error", finishSplash);
-  // اول سعی می‌کنیم مستقیم با صدا پلی کنیم. خیلی مرورگرها این حالت رو (بدون تعامل قبلی کاربر با
-  // سایت) بلاک می‌کنن؛ اگه بلاک شد، به‌جای رد کردن کل اسپلش، اول بی‌صدا پلی می‌کنیم (این تضمینیه)
-  // و بلافاصله سعی می‌کنیم صداش رو باز کنیم — همون ترفندی که پایین‌تر برای bgMusic هم استفاده شده.
-  function tryUnmutedThenFallback() {
+  // همیشه اول با muted=true پلی می‌کنیم — این تنها حالتیه که همه‌ی مرورگرها بدون تعامل قبلی
+  // کاربر تضمینش می‌کنن. بلافاصله بعدش سعی می‌کنیم صدا رو باز کنیم؛ اگه باز کردنِ صدا باعث شد
+  // مرورگر خودش پخش رو متوقف کنه (بعضی مرورگرها این کارو می‌کنن)، دوباره mute می‌کنیم و
+  // play() رو صدا می‌زنیم تا ویدیو در هر صورت (با یا بی‌صدا) ادامه پیدا کنه و هیچ‌وقت گیر نکنه.
+  function startSplashVideo() {
+    video.muted = true;
     var p = video.play();
-    if (p && p.catch) {
-      p.catch(function () {
-        video.muted = true;
-        video.play()
-          .then(function () {
-            setTimeout(function () { video.muted = false; }, 100);
-          })
-          .catch(finishSplash);
-      });
-    }
+    if (p && p.catch) p.catch(finishSplash);
+    setTimeout(function () {
+      video.muted = false;
+      var p2 = video.play();
+      if (p2 && p2.catch) {
+        p2.catch(function () {
+          video.muted = true;
+          video.play().catch(function () {});
+        });
+      }
+    }, 150);
   }
-  tryUnmutedThenFallback();
+  startSplashVideo();
   // شبکه‌ی ایمنی: اگه ایونت‌ها به هر دلیلی شلیک نشن، حداکثر بعد از طول ویدیو + کمی حاشیه رد شو
   setTimeout(finishSplash, 12000);
 })();
