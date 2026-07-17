@@ -30,6 +30,15 @@ jobs:
       - name: بازسازی فایل کیستور از Secret
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android.keystore
 
+      - name: دیباگ - نمایش محتوای workspace
+        run: |
+          echo "مسیر فعلی:"
+          pwd
+          echo "محتوای این پوشه:"
+          ls -la
+          echo "جستجوی twa-manifest.json در کل ریپو:"
+          find . -iname "twa-manifest.json"
+
       - name: دانلود Android SDK و ساخت پروژه
         run: |
           bubblewrap doctor || true
