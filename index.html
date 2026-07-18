@@ -2767,8 +2767,9 @@
 
   <!-- بخش سگ‌تونز: لیست همه‌ی آهنگ‌های آپلود شده تو سایت -->
   <div id="view-music" class="view hidden">
-    <div class="feed-header">
-      <span>سگ‌تونز</span>
+    <div class="media-sort-row">
+      <button class="media-sort-btn active" id="musicSort-date" onclick="setMusicSort('date')">جدیدترین</button>
+      <button class="media-sort-btn" id="musicSort-random" onclick="setMusicSort('random')">تصادفی</button>
     </div>
     <div id="musicList"></div>
     <button class="music-fab" onclick="openFullPlayer()" title="پخش تمام‌صفحه" aria-label="پخش تمام‌صفحه">
@@ -3833,7 +3834,7 @@ const feedState = {
   text: { page: 1, loaded: false },
   admin: { page: 1, loaded: false },
 };
-const musicState = { page: 1, loaded: false };
+const musicState = { page: 1, loaded: false, sort: "date" };
 const MUSIC_PAGE_SIZE = 20;
 
 function switchView(name, forceReload = false) {
@@ -3854,7 +3855,7 @@ function switchView(name, forceReload = false) {
   if ((name === "media" || name === "text") && (forceReload || !feedState[name].loaded)) {
     loadFeedView(name, true);
   }
-  if (name === "music" && (forceReload || !musicState.loaded)) {
+  if (name === "music" && (forceReload || !musicState.loaded || musicState.sort === "random")) {
     loadMusicList(true);
   }
   if (name === "deels" && (forceReload || !deelsState.loaded)) {
@@ -8098,7 +8099,7 @@ async function loadMusicList(reset = true) {
     listEl.innerHTML = `<div class="empty-state">در حال بارگذاری...</div>`;
   }
   try {
-    const res = await fetch(`${WORKER_URL}/api/feed?filter=audio&page=${musicState.page}&pageSize=${MUSIC_PAGE_SIZE}`, {
+    const res = await fetch(`${WORKER_URL}/api/feed?filter=audio&sort=${musicState.sort}&page=${musicState.page}&pageSize=${MUSIC_PAGE_SIZE}`, {
       headers: { "Authorization": `Bearer ${getToken()}` },
     });
     const data = await res.json();
@@ -8128,6 +8129,17 @@ async function loadMusicList(reset = true) {
 function loadMoreMusic() {
   musicState.page++;
   loadMusicList(false);
+}
+
+// سوییچ بین «جدیدترین» و «تصادفی» تو سگ‌تونز؛ چون هردو لیست تو همون #musicList رندر می‌شن
+// (نه هم‌زمان)، صف پخش بعدی/قبلی همیشه از روی همون لیستی تعیین می‌شه که کاربر توش بوده
+function setMusicSort(sort) {
+  // برای «تصادفی» حتی اگه از قبل همون فعال بوده، دوباره بارگذاری می‌شه تا ترتیب عوض بشه
+  if (musicState.sort === sort && sort !== "random") return;
+  musicState.sort = sort;
+  document.querySelectorAll("#view-music .media-sort-btn").forEach((el) => el.classList.remove("active"));
+  document.getElementById(`musicSort-${sort}`)?.classList.add("active");
+  loadMusicList(true);
 }
 
 async function loadAdminFeed(reset = true) {
