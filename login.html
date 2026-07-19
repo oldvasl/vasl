@@ -68,7 +68,9 @@
   /* به‌جای عکسِ ثابتِ قبلی، همون نشانِ متحرکِ ترکیب‌های «: » و «D» که تو اسپلش‌اسکرینِ اصلیِ اپ هم هست */
   .app-splash-emoji.brand-emoji {
     direction: ltr; font-size: 46px; font-weight: 800; letter-spacing: 1px; color: var(--text);
-    min-height: 60px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;
+    font-variant-numeric: tabular-nums;
+    min-height: 60px; width: 80px; margin-inline: auto;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 6px;
     animation: popIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both, float 4s ease-in-out 0.6s infinite;
   }
   .app-splash-emoji.brand-emoji .splash-caret {
@@ -434,18 +436,23 @@ window.addEventListener("unhandledrejection", function (e) {
 
 // ---------- نشانِ متحرکِ ترکیب‌های «:» و «D» (لوگوی صفحه‌ی لاگین): همون افکتِ تایپِ اسپلش‌اسکرینِ اصلیِ اپ ----------
 (function initBrandEmoji() {
-  const COMBOS = [":D", "D:", ":DD", "DD:", "::D", "D::", ":D:D", "D:D:"];
+  // کاراکتر دوم همیشه از این لیست انتخاب می‌شه؛ چون "3" چندبار تکرار شده، شانس بیشتری برای اومدن داره
+  const SECOND_CHARS = ["D", "O", ")", "(", "#", "3", "3"];
   const host = document.querySelector("#brandEmoji .emoji-text");
   if (!host) return;
 
-  let comboIndex = 0;
+  function pickCombo() {
+    const second = SECOND_CHARS[Math.floor(Math.random() * SECOND_CHARS.length)];
+    return ":" + second; // همیشه دقیقاً ۲ کاراکتر؛ اولی همیشه ":" است
+  }
+
+  let combo = pickCombo();
   let charIndex = 0;
   let phase = "typing";
 
   function tick() {
     if (document.hidden) { setTimeout(tick, 400); return; }
 
-    const combo = COMBOS[comboIndex];
     if (phase === "typing") {
       charIndex++;
       host.textContent = combo.slice(0, charIndex);
@@ -465,7 +472,7 @@ window.addEventListener("unhandledrejection", function (e) {
     charIndex--;
     host.textContent = combo.slice(0, charIndex);
     if (charIndex <= 0) {
-      comboIndex = (comboIndex + 1) % COMBOS.length;
+      combo = pickCombo();
       phase = "typing";
       setTimeout(tick, 250);
     } else {
