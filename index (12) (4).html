@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دهات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night: #241b3a;
+    --night-deep: #150f24;
+    --lantern: #a25bf0;
+    --lantern-soft: #cf9cff;
+    --cream: #f3ede0;
+    --dim: #a99bc4;
+    --hex-line: rgba(162,91,240,0.10);
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  html,body{
+    height:100%;
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, #362852 0%, var(--night) 45%, var(--night-deep) 100%);
+    font-family: 'Vazirmatn', sans-serif;
+    color: var(--cream);
+    overflow-x:hidden;
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    padding: 24px;
+  }
+
+  /* subtle hexagon field, like scattered rooftops of a village seen from above */
+  .hex-field{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    background-image:
+      repeating-linear-gradient(60deg, var(--hex-line) 0, var(--hex-line) 1px, transparent 1px, transparent 78px),
+      repeating-linear-gradient(-60deg, var(--hex-line) 0, var(--hex-line) 1px, transparent 1px, transparent 78px),
+      repeating-linear-gradient(0deg, var(--hex-line) 0, var(--hex-line) 1px, transparent 1px, transparent 135px);
+    opacity:.6;
+    mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black 20%, transparent 75%);
+  }
+
+  .glow{
+    position:fixed;
+    top:-10%;
+    left:50%;
+    transform:translateX(-50%);
+    width:600px;
+    height:600px;
+    background: radial-gradient(circle, rgba(162,91,240,0.18) 0%, transparent 65%);
+    z-index:0;
+    pointer-events:none;
+  }
+
+  main{
+    position:relative;
+    z-index:1;
+    text-align:center;
+    max-width: 480px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 18px;
+  }
+
+  .mark{
+    font-size: 5.5rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+    line-height: 1;
+    background: linear-gradient(180deg, var(--lantern-soft) 0%, var(--lantern) 70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 26px rgba(162,91,240,0.5));
+    animation: rise 900ms ease-out, wiggle 3.4s ease-in-out 1.2s infinite;
+    transform-origin: center;
+  }
+
+  @keyframes wiggle{
+    0%, 100%{ transform: rotate(0deg); }
+    50%{ transform: rotate(-6deg); }
+  }
+
+  h1{
+    font-size: clamp(3rem, 12vw, 4.5rem);
+    font-weight: 900;
+    letter-spacing: -1px;
+    background: linear-gradient(180deg, var(--lantern-soft) 0%, var(--lantern) 60%, #7a3fc4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: rise 900ms ease-out 80ms both;
+    line-height:1.1;
+  }
+
+  .subtitle{
+    font-size: clamp(1rem, 3.2vw, 1.15rem);
+    color: var(--dim);
+    font-weight: 500;
+    animation: rise 900ms ease-out 160ms both;
+  }
+
+  .divider{
+    width: 40px;
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--lantern), transparent);
+    margin: 4px 0 6px;
+    animation: rise 900ms ease-out 220ms both;
+  }
+
+  a.enter{
+    --pad-y: 16px;
+    --pad-x: 44px;
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    padding: var(--pad-y) var(--pad-x);
+    font-family:inherit;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--night-deep);
+    text-decoration:none;
+    background: linear-gradient(180deg, var(--lantern-soft), var(--lantern));
+    border-radius: 999px;
+    box-shadow:
+      0 8px 24px rgba(162,91,240,0.34),
+      inset 0 1px 0 rgba(255,255,255,0.4);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+    animation: rise 900ms ease-out 300ms both;
+  }
+
+  a.enter:hover{
+    transform: translateY(-2px);
+    box-shadow:
+      0 12px 30px rgba(162,91,240,0.46),
+      inset 0 1px 0 rgba(255,255,255,0.45);
+  }
+  a.enter:active{ transform: translateY(0px) scale(0.98); }
+
+  a.enter:focus-visible{
+    outline: 2px solid var(--cream);
+    outline-offset: 3px;
+  }
+
+  a.enter svg{
+    width: 18px;
+    height: 18px;
+    transition: transform 180ms ease;
+  }
+  a.enter:hover svg{ transform: translateX(-4px); }
+
+  @keyframes rise{
+    from{ opacity:0; transform: translateY(14px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation: none !important; transition: none !important; }
+  }
+
+  footer{
+    position:fixed;
+    bottom: 18px;
+    left:0; right:0;
+    text-align:center;
+    font-size: 0.75rem;
+    color: rgba(154,160,184,0.5);
+    z-index:1;
+  }
+</style>
+</head>
+<body>
+
+  <div class="hex-field"></div>
+  <div class="glow"></div>
+
+  <main>
+    <div class="mark" dir="ltr">:D</div>
+
+    <h1>دهات</h1>
+    <div class="divider"></div>
+    <p class="subtitle">لینک ورود به دهات</p>
+
+    <a class="enter" href="https://dehaat-proxy.toopzsupport.workers.dev">
+      ورود به دهات
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M11 6l-6 6 6 6"/>
+      </svg>
+    </a>
+  </main>
+
+  <footer>دهات</footer>
+
+</body>
+</html>
