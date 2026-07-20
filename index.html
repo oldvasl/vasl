@@ -99,6 +99,21 @@
     --success: #16A34A;
     --error: #DC2626;
   }
+  /* بک‌گراندِ سایت: الهام‌گرفته از فرمِ نمونه‌ها، ولی با پالتِ خودِ تم (قهوه‌ای/کهربایی) */
+  :root[data-theme="walnut-dark"] body {
+    background-image:
+      radial-gradient(50% 40% at 25% 18%, #D3A17799 0%, transparent 58%),
+      radial-gradient(55% 45% at 78% 28%, #B9825A99 0%, transparent 58%),
+      radial-gradient(60% 55% at 50% 82%, #6B442380 0%, transparent 55%),
+      linear-gradient(160deg, #271D16 0%, #1B140F 100%);
+  }
+  :root[data-theme="walnut-light"] body {
+    background-image:
+      radial-gradient(55% 45% at 20% 18%, #EADACDCC 0%, transparent 58%),
+      radial-gradient(55% 50% at 82% 30%, #E3C7AEB3 0%, transparent 58%),
+      radial-gradient(60% 55% at 50% 85%, #C9A47E80 0%, transparent 55%),
+      linear-gradient(160deg, #FBF5F0 0%, #F6EBE1 100%);
+  }
 
   /* ================= Red (جایگزین تم قبلیِ «red» / Crimson Velvet) ================= */
   :root[data-theme="red-dark"] {
@@ -125,6 +140,22 @@
     --success: #16A34A;
     --error: #C81E1E;
   }
+  /* بک‌گراندِ سایت (پشتِ فید/دیلز و بقیه‌ی صفحات): دارک الهام‌گرفته از پالتِ خودِ تم، لایت دقیقاً طبقِ
+     نمونه‌ی «Coral Wave» که فرستاده شد */
+  :root[data-theme="red-dark"] body {
+    background-image:
+      radial-gradient(55% 45% at 20% 18%, #DE4B4899 0%, transparent 58%),
+      radial-gradient(55% 50% at 82% 30%, #C4302F99 0%, transparent 58%),
+      radial-gradient(60% 55% at 50% 85%, #7A1010 0%, transparent 55%),
+      linear-gradient(160deg, #260505 0%, #180303 100%);
+  }
+  :root[data-theme="red-light"] body {
+    background-image:
+      radial-gradient(55% 45% at 20% 18%, #FFD464B3 0%, transparent 58%),
+      radial-gradient(55% 50% at 82% 30%, #FF5E5E99 0%, transparent 58%),
+      radial-gradient(60% 55% at 50% 85%, #E23C6480 0%, transparent 55%),
+      linear-gradient(160deg, #FFFFFF 0%, #FFF3F0 100%);
+  }
 
   /* ================= Blue (جایگزین تم قبلیِ «blue» / Emerald Chrome) ================= */
   :root[data-theme="blue-dark"] {
@@ -150,6 +181,21 @@
     --border: #CBDAF2;
     --success: #16A34A;
     --error: #DC2626;
+  }
+  /* بک‌گراندِ سایت: دارک دقیقاً طبقِ نمونه‌ی «Deep Space» که فرستاده شد، لایت الهام‌گرفته از همون با پالتِ روشن‌تر */
+  :root[data-theme="blue-dark"] body {
+    background-image:
+      radial-gradient(60% 50% at 18% 18%, #BB63FFB3 0%, transparent 65%),
+      radial-gradient(55% 45% at 82% 20%, #5B58EBB3 0%, transparent 65%),
+      radial-gradient(60% 55% at 30% 78%, #56E1E999 0%, transparent 60%),
+      linear-gradient(160deg, #112C71 0%, #0A2353 100%);
+  }
+  :root[data-theme="blue-light"] body {
+    background-image:
+      radial-gradient(55% 45% at 18% 18%, #D6C9FF 0%, transparent 65%),
+      radial-gradient(55% 45% at 82% 20%, #C7D6FF 0%, transparent 65%),
+      radial-gradient(60% 55% at 35% 80%, #BFF0F5 0%, transparent 60%),
+      linear-gradient(160deg, #F2F6FD 0%, #E6EEFC 100%);
   }
 
   /* ================= Pure (جایگزین تم قبلیِ «teal» / Obsidian Premium) ================= */
@@ -199,6 +245,22 @@
     --success: #16A34A;
     --error: #DC2626;
   }
+  /* بک‌گراندِ سایت: چون فلسفه‌ی این تم مینیمال/پریمیوم و بدون رنگیه (نه نئونی)، فقط با طیفِ خاکستریِ خودش
+     یه مِش‌گرادینتِ خیلی ظریف ساخته شده، نه رنگی؛ الهام‌گرفته از فرم نمونه‌ها ولی با پالتِ خودِ تم */
+  :root[data-theme="pure-dark"] body {
+    background-image:
+      radial-gradient(55% 45% at 25% 18%, #1D1D20 0%, transparent 62%),
+      radial-gradient(55% 50% at 78% 30%, #141416 0%, transparent 62%),
+      radial-gradient(60% 55% at 50% 85%, #0A0A0B 0%, transparent 58%),
+      linear-gradient(160deg, #000000 0%, #050505 100%);
+  }
+  :root[data-theme="pure-light"] body {
+    background-image:
+      radial-gradient(55% 45% at 25% 18%, #F1F1F1 0%, transparent 62%),
+      radial-gradient(55% 50% at 78% 30%, #E6E6E6 0%, transparent 62%),
+      radial-gradient(60% 55% at 50% 85%, #DADADA 0%, transparent 58%),
+      linear-gradient(160deg, #FAFAFA 0%, #F4F4F4 100%);
+  }
 
   /* ================= Emerald (جایگزین تم قبلیِ «emerald» / Emerald Depth) ================= */
   :root[data-theme="emerald-dark"] {
@@ -225,6 +287,21 @@
     --success: #16A34A;
     --error: #DC2626;
   }
+  /* بک‌گراندِ سایت: لایت دقیقاً طبقِ نمونه‌ی «Green Screen» که فرستاده شد، دارک الهام‌گرفته از همون با پالتِ تیره‌تر */
+  :root[data-theme="emerald-dark"] body {
+    background-image:
+      radial-gradient(55% 45% at 20% 18%, #29C95A80 0%, transparent 58%),
+      radial-gradient(55% 50% at 82% 28%, #1FA34899 0%, transparent 60%),
+      radial-gradient(60% 55% at 50% 82%, #0E3D1A 0%, transparent 55%),
+      linear-gradient(160deg, #082C12 0%, #04170A 100%);
+  }
+  :root[data-theme="emerald-light"] body {
+    background-image:
+      radial-gradient(55% 45% at 20% 18%, #C3E956B3 0%, transparent 58%),
+      radial-gradient(55% 50% at 82% 28%, #B2FEE7CC 0%, transparent 60%),
+      radial-gradient(60% 55% at 50% 82%, #4D711166 0%, transparent 58%),
+      linear-gradient(160deg, #F4FFFC 0%, #E7FBEF 100%);
+  }
 
   /* ================= Berry (تم جدید) ================= */
   :root[data-theme="berry-dark"] {
@@ -250,6 +327,21 @@
     --border: #EEC7D9;
     --success: #16A34A;
     --error: #DC2626;
+  }
+  /* بک‌گراندِ سایت: دارک دقیقاً طبقِ نمونه‌ی «Retro Magic» که فرستاده شد، لایت الهام‌گرفته از همون با پالتِ روشن‌تر */
+  :root[data-theme="berry-dark"] body {
+    background-image:
+      radial-gradient(50% 40% at 25% 15%, #FFF7ADB3 0%, transparent 55%),
+      radial-gradient(55% 45% at 78% 25%, #FFB3AE99 0%, transparent 58%),
+      radial-gradient(60% 55% at 55% 68%, #FF49C199 0%, transparent 58%),
+      linear-gradient(160deg, #6A1452 0%, #44113E 100%);
+  }
+  :root[data-theme="berry-light"] body {
+    background-image:
+      radial-gradient(50% 40% at 25% 15%, #FFF3C4 0%, transparent 55%),
+      radial-gradient(55% 45% at 78% 25%, #FFD3D0 0%, transparent 58%),
+      radial-gradient(60% 55% at 55% 70%, #FFC1E8 0%, transparent 58%),
+      linear-gradient(160deg, #FBF2F6 0%, #F6E4ED 100%);
   }
 
   /* ================= Police (تم جدید — دوتونِ قرمز/آبیِ چراغ‌گردانِ پلیس) ================= */
@@ -279,6 +371,21 @@
     --success: #16A34A;
     --error: #DC2626;
   }
+  /* بک‌گراندِ سایت: الهام‌گرفته از نمونه‌ها با پالتِ خودِ تم (دوتُنِ قرمز/آبیِ چراغ‌گردان) */
+  :root[data-theme="police-dark"] body {
+    background-image:
+      radial-gradient(50% 40% at 20% 18%, #3355FF99 0%, transparent 55%),
+      radial-gradient(55% 45% at 80% 25%, #E6394699 0%, transparent 55%),
+      radial-gradient(60% 55% at 50% 80%, #7A5AF080 0%, transparent 52%),
+      linear-gradient(160deg, #0D0326 0%, #05001A 100%);
+  }
+  :root[data-theme="police-light"] body {
+    background-image:
+      radial-gradient(50% 40% at 20% 18%, #C9BFFFCC 0%, transparent 55%),
+      radial-gradient(55% 45% at 80% 25%, #FFC4CCCC 0%, transparent 55%),
+      radial-gradient(60% 55% at 50% 80%, #E7D3F2 0%, transparent 52%),
+      linear-gradient(160deg, #FBF4FE 0%, #F5E9FB 100%);
+  }
 
   /* ================= Fall (تم جدید) ================= */
   :root[data-theme="fall-dark"] {
@@ -304,6 +411,21 @@
     --border: #FFD3B8;
     --success: #16A34A;
     --error: #DC2626;
+  }
+  /* بک‌گراندِ سایت: دارک دقیقاً طبقِ نمونه‌ی «On Fire» که فرستاده شد، لایت الهام‌گرفته از همون با پالتِ روشن‌تر */
+  :root[data-theme="fall-dark"] body {
+    background-image:
+      radial-gradient(55% 45% at 50% 18%, #FFFB97B3 0%, transparent 60%),
+      radial-gradient(60% 50% at 78% 60%, #FE7F42B3 0%, transparent 62%),
+      radial-gradient(55% 55% at 20% 78%, #B32C1A99 0%, transparent 60%),
+      linear-gradient(180deg, #2A1617 0%, #1C1310 100%);
+  }
+  :root[data-theme="fall-light"] body {
+    background-image:
+      radial-gradient(55% 45% at 50% 18%, #FFF3B0 0%, transparent 60%),
+      radial-gradient(60% 50% at 78% 60%, #FFCBA0 0%, transparent 62%),
+      radial-gradient(55% 55% at 20% 78%, #F3A98E 0%, transparent 55%),
+      linear-gradient(180deg, #FFF7F2 0%, #FFEDE0 100%);
   }
 
   * { box-sizing: border-box; }
@@ -348,7 +470,13 @@
   body {
     font-family: 'Vazirmatn', Tahoma, sans-serif;
     font-size: 16px;
-    background: var(--primary);
+    background-color: var(--primary);
+    /* پیش‌فرض بدون گرادینت (تمِ بنفش دست‌نخورده می‌مونه)؛ بقیه‌ی تم‌ها این رو با یه مِش‌گرادینتِ
+       مخصوص خودشون اورراید می‌کنن (پایین‌تر، کنار تعریف رنگ‌های همون تم) */
+    background-image: none;
+    background-attachment: fixed;
+    background-size: cover;
+    background-repeat: no-repeat;
     color: var(--text);
     line-height: 1.7;
   }
@@ -446,8 +574,18 @@
      نه اینکه هر دکمه پس‌زمینه‌ی جدا و مستقلِ خودش رو داشته باشه) */
   .top-nav-indicator {
     position: absolute; top: 5px; bottom: 5px; left: 0; width: 0;
-    background: var(--accent-gradient); border-radius: 999px; z-index: 0;
-    transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: 999px; z-index: 0;
+    /* فال‌بک برای مرورگرهایی که color-mix() رو پشتیبانی نمی‌کنن؛ چون مقدار نامعتبر نادیده گرفته می‌شه،
+       اگه خط بعدی اجرا نشه همین گرادینت ساده باقی می‌مونه و ایندیکیتور هیچ‌وقت نامرئی نمی‌شه */
+    background: var(--accent-gradient);
+    background: radial-gradient(120% 150% at 50% 10%, color-mix(in srgb, var(--accent-hover) 80%, #fff 20%) 0%, var(--accent) 60%, var(--accent) 100%);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    box-shadow:
+      inset 0 1px 1px color-mix(in srgb, #fff 35%, transparent),
+      inset 0 -6px 10px color-mix(in srgb, var(--accent-hover) 40%, transparent),
+      0 4px 16px color-mix(in srgb, var(--accent) 55%, transparent),
+      0 0 22px color-mix(in srgb, var(--accent) 40%, transparent);
+    transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
     opacity: 0;
   }
   .top-nav-indicator.ready { opacity: 1; }
@@ -3592,17 +3730,44 @@ function applyHeaderAvatar(uname, avatarFileId) {
 }
 applyHeaderAvatar(getUsername() || "");
 
-// نکته امنیتی: تشخیص ادمین بودن دیگه سمت کلاینت هاردکد نیست و از سرور استعلام می‌شه،
-// چون حالا هر ادمینی (نه فقط مالک سایت) می‌تونه به پنل مدیریت دسترسی داشته باشه.
-// این متغیرها بعد از پاسخ سرور پر می‌شن؛ تا اون موقع false در نظر گرفته می‌شن.
+// نکته امنیتی: تشخیص ادمین بودن دیگه سمت کلاینت هاردکد نیست و از سرور استعلام می‌شه.
+// حالا سه رتبه‌ی ادمین داریم: ۱ = مالک سایت (Aghey، دسترسی کامل)، ۲ و ۳ = رتبه‌های قابل‌واگذاری
+// با دسترسی محدودتر (جزئیاتش توی applyAdminStatus و renderUserRow پیاده شده).
+// این متغیرها بعد از پاسخ سرور پر می‌شن؛ تا اون موقع صفر/false در نظر گرفته می‌شن.
+let adminRank = 0;
 let isAdmin = false;
 let isSuperAdmin = false;
 
-function applyAdminStatus(data) {
-  isAdmin = !!(data && data.is_admin);
-  isSuperAdmin = !!(data && data.is_super_admin);
+// ---------- نمایش/مخفی‌سازیِ تب‌های پنل مدیریت بر اساس رتبه، بدون بارگذاری داده ----------
+// پست‌ها و گروه‌ها: فقط رتبه ۱ / گزارش‌ها و استیکرها: رتبه ۱ و ۲ / کاربران: هر سه رتبه
+function applyAdminTabClasses(tab) {
+  document.getElementById("adminTab-posts").classList.toggle("active", tab === "posts");
+  document.getElementById("adminTab-users").classList.toggle("active", tab === "users");
+  document.getElementById("adminTab-reports").classList.toggle("active", tab === "reports");
+  document.getElementById("adminTab-stickers").classList.toggle("active", tab === "stickers");
+  document.getElementById("adminTab-groups").classList.toggle("active", tab === "groups");
+  document.getElementById("adminPostsSection").classList.toggle("hidden", tab !== "posts");
+  document.getElementById("adminUsersSection").classList.toggle("hidden", tab !== "users");
+  document.getElementById("adminReportsSection").classList.toggle("hidden", tab !== "reports");
+  document.getElementById("adminStickersSection").classList.toggle("hidden", tab !== "stickers");
+  document.getElementById("adminGroupsSection").classList.toggle("hidden", tab !== "groups");
+}
 
-  document.getElementById("adminTab-groups").classList.toggle("hidden", !isSuperAdmin);
+// رتبه ۱ با تب «پست‌ها» شروع می‌شه (مثل قبل)؛ رتبه ۲ و ۳ چون به پست‌ها دسترسی ندارن، از «کاربران» شروع می‌کنن
+function getDefaultAdminTab() {
+  return adminRank === 1 ? "posts" : "users";
+}
+
+function applyAdminStatus(data) {
+  adminRank = (data && Number(data.admin_rank)) || 0;
+  isAdmin = adminRank > 0;
+  isSuperAdmin = adminRank === 1;
+
+  document.getElementById("adminTab-posts").classList.toggle("hidden", adminRank !== 1);
+  document.getElementById("adminTab-reports").classList.toggle("hidden", !(adminRank === 1 || adminRank === 2));
+  document.getElementById("adminTab-stickers").classList.toggle("hidden", !(adminRank === 1 || adminRank === 2));
+  document.getElementById("adminTab-groups").classList.toggle("hidden", adminRank !== 1);
+  applyAdminTabClasses(getDefaultAdminTab());
 
   if (isAdmin && !document.getElementById("navBtn-admin")) {
     const nav = document.querySelector(".top-nav");
@@ -3792,16 +3957,9 @@ async function refreshCurrentView() {
     case "view-profile":
       if (profileState.username) await loadProfile(profileState.username);
       break;
-    case "view-admin": {
-      const onReports = !document.getElementById("adminReportsSection").classList.contains("hidden");
-      const onUsers = !document.getElementById("adminUsersSection").classList.contains("hidden");
-      const onStickers = !document.getElementById("adminStickersSection").classList.contains("hidden");
-      if (onReports) await loadAdminReports(true);
-      else if (onUsers) await loadAdminUsers(true);
-      else if (onStickers) await loadAdminStickers(true);
-      else await loadAdminFeed(true);
+    case "view-admin":
+      await refreshAdminCurrentTab(true);
       break;
-    }
     default:
       break;
   }
@@ -3839,8 +3997,8 @@ function switchView(name, forceReload = false) {
   if (name === "deels" && (forceReload || !deelsState.loaded)) {
     initDeelsView();
   }
-  if (name === "admin" && (forceReload || !feedState.admin.loaded)) {
-    loadAdminFeed(true);
+  if (name === "admin" && (forceReload || !(feedState.admin.loaded || adminUsersState.loaded || adminReportsState.loaded || adminStickersState.loaded || adminGroupsState.loaded))) {
+    refreshAdminCurrentTab(true);
   }
   if (name === "chat" && (forceReload || !chatState.loaded)) {
     loadChatConversationsList();
@@ -7297,7 +7455,7 @@ function renderPost(p, num, opts) {
   const hideText = !!(opts && opts.hideText);
   const initial = p.username ? p.username[0].toUpperCase() : "?";
   const hasMedia = (p.type === "photo" || p.type === "video" || p.type === "audio" || p.type === "document") && p.file_id;
-  const canDelete = p.username === getUsername() || isAdmin;
+  const canDelete = p.username === getUsername() || isSuperAdmin;
   const safeId = p.id.replace(/[^a-zA-Z0-9_]/g, "");
 
   const deleteBtn = canDelete ? `<button class="delete-btn" onclick="deletePost('${p.id}','${safeId}')">حذف</button>` : "";
@@ -8180,18 +8338,25 @@ function loadMoreAdmin() {
 const adminUsersState = { page: 1, search: "", loaded: false };
 let adminUserSearchTimer = null;
 
-function setAdminTab(tab) {
-  document.getElementById("adminTab-posts").classList.toggle("active", tab === "posts");
-  document.getElementById("adminTab-users").classList.toggle("active", tab === "users");
-  document.getElementById("adminTab-reports").classList.toggle("active", tab === "reports");
-  document.getElementById("adminTab-stickers").classList.toggle("active", tab === "stickers");
-  document.getElementById("adminTab-groups").classList.toggle("active", tab === "groups");
-  document.getElementById("adminPostsSection").classList.toggle("hidden", tab !== "posts");
-  document.getElementById("adminUsersSection").classList.toggle("hidden", tab !== "users");
-  document.getElementById("adminReportsSection").classList.toggle("hidden", tab !== "reports");
-  document.getElementById("adminStickersSection").classList.toggle("hidden", tab !== "stickers");
-  document.getElementById("adminGroupsSection").classList.toggle("hidden", tab !== "groups");
+// ---------- تشخیص تبِ فعلاً فعالِ پنل مدیریت و رفرش دادنِ همون‌یکی (برای دکمه‌ی رفرش و کشیدن‌برای‌رفرش) ----------
+function refreshAdminCurrentTab(reset = true) {
+  const onReports = !document.getElementById("adminReportsSection").classList.contains("hidden");
+  const onUsers = !document.getElementById("adminUsersSection").classList.contains("hidden");
+  const onStickers = !document.getElementById("adminStickersSection").classList.contains("hidden");
+  const onGroups = !document.getElementById("adminGroupsSection").classList.contains("hidden");
+  if (onReports) return loadAdminReports(reset);
+  if (onUsers) return loadAdminUsers(reset);
+  if (onStickers) return loadAdminStickers(reset);
+  if (onGroups) return loadAdminGroups(reset);
+  return loadAdminFeed(reset);
+}
 
+function setAdminTab(tab) {
+  applyAdminTabClasses(tab);
+
+  if (tab === "posts" && !feedState.admin.loaded) {
+    loadAdminFeed(true);
+  }
   if (tab === "users" && !adminUsersState.loaded) {
     loadAdminUsers(true);
   }
@@ -8214,27 +8379,38 @@ function onAdminUserSearch() {
   }, 350);
 }
 
+function adminRankLabel(rank) {
+  if (rank === 1) return "مالک سایت";
+  if (rank === 2) return "ادمین رتبه ۲";
+  if (rank === 3) return "ادمین رتبه ۳";
+  return "";
+}
+
 function renderUserRow(u) {
   const joined = u.created_at ? new Date(u.created_at).toLocaleDateString("fa-IR") : "-";
   const banTag = u.banned ? `<span class="banned-tag">مسدود</span>` : "";
-  const adminTag = u.is_super_admin
-    ? `<span class="admin-tag super">مالک سایت</span>`
-    : (u.is_admin ? `<span class="admin-tag">ادمین</span>` : "");
+  const rankLabel = adminRankLabel(u.admin_rank);
+  const adminTag = rankLabel ? `<span class="admin-tag${u.admin_rank === 1 ? " super" : ""}">${rankLabel}</span>` : "";
 
-  // فقط مالک سایت اجازه مسدود کردن ادمین‌های دیگه رو داره؛ خودش هم قابل مسدود شدن نیست
+  // مسدود کردن یک ادمین دیگه (رتبه ۲ یا ۳) فقط از مالک سایت ساخته‌ست؛ کاربرای عادی رو هر ادمینی می‌تونه مسدود کنه
   let banBtn = "";
-  if (!u.is_super_admin && (isSuperAdmin || !u.is_admin)) {
+  if (u.admin_rank !== 1 && (u.admin_rank === 0 || isSuperAdmin)) {
     banBtn = u.banned
       ? `<button class="unban-btn" onclick="toggleBan('${jsAttr(u.username)}', false)">رفع مسدودی</button>`
       : `<button class="ban-btn" onclick="toggleBan('${jsAttr(u.username)}', true)">مسدود کردن</button>`;
   }
 
-  // فقط مالک سایت اجازه ارتقا/عزل ادمین داره
-  let roleBtn = "";
-  if (isSuperAdmin && !u.is_super_admin) {
-    roleBtn = u.is_admin
-      ? `<button class="unban-btn" onclick="toggleAdminRole('${jsAttr(u.username)}', false)">عزل از ادمین</button>`
-      : `<button class="ban-btn" onclick="toggleAdminRole('${jsAttr(u.username)}', true)">ارتقا به ادمین</button>`;
+  // فقط مالک سایت اجازه‌ی تغییر رتبه‌ی ادمین رو داره
+  let roleBtns = "";
+  if (isSuperAdmin && u.admin_rank !== 1) {
+    const options = [
+      { rank: 0, label: "عادی" },
+      { rank: 3, label: "رتبه ۳" },
+      { rank: 2, label: "رتبه ۲" },
+    ].filter((o) => o.rank !== u.admin_rank);
+    roleBtns = options
+      .map((o) => `<button class="ban-btn" onclick="setAdminRank('${jsAttr(u.username)}', ${o.rank})">${o.label}</button>`)
+      .join("");
   }
 
   return `
@@ -8244,7 +8420,7 @@ function renderUserRow(u) {
         <div class="admin-user-date">عضویت: ${joined}</div>
       </div>
       <div style="display:flex; gap:6px; flex-wrap:wrap;">
-        ${roleBtn}
+        ${roleBtns}
         ${banBtn}
       </div>
     </div>`;
@@ -8312,16 +8488,14 @@ async function toggleBan(username, banned) {
   }
 }
 
-async function toggleAdminRole(username, makeAdmin) {
-  const confirmMsg = makeAdmin
-    ? `مطمئنی می‌خوای «${username}» رو ادمین کنی؟`
-    : `مطمئنی می‌خوای «${username}» رو از ادمین بودن عزل کنی؟`;
-  if (!confirm(confirmMsg)) return;
+async function setAdminRank(username, rank) {
+  const label = rank === 0 ? "کاربر عادی" : (rank === 2 ? "ادمین رتبه ۲" : "ادمین رتبه ۳");
+  if (!confirm(`رتبه‌ی «${username}» به «${label}» تغییر کنه؟`)) return;
   try {
     const res = await fetch(`${WORKER_URL}/api/admin/role`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
-      body: JSON.stringify({ username, is_admin: makeAdmin }),
+      body: JSON.stringify({ username, rank }),
     });
     const data = await res.json();
     if (!res.ok) {
@@ -9343,7 +9517,7 @@ function renderCommentItem(c, isReply, replyToUsername, postId, safeId, repliesC
     : "";
 
   const isOwn = c.username === getUsername();
-  const canDelete = isOwn || isAdmin;
+  const canDelete = isOwn || isSuperAdmin;
   const editHtml = isOwn && !isSticker
     ? `<button class="comment-item2-iconbtn" onclick="startEditComment('${c.id}')" title="ویرایش" aria-label="ویرایش">${ICON_EDIT}</button>`
     : "";
