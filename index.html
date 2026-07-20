@@ -10146,7 +10146,7 @@ async function pollLiveNotifications() {
 function startLiveNotifPolling() {
   if (!getToken()) return;
   if (liveNotifPollTimer) clearInterval(liveNotifPollTimer);
-  liveNotifPollTimer = setInterval(pollLiveNotifications, 10000);
+  liveNotifPollTimer = setInterval(pollLiveNotifications, 5000);
 }
 
 async function loadProfile(username) {
@@ -11180,7 +11180,7 @@ function hideAppSplash() {
 // ---------- نشانِ متحرکِ ترکیب‌های «:» و «D» تو اسپلش‌اسکرین: با افکتِ تایپ نوشته می‌شه، مکث می‌کنه،
 // با افکتِ پاک‌شدن حذف می‌شه و ترکیبِ بعدی میاد. خودش وقتی المانش از صفحه حذف بشه (اسپلش تموم بشه) متوقف می‌شه ----------
 (function initSplashEmoji() {
-  const COMBOS = [":D", "D:", ":DD", "DD:", "::D", "D::", ":D:D", "D:D:"];
+  const COMBOS = [":D", "D:", ":3", ":o", ":)", ":#", ":p", ":1"];
   const host = document.querySelector("#appSplashEmoji .emoji-text");
   if (!host) return;
 
