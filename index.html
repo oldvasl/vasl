@@ -3500,7 +3500,7 @@
 </div>
 
 <script>
-const WORKER_URL = "https://dehaat-proxy.toopzsupport.workers.dev";
+const WORKER_URL = "https://dehaat.aghey.workers.dev";
 
 // ================= شبکه: تلاش خودکار مجدد در صورت خطای اتصال =================
 // بعضی از اینترنت‌ها (با یا بدون فیلترشکن) گاهی همون درخواست اولِ TCP/TLS رو با
@@ -3563,6 +3563,19 @@ function getUsername() { return localStorage.getItem("username"); }
 function mediaUrl(fileId) {
   if (!fileId) return "";
   return `${WORKER_URL}/api/media/${encodeURIComponent(fileId)}?token=${encodeURIComponent(getToken() || "")}`;
+}
+
+// استیکرهای پیش‌فرض: چه توی دیتابیس (کامنت‌های قدیمی/جدید) لینکِ خامِ raw.githubusercontent.com
+// ذخیره بشه، برای *نمایش* همیشه از پروکسیِ خودِ ورکر استفاده می‌کنیم تا مرورگر مستقیم با
+// گیت‌هاب صحبت نکنه (فیلترینگ). فقط لینک‌هایی که واقعاً از اون ریپو/پوشه‌ی stickers هستن تبدیل می‌شن.
+function stickerDisplayUrl(externalUrl) {
+  if (!externalUrl) return "";
+  const RAW_PREFIX = "https://raw.githubusercontent.com/oldvasl/vasl/main/stickers/";
+  if (externalUrl.startsWith(RAW_PREFIX)) {
+    const name = externalUrl.slice(RAW_PREFIX.length);
+    return `${WORKER_URL}/api/stickers/default/${name}?token=${encodeURIComponent(getToken() || "")}`;
+  }
+  return externalUrl;
 }
 
 // ---------- پوش نوتیفیکیشن ----------
@@ -5192,7 +5205,7 @@ function renderChatBubble(m, myUsername, prevMsg) {
   if (m.deleted) {
     bodyHtml = `<div class="chat-bubble-text">این پیام حذف شد</div>`;
   } else if (m.msgType === "sticker") {
-    const src = m.isExternal ? m.fileId : `${mediaUrl(m.fileId)}`;
+    const src = m.isExternal ? stickerDisplayUrl(m.fileId) : `${mediaUrl(m.fileId)}`;
     bodyHtml = `<img class="chat-bubble-sticker" src="${src}" alt="استیکر" loading="lazy" />`;
   } else if (m.msgType === "image") {
     bodyHtml = `<img class="chat-bubble-image" src="${mediaUrl(m.fileId)}" alt="" loading="lazy" />`;
@@ -8951,7 +8964,7 @@ function renderAdminGroupMonitorBubble(m, prevMsg) {
   if (m.deleted) {
     bodyHtml = `<div class="chat-bubble-text">این پیام حذف شد</div>`;
   } else if (m.msgType === "sticker") {
-    const src = m.isExternal ? m.fileId : `${mediaUrl(m.fileId)}`;
+    const src = m.isExternal ? stickerDisplayUrl(m.fileId) : `${mediaUrl(m.fileId)}`;
     bodyHtml = `<img class="chat-bubble-sticker" src="${src}" alt="استیکر" loading="lazy" />`;
   } else if (m.msgType === "image") {
     bodyHtml = `<img class="chat-bubble-image" src="${mediaUrl(m.fileId)}" alt="" loading="lazy" />`;
@@ -9229,7 +9242,8 @@ function formatClockTime(ts) {
 }
 
 // ---------- سیستم استیکر ----------
-const STICKER_REPO_API = "https://api.github.com/repos/oldvasl/vasl/contents/stickers?ref=main";
+// لیست استیکرهای پیش‌فرض دیگه مستقیم از گیت‌هاب گرفته نمی‌شه؛ از پروکسیِ خودِ ورکر میاد
+// (به تابعِ fetchDefaultStickers نگاه کن) تا مرورگرِ کاربر مستقیم با گیت‌هاب صحبت نکنه.
 const STICKER_EXT_RE = /\.(gif|png|jpe?g|webp)$/i;
 const STICKER_BATCH_SIZE = 30; // هر بار لیزی‌لود چندتا نشون بده
 const CUSTOM_STICKER_PAGE_SIZE = 60; // هر بار از سرور چندتا استیکر شخصی بگیره (صفحه‌بندی سمت سرور)
@@ -9309,9 +9323,9 @@ function buildGroupedStickerItems(customList, defaultList) {
   defaultList.forEach((f) => {
     rest.push({
       kind: "default",
-      id: f.download_url,
+      id: f.raw_url,
       owner: null,
-      src: f.download_url,
+      src: `${f.url}?token=${encodeURIComponent(getToken() || "")}`,
       animated: /\.gif$/i.test(f.name),
       name: "",
       groupKey: "rest",
@@ -9445,9 +9459,9 @@ async function runStickerSearch(q) {
       .filter((f) => f.name.replace(STICKER_EXT_RE, "").toLowerCase().includes(q))
       .map((f) => ({
         kind: "default",
-        id: f.download_url,
+        id: f.raw_url,
         owner: null,
-        src: f.download_url,
+        src: `${f.url}?token=${encodeURIComponent(getToken() || "")}`,
         animated: /\.gif$/i.test(f.name),
         name: "",
         groupKey: "rest",
@@ -9522,9 +9536,15 @@ async function fetchCustomStickerPage(page, search = "") {
 
 async function fetchDefaultStickers() {
   if (defaultStickersCache) return defaultStickersCache;
-  const res = await fetch(STICKER_REPO_API);
-  const data = await res.json();
-  defaultStickersCache = Array.isArray(data) ? data.filter((f) => f.type === "file" && STICKER_EXT_RE.test(f.name)) : [];
+  try {
+    const res = await fetch(`${WORKER_URL}/api/stickers/default`, {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    const data = await res.json();
+    defaultStickersCache = Array.isArray(data.stickers) ? data.stickers : [];
+  } catch (e) {
+    defaultStickersCache = [];
+  }
   return defaultStickersCache;
 }
 
@@ -9710,7 +9730,7 @@ function renderCommentItem(c, isReply, replyToUsername, postId, safeId, repliesC
 
 // ---------- ساخت آدرس/تگ رسانه‌ی استیکر داخل یک کامنت ----------
 function commentStickerSrc(c) {
-  return c.sticker_is_external ? c.sticker_src : `${mediaUrl(c.sticker_src)}`;
+  return c.sticker_is_external ? stickerDisplayUrl(c.sticker_src) : `${mediaUrl(c.sticker_src)}`;
 }
 function commentStickerMediaHtml(c) {
   const src = commentStickerSrc(c);
