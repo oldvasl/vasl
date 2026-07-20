@@ -2274,7 +2274,7 @@
     font-weight: 600; padding: 11px; border-radius: 12px; cursor: pointer;
   }
 
-  /* ---------- چت: جستجوی کاربر (اتوکامپلیت برای شروع چت / ساخت گروه / افزودن عضو) ---------- */
+  /* ---------- چت: جستجوی کاربر (اتوکامپلیت برای شروع چت / ساخت گروه) ---------- */
   .user-search-modal-backdrop {
     position: fixed; inset: 0; z-index: 320; background: rgba(0,0,0,0.45); display: flex; align-items: flex-end; justify-content: center;
   }
@@ -3158,7 +3158,7 @@
     <div class="chat-members-footer">
       <button class="chat-members-leave-btn" id="chatLeaveGroupBtn" onclick="leaveChatGroup()">خروج از گروه</button>
       <button class="chat-members-delete-group-btn hidden" id="chatDeleteGroupBtn" onclick="deleteGroupApi()">حذف گروه</button>
-      <button class="chat-members-add-btn hidden" id="chatMembersAddBtn" onclick="openAddMembersModal()">افزودن عضو</button>
+      <button class="chat-members-add-btn hidden" id="chatEditGroupBtn" onclick="openEditGroupModal()">ویرایش گروه</button>
     </div>
   </div>
 
@@ -4977,7 +4977,7 @@ async function openChatConversation(conversationId) {
   updateChatConvHeader(conv);
   updateChatBlockUI(conv);
   document.getElementById("chatMembersBtn").classList.toggle("hidden", conv.type !== "group");
-  document.getElementById("chatMembersAddBtn").classList.add("hidden");
+  document.getElementById("chatEditGroupBtn").classList.add("hidden");
   document.getElementById("chatRailToggleBtn").classList.toggle("hidden", conv.type !== "group");
   document.getElementById("chatGroupRail").classList.toggle("hidden-mode", conv.type !== "group");
   renderChatGroupRail();
@@ -5565,7 +5565,7 @@ async function loadChatMembers(conversationId) {
     if (chatState.active && chatState.active.id === conversationId) {
       chatState.active.myRole = data.myRole;
       const isOwner = data.myRole === "owner";
-      document.getElementById("chatMembersAddBtn")?.classList.toggle("hidden", !(isOwner || data.myRole === "admin"));
+      document.getElementById("chatEditGroupBtn")?.classList.toggle("hidden", !isOwner);
       document.getElementById("chatLeaveGroupBtn")?.classList.toggle("hidden", isOwner);
       document.getElementById("chatDeleteGroupBtn")?.classList.toggle("hidden", !isOwner);
       if (document.getElementById("chatMembersPanel")?.classList.contains("open")) renderChatMembersPanel();
@@ -5702,35 +5702,124 @@ async function setMemberRoleApi(username, role) {
   }
 }
 
-function openAddMembersModal() {
-  if (!chatState.active || !chatState.membersData) return;
-  const existing = chatState.membersData.members.map((m) => m.username);
-  openUserSearchModal({
-    title: "افزودن عضو به گروه",
-    multi: true,
-    confirmLabel: "افزودن",
-    excludeUsernames: existing,
-    onConfirm: async (usernames) => {
-      await addMembersApi(usernames);
-    },
-  });
+// ---------- چت: ویرایش گروه (اسم/عکس/کدِ دعوت؛ فقط مالک) ----------
+let editGroupAvatarFile = null;
+
+function closeEditGroupModal() {
+  document.getElementById("editGroupBackdrop")?.remove();
+  editGroupAvatarFile = null;
 }
 
-async function addMembersApi(usernames) {
+function openEditGroupModal() {
+  if (!chatState.active || !chatState.membersData) return;
+  closeEditGroupModal();
+  const conv = chatState.membersData.conversation || {};
+  const backdrop = document.createElement("div");
+  backdrop.className = "user-search-modal-backdrop";
+  backdrop.id = "editGroupBackdrop";
+  backdrop.onclick = (e) => {
+    if (e.target === backdrop) closeEditGroupModal();
+  };
+  const avatarPreviewInner = conv.avatarFileId
+    ? `<img src="${WORKER_URL}/api/media/${encodeURIComponent(conv.avatarFileId)}" alt="" />`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+      </svg>`;
+  backdrop.innerHTML = `
+    <div class="user-search-modal">
+      <div class="user-search-modal-header">
+        <div class="user-search-modal-title">ویرایش گروه</div>
+        <div class="group-avatar-picker">
+          <div class="group-avatar-preview" id="editGroupAvatarPreview" onclick="document.getElementById('editGroupAvatarInput').click()">
+            ${avatarPreviewInner}
+          </div>
+          <input type="file" id="editGroupAvatarInput" accept="image/*" class="hidden" onchange="onEditGroupAvatarChosen(event)" />
+          <span class="group-avatar-picker-label">آواتار گروه</span>
+        </div>
+        <input type="text" class="user-search-group-title-input show" id="editGroupTitleInput"
+          placeholder="اسم گروه" maxlength="60" value="${escapeHtml(conv.title || "")}" oninput="updateEditGroupConfirmState()" />
+        <div class="chat-invite-code-box" style="margin-top:10px;">
+          <div class="chat-invite-code-info">
+            <div class="chat-invite-code-label">کدِ عضویت گروه</div>
+            <div class="chat-invite-code-value" id="editGroupInviteCodeValue">${escapeHtml(conv.inviteCode || "—")}</div>
+          </div>
+          <button class="chat-invite-code-copy-btn" onclick="regenerateGroupInviteCode()">کدِ جدید</button>
+        </div>
+      </div>
+      <button class="user-search-confirm-btn" id="editGroupConfirmBtn" onclick="confirmEditGroup()">ذخیره</button>
+    </div>`;
+  document.body.appendChild(backdrop);
+  document.getElementById("editGroupTitleInput").focus();
+  updateEditGroupConfirmState();
+}
+
+function updateEditGroupConfirmState() {
+  const btn = document.getElementById("editGroupConfirmBtn");
+  const title = document.getElementById("editGroupTitleInput")?.value.trim();
+  if (btn) btn.disabled = !title;
+}
+
+function onEditGroupAvatarChosen(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  editGroupAvatarFile = file;
+  const preview = document.getElementById("editGroupAvatarPreview");
+  if (!preview) return;
+  const url = URL.createObjectURL(file);
+  preview.innerHTML = `<img src="${url}" alt="" />`;
+}
+
+async function confirmEditGroup() {
   if (!chatState.active) return;
+  const title = document.getElementById("editGroupTitleInput")?.value.trim();
+  if (!title) return;
+  const avatarFile = editGroupAvatarFile;
+  const btn = document.getElementById("editGroupConfirmBtn");
+  if (btn) { btn.disabled = true; btn.textContent = "در حال ذخیره..."; }
   try {
-    const res = await fetch(`${WORKER_URL}/api/chat/members/add`, {
+    const fd = new FormData();
+    fd.append("conversationId", chatState.active.id);
+    fd.append("title", title);
+    if (avatarFile) fd.append("avatar", await compressImage(avatarFile, { maxDimension: 512, quality: 0.85 }));
+    const res = await fetch(`${WORKER_URL}/api/chat/group/update`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
-      body: JSON.stringify({ conversationId: chatState.active.id, members: usernames }),
+      headers: { Authorization: `Bearer ${getToken()}` },
+      body: fd,
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "خطا");
-    toast("اعضای جدید اضافه شدن", "success");
+    toast("گروه به‌روز شد", "success");
+    closeEditGroupModal();
+    chatState.active.title = title;
+    document.getElementById("chatConvTitle").textContent = title;
+    document.getElementById("chatMembersTitle").textContent = title;
+    chatState.membersData = null;
     loadChatMembers(chatState.active.id);
     loadChatConversationsList();
   } catch (e) {
-    toast(e.message || "افزودن عضو ناموفق بود", "error");
+    toast(e.message || "ویرایش گروه ناموفق بود", "error");
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "ذخیره"; }
+  }
+}
+
+async function regenerateGroupInviteCode() {
+  if (!chatState.active) return;
+  if (!confirm("با ساختِ کدِ جدید، کدِ قبلی دیگه کار نمی‌کنه. مطمئنی؟")) return;
+  try {
+    const res = await fetch(`${WORKER_URL}/api/chat/group/invite/regenerate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ conversationId: chatState.active.id }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "خطا");
+    const valEl = document.getElementById("editGroupInviteCodeValue");
+    if (valEl) valEl.textContent = data.inviteCode;
+    if (chatState.membersData?.conversation) chatState.membersData.conversation.inviteCode = data.inviteCode;
+    toast("کدِ عضویتِ جدید ساخته شد", "success");
+  } catch (e) {
+    toast(e.message || "ساختِ کدِ جدید ناموفق بود", "error");
   }
 }
 
@@ -5988,7 +6077,7 @@ async function createChatGroup(title, avatarFile) {
 }
 
 // ---------- جستجوی کاربر (اتوکامپلیت، به‌جای prompt خام) — یه مودالِ عمومی که هم برای «شروع
-// گفتگوی جدید»، هم «ساخت گروه» و هم «افزودن عضو» استفاده می‌شه ----------
+// گفتگوی جدید» و هم «ساخت گروه» استفاده می‌شه ----------
 let userSearchState = null;
 
 function closeUserSearchModal() {
